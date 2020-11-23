@@ -6,12 +6,14 @@ const dotenv = require("dotenv").config();
 const passport = require("passport");
 const MongoStore = require("connect-mongo")(session);
 const cookieParser = require("cookie-parser");
+const nodemailer = require("nodemailer");
+const async = require("async")
+const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 var cors = require('cors')
 const app = express();
-require("./jobs/agenda")
 
 //// Body Parser Middleware ////
 app.use(bodyParser.json());
@@ -41,7 +43,7 @@ app.use(
 //// DataBase Connection ////
 
 mongoose
-  .connect("mongodb://localhost:27017/CP", {
+  .connect(process.env.Database_URL, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
     useCreateIndex: true,
@@ -72,5 +74,5 @@ app.use("/api/v1/admin", admin);
 
 const PORT = 3000 || process.env.PORT;
 app.listen(PORT, () => {
-  console.log(`Server listening to port ${PORT}`);
+  console.log(`Server is listening to port ${PORT}`);
 });

@@ -2,26 +2,13 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-
-const ProjectDecision = new mongoose.Schema({
-  name: {
+// USERS SCHEMA
+const UserSchema = new mongoose.Schema({
+  firstName: {
     type: String,
     required: false,
   },
-  contributer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
-
-});
-
-module.exports = mongoose.model("Decision", ProjectDecision);
-
-
-
-// USERS SCHEMA
-const UserSchema = new mongoose.Schema({
-  username: {
+  lastName: {
     type: String,
     required: false,
   },
@@ -29,132 +16,95 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  city : {
-    type : String,
-    required : false,
-  },
-  address : {
-    type : String,
-    required : false,
-  },
-  zipCode : {
-    type : String,
-    required : false,
-  },
-  latitude : {
-    type : String,
-    required : false,
-  },
-  longitude : {
-    type : String,
-    required : false,
-  },
-  profile_picture: {
-    type: String,
-    required: false,
-    default: "default.png",
-  },
-  profile_description: {
-    type: String,
-    required: false,
-  },
-  phone :{
-    type : Number,
-    required : false
-  },
-  isProjectOwner: {
-    type: Boolean,
-    required: false,
-    default: false,
-  },
-  role: {
-    type: String,
-    enum: ["admin", "user"],
-    default: "user",
-  },
   password: {
     type: String,
     required: false,
     select: false,
   },
-  comments : [{
-    user : {
-      type : mongoose.Schema.Types.ObjectId,
-      ref : "User",
-      required : false
-    },
-    
-    comment : {
-      type : String,
-      required : false
-    }
-  }],
+  phone : {
+    type : Number,
+    required : false
+  },
+
+  address: {
+    street: { type: String, required : false },
+    city: { type: String, required : false },
+    zip: { type: String, required : false},
+    latitude: { type: Number, required : false },
+    longitude: { type: Number, required : false },
+  },
+  role: {
+    type: String,
+    enum: ["admin","user"],
+    default: "user",
+  },
+
+  type : {
+    type : String,
+    enum : ["student", "studentConsultant", "companyConsultant","user"],
+    required : false,
+    default : "user"
+  },
+
+  status : {
+    type : String,
+    enum : ["active", "deactive"],
+    default : "deactive"
+  },
+
+  company : {
+    type : mongoose.Schema.Types.ObjectId,
+    ref : "Company",
+    required : false
+  },
+
+  student : {
+    type : mongoose.Schema.Types.ObjectId,
+    ref : "student",
+    required : false
+  },
+
+  studentConsultant : {
+    type : mongoose.Schema.Types.ObjectId,
+    ref : "studentConsultant",
+    required : false
+  },
+
+  companyConsultant : {
+    type : mongoose.Schema.Types.ObjectId,
+    ref : "companyConsultant",
+    required : false
+  },
+
   notifications: [
     {
       title : String,
       description : String
     },
   ],
-  availability: {
-    type: String,
-    required: false,
-  },
 
-  resetPasswordToken: String,
-  restPasswordExpires: Date,
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
   isDeleted: {
     type: Boolean,
     default: false,
   },
-  material: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: "Material",
-    required: false,
-  },
-  interests: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: "Category",
-    required: false,
-  },
+
   invitation: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: "Invitation",
     required: false,
   },
-  projects: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: "Project",
-    required: false,
+
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
-  skills: [
-    {
-      skillField: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Skill",
-      },
-      skill : {
-        type : String,
-        required : false
-      },
-      specialization: {
-        type: String,
-        required: false,
-      },
-      score: {
-        type: Number,
-        required: false,
-      },
-      recommendedBy: {
-        type: [mongoose.Schema.Types.ObjectId],
-        ref: "User",
-        required: false,
-      },
-    },
-  ],
+
+  resetPasswordToken: String,
+  restPasswordExpires: Date,
+
+  verifyEmailToken : String,
+  emailVerificationExpiresIn : Date,
+
 });
 
 //Encrypt Password

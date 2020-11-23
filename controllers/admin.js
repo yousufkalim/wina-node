@@ -7,7 +7,7 @@ const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Project = require("../models/Project");
-const Category = require("../models/Category");
+const Category = require("../models/Student");
 const Skill = require("../models/Skill");
 const Material = require("../models/Material");
 

@@ -4,6 +4,9 @@ const session = require("express-session");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
+const async = require("async")
 const Joi = require("joi");
 const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middlewares/async");
@@ -13,42 +16,30 @@ const Skill = require("../models/Skill");
 
 //REGISTER USER API
 
-exports.register = asyncHandler(async (req, res, next) => {
-  const picture = req.file;
-  if (picture) {
-    var uploaded_Picture = req.file.filename;
-  }
+exports.registerUser = asyncHandler(async (req, res, next) => {
 
-  // Validation
 
-  const nestedSchema = Joi.object().keys({
-    skillField: Joi.string().max(30),
-    skill : Joi.string(),
-    specialization: Joi.string().max(20),
-    score: Joi.number().max(5),
+  // Validation for req.body //
+
+  const address_object = Joi.object().keys({
+    street: Joi.string(),
+    city : Joi.string(),
+    zip: Joi.string(),
+    latitude: Joi.number(),
+    longitude: Joi.number(),
   });
-
-  let services = Joi.array().max(3).items(nestedSchema);
 
   const schema = Joi.object().keys({
-    username: Joi.string().min(5).max(20),
-    email: Joi.string().max(40).email(),
-    city: Joi.string(),
-    address: Joi.string(),
-    zipCode: Joi.string(),
-    latitude: Joi.string(),
-    longitude: Joi.string(),    
-    password: Joi.string().min(6).max(255),
-    availability: Joi.string().min(6).max(255),
-    confirm_password: Joi.string().min(6).max(255),
-    profile_picture: Joi.string().max(255),
-    profile_description: Joi.string().max(600),
+    firstName: Joi.string().max(250),
+    lastName: Joi.string().max(250),
+    email: Joi.string().email(),
     phone : Joi.string().max(10).pattern(/^[0-9]+$/),
-    skills: services,
-    material: Joi.array().max(50).items(Joi.string()),
-    notifications: Joi.array()
-
+    address: address_object,
+    password: Joi.string().min(6).max(255),
+    confirm_password: Joi.string().min(6).max(255),
   });
+
+  // Storing Error Responses in Result //
 
   const results = schema.validate(req.body);
   if (results.error) {
@@ -56,40 +47,15 @@ exports.register = asyncHandler(async (req, res, next) => {
   }
 
   const {
-    username,
+    firstName,
+    lastName,
+    type,
     email,
-    city,
     password,
-    availability,
     confirm_password,
-    profile_picture,
-    profile_description,
-    phone,
-    skills,
-    material,
-    notifications
+    address,
+    phone
   } = req.body;
-
-   // Check if the skills are in database or not, If Not then saving them in the database//
-    if(skills){
-      skills.map(async val =>{
-        let result = false;
-        var requestedSkill = val.skill;
-        var savedSkillField = await Skill.findById(val.skillField)
-        savedSkillField.skill.map(async val1 => {
-       
-         if(requestedSkill == val1){
-            result = true;
-         }
-       })
-       
-       if(result == false){
-         await Skill.findByIdAndUpdate(val.skillField,{
-           $push : {skill : requestedSkill}
-         })
-       }
-     })
-    }
 
   //// Check If Password and Confirm Password are same or not ////
   if (password !== confirm_password) {
@@ -102,19 +68,16 @@ exports.register = asyncHandler(async (req, res, next) => {
   if (result) {
     res.status(404).send("User already registered with this Email Address");
   } else {
+
     // Saving User in DataBase
+
     const user = await User.create({
-      username,
+      firstName,
+      lastName,
       email,
-      city,
+      address,
       password,
-      availability,
-      profile_picture: uploaded_Picture || "default.png",
-      profile_description,
-      phone,
-      skills,
-      material,
-      notifications
+      phone
     });
 
     res.status(200).json({user : user});
@@ -190,5 +153,148 @@ exports.logout = asyncHandler(async (req, res, next) => {
     req.logOut();
     res.clearCookie("token");
     res.status(200).send("Logged out successfully");
+  });
+});
+
+
+// Email Verfication for new Registrations //
+exports.verifyEmail = asyncHandler(async (req, res, next) => 
+  {
+    async.waterfall([
+    function (done) {
+      crypto.randomBytes(20, function (err, buf) {
+        var token = buf.toString('hex');
+        done(err, token);
+      });
+    },
+    function (token, done) {
+      const email = req.body.email;
+      User.findOne({
+        email: email
+      }, function (err, user) {
+        
+        if (!user) {
+          return res.status(403).json({message: "No account with that email address exists"});
+        }
+        User.findOneAndUpdate({email: email}, 
+          {
+            $set: {
+            verifyEmailToken: token, 
+            emailVerificationExpiresIn : Date.now() + 36000000 }
+          },
+          { new: true },
+            (function (err) {
+              done(err, token, user);
+            })
+          )
+      });
+    },
+      function (token, user, done) {
+          let transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false,
+            tls: {
+              rejectUnauthorized: false
+            },
+            auth: {
+              user: 'hanan.falcon@gmail.com',
+              pass: 'work@132'
+            }
+        });
+          var mailOptions = {
+            to: user.email,
+            from: 'hanan.falcon@gmail.com',
+            subject: 'Verfication Email Request for WINA',
+            text: 'You are receiving this because you (or someone else) have requested to register your account on WINA.\n\n' +
+              'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+              'http://' + req.headers.host + '/reset/' + token + '\n\n' +
+              'If you did not request this, please ignore this email.\n'
+        };
+
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              return res.status(400).json({message : error.message })
+            }
+             res.status(200).json({message : "Verification Email has been sent" })
+          }); 
+      }
+    ], 
+      function (err) {
+        if (err) return next(err);
+        res.status(200).send("Verfication Email has been sent Successfully")
+  });
+})
+
+
+// exports.verifyEmail = asyncHandler(async (req, res, next) => {
+
+//     User.findOne({
+//       verifyEmailToken: req.params.token,
+//       emailVerificationExpiresIn: {
+//         $gt: Date.now()
+//       }
+//     }, function (err, user) {
+//       if (!user) {
+//         return res.status(403).json({message : "Password reset token is invalid or has expired"});
+//       }
+//       res.render('reset', {
+//         token: req.params.token
+//       });
+//     });
+// });
+
+exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
+  async.waterfall([
+    function (done) {
+      User.findOne({
+        verifyEmailToken: req.params.token,
+        emailVerificationExpiresIn: {
+          $gt: Date.now()
+        }
+      }, async function (err, user) {
+        if (!user) {
+        return res.status(403).json({message : "Password reset token is invalid or has expired"});
+        } else {
+            var user = await User.findOneAndUpdate({
+            verifyEmailToken: req.params.token
+          }, {$set: 
+            {
+            status: "active", 
+            }
+        }
+        );
+
+        let transporter = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 587,
+          secure: false,
+          tls: {
+            rejectUnauthorized: false
+          },
+          auth: {
+            user: 'hanan.falcon@gmail.com',
+            pass: 'work@132'
+          }
+        });
+        var mailOptions = {
+          to: user.email,
+          from: 'hanan.falcon@gmail.com',
+          subject: 'Success Message',
+          text: 'Hello,\n\n' +
+            'You have successfully verified ' + user.email + ' \n'
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+              if (error) {
+                return res.status(400).json({message : error.message })
+              }
+               res.status(200).json({message : "Success! You have successfully registed on WINA" })
+          done(err);
+        });
+      }  
+    });
+  },
+  ], function (err) {
+    console.log(err);
   });
 });

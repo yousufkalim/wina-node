@@ -1,21 +1,29 @@
 const express = require("express");
 const multer = require("multer");
+const User = require("../models/User");
+const router = express.Router();
 
-// MULTER Configuaration
+// MULTER Configuaration //
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "views/uploads");
+  
+    filename: function (req, file, cb) {
+      cb(null, file.originalname);
   },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    destination: function (req, file, cb) {
+      cb(null, "views/uploads");
   },
 });
+
 const upload = multer({ storage: storage });
 
-//Controller Functions
-
-const { register, login, logout } = require("../controllers/auth");
-const router = express.Router();
+// Controller Functions //
+const { 
+  registerUser,
+  verifyEmail, 
+  verifyEmailProcess,
+  login, 
+  logout 
+} = require("../controllers/auth");
 
 //middleware functions
 
@@ -26,13 +34,14 @@ const {
   customer_dashboard,
 } = require("../middlewares/auth");
 
-//Models
-const User = require("../models/User");
+// router.get("/reset/:token",verifyEmail)
+
 
 //Register USER routes
 
-router.get("/register", async function (req, res) {});
-router.post("/register", upload.single("profile_picture"), register);
+router.post("/register", registerUser);
+router.post("/email-verfication",verifyEmail);
+router.post("/reset/:token",verifyEmailProcess)
 
 //LOGIN Route
 
