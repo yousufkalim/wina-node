@@ -22,21 +22,21 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
   // Validation for req.body //
 
   const address_object = Joi.object().keys({
-    street: Joi.string(),
-    city : Joi.string(),
-    zip: Joi.string(),
-    latitude: Joi.number(),
-    longitude: Joi.number(),
+    street: Joi.string().required(),
+    city : Joi.string().required(),
+    zip: Joi.string().required(),
+    latitude: Joi.number().required(),
+    longitude: Joi.number().required(),
   });
 
   const schema = Joi.object().keys({
-    firstName: Joi.string().max(250),
-    lastName: Joi.string().max(250),
-    email: Joi.string().email(),
-    phone : Joi.string().max(10).pattern(/^[0-9]+$/),
-    address: address_object,
-    password: Joi.string().min(6).max(255),
-    confirm_password: Joi.string().min(6).max(255),
+    firstName: Joi.string().max(250).required(),
+    lastName: Joi.string().max(250).required(),
+    email: Joi.string().email().required(),
+    phone : Joi.string().max(10).pattern(/^[0-9]+$/).required(),
+    address: address_object.required(),
+    password: Joi.string().min(6).max(255).required(),
+    confirm_password: Joi.string().min(6).max(255).required(),
   });
 
   // Storing Error Responses in Result //
@@ -83,79 +83,6 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
     res.status(200).json({user : user});
   }
 });
-
-//Login User
-exports.login = asyncHandler(async (req, res, next) => {
-  const { email, password } = req.body;
-
-  const schema = Joi.object().keys({
-    email: Joi.string().max(40).required().email(),
-    password: Joi.string().min(6).max(255).required(),
-  });
-
-  const results = schema.validate(req.body);
-  if (results.error) {
-    return res.status(400).send(results.error.details[0].message);
-  }
-
-  //validating email and password
-  if (!email || !password) {
-    return res.status(400).send("please provide email and password");
-  }
-
-  //check for user
-  const user = await User.findOne({ email: email }).select("+password");
-  if (!user) {
-    return res.status(400).send("You are not registered please signup");
-  }
-
-  // Check if password matches
-
-  const isMatch = await user.matchPassword(password);
-
-  if (!isMatch) {
-    return res.status(400).send("Password is Invalid");
-  }
-
-  sendTokenResponse(user, 200, res);
-});
-
-//Get token from Model create cookie and send response
-
-const sendTokenResponse = (user, statusCode, res) => {
-  //create token
-
-  const token = user.getSignedJwtToken();
-
-  const options = {
-    expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
-    ),
-    httpOnly: true,
-  };
-
-  if (process.env.NODE_ENV === "production") {
-    options.secure = true;
-  }
-  if (user) {
-    res
-      .status(statusCode)
-      .cookie("token", token, options)
-      .json({token : token});
-  } else {
-    res.send("Something went wrong");
-  }
-};
-
-// USER Logout
-exports.logout = asyncHandler(async (req, res, next) => {
-  req.session.destroy(() => {
-    req.logOut();
-    res.clearCookie("token");
-    res.status(200).send("Logged out successfully");
-  });
-});
-
 
 // Email Verfication for new Registrations //
 exports.verifyEmail = asyncHandler(async (req, res, next) => 
@@ -226,24 +153,6 @@ exports.verifyEmail = asyncHandler(async (req, res, next) =>
   });
 })
 
-
-// exports.verifyEmail = asyncHandler(async (req, res, next) => {
-
-//     User.findOne({
-//       verifyEmailToken: req.params.token,
-//       emailVerificationExpiresIn: {
-//         $gt: Date.now()
-//       }
-//     }, function (err, user) {
-//       if (!user) {
-//         return res.status(403).json({message : "Password reset token is invalid or has expired"});
-//       }
-//       res.render('reset', {
-//         token: req.params.token
-//       });
-//     });
-// });
-
 exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
   async.waterfall([
     function (done) {
@@ -298,3 +207,82 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
     console.log(err);
   });
 });
+
+//Login User
+exports.login = asyncHandler(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  const schema = Joi.object().keys({
+    email: Joi.string().max(40).required().email(),
+    password: Joi.string().min(6).max(255).required(),
+  });
+
+  const results = schema.validate(req.body);
+  if (results.error) {
+    return res.status(400).send(results.error.details[0].message);
+  }
+
+  //validating email and password
+  if (!email || !password) {
+    return res.status(400).send("Please provide email and password");
+  }
+
+  // check if user exists //
+  const user = await User.findOne({ email: email}).select("+password");
+  if (!user) {
+    return res.status(400).send("You are not registered, Please Sign up!");
+  }
+
+  // check if user exists //
+  const result = await User.findOne({ email: email, status : "active"}).select("+password");
+  if (!result) {
+    return res.status(400).send("You haven't verify your email address yet");
+  }
+  // Check if password matches
+
+  const isMatch = await user.matchPassword(password);
+
+  if (!isMatch) {
+    return res.status(400).send("Password is Invalid");
+  }
+
+  sendTokenResponse(user, 200, res);
+});
+
+//Get token from Model create cookie and send response
+
+const sendTokenResponse = (user, statusCode, res) => {
+  //create token
+
+  const token = user.getSignedJwtToken();
+
+  const options = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === "production") {
+    options.secure = true;
+  }
+  if (user) {
+    res
+      .status(statusCode)
+      .cookie("token", token, options)
+      .json({token : token});
+  } else {
+    res.send("Something went wrong");
+  }
+};
+
+// USER Logout
+exports.logout = asyncHandler(async (req, res, next) => {
+  req.session.destroy(() => {
+    req.logOut();
+    res.clearCookie("token");
+    res.status(200).send("Logged out successfully");
+  });
+});
+
+

@@ -70,6 +70,11 @@ const StudentSchema = new mongoose.Schema({
 
   }],
 
+  resume : {
+    type : String,
+    required : false
+  },
+
   languages : [{
     name : {type : String, Required : false},
     skill : {type: String, enum : ["beginner", "intermediate", "fluent", "native"] }

@@ -13,19 +13,21 @@ exports.protect = asyncHandler(async (req, res, next) => {
     token = req.headers.authorization.split(" ")[1];
   } else if (req.cookies.token) {
     token = req.cookies.token;
+    console.log(token);
+
   }
 
   //make sure token exists
   if (!token) {
-    return res.status(400).send("Please Login to view that resource");
+    return res.status(401).send("Please Login to view that resource");
   }
   try {
     //verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id);
+     req.user = await User.findById(decoded.id);
     next();
   } catch (err) {
-    return res.status(400).send("Please Login to view that resource");
+    return res.status(401).send("Please Login to view that resource");
   }
 });
 
@@ -34,7 +36,18 @@ exports.protect = asyncHandler(async (req, res, next) => {
 exports.authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return res.status(400).send("Please Login to view that resource");
+      return res.status(401).send("Please Login to view that resource");
+    }
+    next();
+  };
+};
+
+//Grant Access to specific types // 
+
+exports.validateType = (...types) => {
+  return  (req, res, next) => {
+    if (!types.includes(req.user.type)) {
+      return res.status(400).send("You have no access to view this resource");
     }
     next();
   };
@@ -71,41 +84,5 @@ exports.dashboard = asyncHandler(async (req, res, next) => {
     next();
   } catch (err) {
     return res.status(400).send("Please Login to view that resource");
-  }
-});
-
-//Customer dashboard middleware
-exports.customer_dashboard = asyncHandler(async (req, res, next) => {
-  let token;
-
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
-  } else if (req.cookies.token) {
-    token = req.cookies.token;
-  }
-
-  //make sure token exists
-  if (!token) {
-    req.flash("error_msg", "Please Login");
-    return res.redirect("/api/v1/auth/customer-login");
-  }
-  try {
-    //verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id);
-    user_role = req.user.role;
-    if (user_role == "customer") {
-      return res.render("customer/customer-dashboard.ejs", {
-        lname: req.user.lname,
-        userID: req.user.id,
-      });
-    }
-    next();
-  } catch (err) {
-    req.flash("error_msg", "Error");
-    return res.redirect("/api/v1/auth/customer-login");
   }
 });

@@ -31,17 +31,13 @@ const {
   protect,
   authorize,
   dashboard,
-  customer_dashboard,
 } = require("../middlewares/auth");
-
-// router.get("/reset/:token",verifyEmail)
-
 
 //Register USER routes
 
 router.post("/register", registerUser);
 router.post("/email-verfication",verifyEmail);
-router.post("/reset/:token",verifyEmailProcess)
+router.post("/verify-email/:token",verifyEmailProcess)
 
 //LOGIN Route
 

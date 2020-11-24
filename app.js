@@ -15,9 +15,10 @@ const Joi = require("joi");
 var cors = require('cors')
 const app = express();
 
+app.use(cors())
+
 //// Body Parser Middleware ////
 app.use(bodyParser.json());
-app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //// Cookie Parser ////
@@ -56,8 +57,13 @@ mongoose
     console.log(err);
   });
 
+// Initializing Passport Middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
 //// Routes ////
 const auth = require("./routes/auth");
+const student = require("./routes/student");
 const profile = require("./routes/profile");
 const project = require("./routes/project");
 const admin = require("./routes/admin");
@@ -65,6 +71,7 @@ const admin = require("./routes/admin");
 //// Mount Routers ////
 
 app.use("/api/v1/auth", auth);
+app.use("/api/v1/student", student);
 app.use("/api/v1/profile", profile);
 app.use("/api/v1/project", project);
 app.use("/api/v1/admin", admin);
