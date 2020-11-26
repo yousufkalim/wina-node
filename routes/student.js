@@ -1,6 +1,5 @@
 const express = require("express");
 const multer = require("multer");
-const User = require("../models/User");
 const router = express.Router();
 
 // MULTER Configuaration //
@@ -22,12 +21,7 @@ const { register } = require("../controllers/student");
 
 //middleware functions
 
-const {
-  protect,
-  authorize,
-  validateType,
-  dashboard,
-} = require("../middlewares/auth");
+const { protect, validateType } = require("../middlewares/auth");
 
 // Routes for Students //
 router.post(
