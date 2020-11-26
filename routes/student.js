@@ -4,23 +4,21 @@ const User = require("../models/User");
 const router = express.Router();
 
 // MULTER Configuaration //
+
 const storage = multer.diskStorage({
-  
-    filename: function (req, file, cb) {
-      cb(null, file.originalname);
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
   },
-    destination: function (req, file, cb) {
-      cb(null, "views/uploads");
+  destination: function (req, file, cb) {
+    cb(null, "views/uploads");
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage }).array("files", 2);
 
 // Controller Functions //
 
-const { 
-    editStudent
-} = require("../controllers/student");
+const { register } = require("../controllers/student");
 
 //middleware functions
 
@@ -31,8 +29,27 @@ const {
   dashboard,
 } = require("../middlewares/auth");
 
-// Routes for Students // 
-router.post("/edit-profile",[protect,validateType("student")],editStudent);
-
+// Routes for Students //
+router.post(
+  "/add-info",
+  [protect, validateType("student")],
+  function (req, res, next) {
+    upload(req, res, function (err) {
+      if (err instanceof multer.MulterError) {
+        res
+          .status(406)
+          .json({ message: "Couldn't Upload profile picture, Upload again!" });
+      } else if (err) {
+        // An unknown error occurred when uploading.
+        res
+          .status(400)
+          .json({ message: "Couldn't Upload profile picture, Upload again!" });
+      }
+      // Everything went fine.
+      next();
+    });
+  },
+  register
+);
 
 module.exports = router;

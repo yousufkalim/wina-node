@@ -21,65 +21,65 @@ const UserSchema = new mongoose.Schema({
     required: false,
     select: false,
   },
-  phone : {
-    type : Number,
-    required : false
+  phone: {
+    type: Number,
+    required: false,
   },
 
   address: {
-    street: { type: String, required : false },
-    city: { type: String, required : false },
-    zip: { type: String, required : false},
-    latitude: { type: Number, required : false },
-    longitude: { type: Number, required : false },
+    street: { type: String, required: false },
+    city: { type: String, required: false },
+    zip: { type: String, required: false },
+    latitude: { type: Number, required: false },
+    longitude: { type: Number, required: false },
   },
   role: {
     type: String,
-    enum: ["admin","user"],
+    enum: ["admin", "user"],
     default: "user",
   },
 
-  type : {
-    type : String,
-    enum : ["student", "studentConsultant", "companyConsultant","user"],
-    required : false,
-    default : "user",
+  type: {
+    type: String,
+    enum: ["student", "studentConsultant", "companyConsultant", "user"],
+    required: false,
+    default: "user",
   },
 
-  status : {
-    type : String,
-    enum : ["active", "deactive"],
-    default : "deactive"
+  status: {
+    type: String,
+    enum: ["active", "deactive"],
+    default: "deactive",
   },
 
-  company : {
-    type : mongoose.Schema.Types.ObjectId,
-    ref : "Company",
-    required : false
+  company: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Company",
+    required: false,
   },
 
-  student : {
-    type : mongoose.Schema.Types.ObjectId,
-    ref : "student",
-    required : false
+  student: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Student",
+    required: false,
   },
 
-  studentConsultant : {
-    type : mongoose.Schema.Types.ObjectId,
-    ref : "studentConsultant",
-    required : false
+  studentConsultant: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "studentConsultant",
+    required: false,
   },
 
-  companyConsultant : {
-    type : mongoose.Schema.Types.ObjectId,
-    ref : "companyConsultant",
-    required : false
+  companyConsultant: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "companyConsultant",
+    required: false,
   },
 
   notifications: [
     {
-      title : String,
-      description : String
+      title: String,
+      description: String,
     },
   ],
 
@@ -102,9 +102,8 @@ const UserSchema = new mongoose.Schema({
   resetPasswordToken: String,
   restPasswordExpires: Date,
 
-  verifyEmailToken : String,
-  emailVerificationExpiresIn : Date,
-
+  verifyEmailToken: String,
+  emailVerificationExpiresIn: Date,
 });
 
 //Encrypt Password
