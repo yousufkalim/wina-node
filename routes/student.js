@@ -17,7 +17,7 @@ const upload = multer({ storage: storage }).array("files", 2);
 
 // Controller Functions //
 
-const { register } = require("../controllers/student");
+const { register, edit } = require("../controllers/student");
 
 //middleware functions
 
@@ -45,5 +45,7 @@ router.post(
   },
   register
 );
+
+router.put("/edit-info", [protect, validateType("student")], edit);
 
 module.exports = router;
