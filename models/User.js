@@ -56,6 +56,7 @@ const UserSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Company",
     required: false,
+    positionHeld: String,
   },
 
   student: {

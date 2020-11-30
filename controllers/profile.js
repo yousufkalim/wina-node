@@ -6,8 +6,18 @@ const Joi = require("joi");
 const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
-const Project = require("../models/Project");
-const Skill = require("../models/Skill");
+const Student = require("../models/Student");
+
+// GET single user Profile
+exports.GetProfile = asyncHandler(async (req, res, next) => {
+  try {
+    const userID = req.params.id;
+    const user = await User.findById(userID).populate("student");
+    res.status(200).json({ user: user });
+  } catch (err) {
+    res.status(400).res.json({ message: err.message });
+  }
+});
 
 // Edit profile
 exports.editProfile = asyncHandler(async (req, res, next) => {
@@ -47,6 +57,32 @@ exports.editProfile = asyncHandler(async (req, res, next) => {
       .status(200)
       .json({ message: "Profile updated successfully!", user: user });
   } catch (err) {
-    res.json({ message: err.message });
+    res.status(400).res.json({ message: err.message });
+  }
+});
+
+// Delete User profile
+exports.DeleteProfile = asyncHandler(async (req, res, next) => {
+  try {
+    const userID = req.user.id;
+    const requestedUser = await User.findById(req.user.id);
+    const user = await User.findByIdAndUpdate(
+      userID,
+      {
+        isDeleted: true,
+      },
+      { new: true }
+    ).then(async () => {
+      await Student.findByIdAndUpdate(
+        requestedUser.student,
+        {
+          isDeleted: true,
+        },
+        { new: true }
+      );
+    });
+    res.status(200).json({ message: "User has been deleted Successfully!" });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 });

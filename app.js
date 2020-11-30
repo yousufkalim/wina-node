@@ -7,15 +7,15 @@ const passport = require("passport");
 const MongoStore = require("connect-mongo")(session);
 const cookieParser = require("cookie-parser");
 const nodemailer = require("nodemailer");
-const async = require("async")
+const async = require("async");
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Joi = require("joi");
-var cors = require('cors')
+var cors = require("cors");
 const app = express();
 
-app.use(cors())
+app.use(cors());
 
 //// Body Parser Middleware ////
 app.use(bodyParser.json());
@@ -64,6 +64,7 @@ app.use(passport.session());
 //// Routes ////
 const auth = require("./routes/auth");
 const student = require("./routes/student");
+const company = require("./routes/company");
 const profile = require("./routes/profile");
 const project = require("./routes/project");
 const admin = require("./routes/admin");
@@ -72,12 +73,12 @@ const admin = require("./routes/admin");
 
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/student", student);
+app.use("/api/v1/company", company);
 app.use("/api/v1/profile", profile);
 app.use("/api/v1/project", project);
 app.use("/api/v1/admin", admin);
 
 //// Setting Port for Server ////
-
 
 const PORT = 3000 || process.env.PORT;
 app.listen(PORT, () => {

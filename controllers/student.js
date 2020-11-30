@@ -14,6 +14,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   const userType = req.user.type;
   let UploadedPicture = "";
   let video = "";
+  let uploadedResume = "";
 
   try {
     // Validating body //
@@ -66,9 +67,9 @@ exports.register = asyncHandler(async (req, res, next) => {
 
     //Storing uploaded image/video name in "UploadedPicture" / "presentation_Video" //
     if (req.files) {
-      req.files.map((item) => {
-        if (item.mimetype == "video/mp4") {
-          if (!(item.size <= 209715200)) {
+      if (req.files.video) {
+        if (req.files.video[0].mimetype == "video/mp4") {
+          if (!(req.files.video[0].size <= 209715200)) {
             const error = new Error(
               "Cannot upload file size greater than 200MB"
             );
@@ -76,17 +77,46 @@ exports.register = asyncHandler(async (req, res, next) => {
             throw error;
           } else {
             video = {
-              video: item.filename,
+              video: req.files.video[0].filename,
               status: "Pending",
             };
           }
-        } else {
+        }
+      }
+      if (req.files.image) {
+        if (
+          req.files.image[0].mimetype == "image/jpeg" ||
+          req.files.image[0].mimetype == "image/jpg" ||
+          req.files.image[0].mimetype == "image/png"
+        ) {
           UploadedPicture = {
-            image: item.filename,
+            image: req.files.image[0].filename,
             status: "Pending",
           };
+        } else {
+          const error = new Error(
+            "Please select an image of File type JPEG/JPG/PNG"
+          );
+          error.status = 400;
+          throw error;
         }
-      });
+      }
+      if (req.files.resume) {
+        if (
+          req.files.resume[0] === "resume/pdf" ||
+          req.files.resume[0] === "resume/msword" ||
+          req.files.resume[0] ===
+            "resume/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ) {
+          uploadedResume = req.files.resume[0].filename;
+        } else {
+          const error = new Error(
+            "Your resume file should be of File type PDF/DOC/DOCX"
+          );
+          error.status = 400;
+          throw error;
+        }
+      }
     }
 
     const {
@@ -107,7 +137,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       professional_profile: professional_profile,
       education: education,
       languages: languages,
-      resume: resume,
+      resume: uploadedResume,
       user: req.user.id,
     });
     await newStudent.save();
@@ -125,10 +155,26 @@ exports.register = asyncHandler(async (req, res, next) => {
   }
 });
 
+// GET single Student Profile
+exports.GetStudentProfile = asyncHandler(async (req, res, next) => {
+  try {
+    const studentID = req.params.id;
+    const student = await Student.findById(studentID).populate("student");
+    res.status(200).json({ user: student });
+  } catch (err) {
+    res.status(400).res.json({ message: err.message });
+  }
+});
+
 //// Edit Student info ////
 exports.edit = asyncHandler(async (req, res, next) => {
   let UploadedPicture = "";
   let video = "";
+  let uploadedResume = "";
+
+  const userID = await User.findById(req.user.id);
+  const studentID = userID.student;
+  console.log(studentID);
 
   try {
     // Validating body //
@@ -181,9 +227,9 @@ exports.edit = asyncHandler(async (req, res, next) => {
 
     //Storing uploaded image/video name in "UploadedPicture" / "presentation_Video" //
     if (req.files) {
-      req.files.map((item) => {
-        if (item.mimetype == "video/mp4") {
-          if (!(item.size <= 209715200)) {
+      if (req.files.video) {
+        if (req.files.video[0].mimetype == "video/mp4") {
+          if (!(req.files.video[0].size <= 209715200)) {
             const error = new Error(
               "Cannot upload file size greater than 200MB"
             );
@@ -191,17 +237,46 @@ exports.edit = asyncHandler(async (req, res, next) => {
             throw error;
           } else {
             video = {
-              video: item.filename,
+              video: req.files.video[0].filename,
               status: "Pending",
             };
           }
-        } else {
+        }
+      }
+      if (req.files.image) {
+        if (
+          req.files.image[0].mimetype == "image/jpeg" ||
+          req.files.image[0].mimetype == "image/jpg" ||
+          req.files.image[0].mimetype == "image/png"
+        ) {
           UploadedPicture = {
-            image: item.filename,
+            image: req.files.image[0].filename,
             status: "Pending",
           };
+        } else {
+          const error = new Error(
+            "Please select an image of File type JPEG/JPG/PNG"
+          );
+          error.status = 400;
+          throw error;
         }
-      });
+      }
+      if (req.files.resume) {
+        if (
+          req.files.resume[0] === "resume/pdf" ||
+          req.files.resume[0] === "resume/msword" ||
+          req.files.resume[0] ===
+            "resume/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ) {
+          uploadedResume = req.files.resume[0].filename;
+        } else {
+          const error = new Error(
+            "Your resume file should be of File type PDF/DOC/DOCX"
+          );
+          error.status = 400;
+          throw error;
+        }
+      }
     }
 
     const {
@@ -213,13 +288,43 @@ exports.edit = asyncHandler(async (req, res, next) => {
       languages,
     } = req.body;
 
-    const user = await User.findByIdAndUpdate({
-      general_Presentation: general_Presentation,
-      professional_networks: professional_networks,
-      professional_profile: professional_profile,
-      education: education,
-      resume: resume,
-      languages: languages,
-    });
-  } catch (err) {}
+    const user = await Student.findByIdAndUpdate(
+      studentID,
+      {
+        general_Presentation: general_Presentation,
+        presentation_Video: video,
+        professional_Picture: UploadedPicture,
+        professional_networks: professional_networks,
+        professional_profile: professional_profile,
+        education: education,
+        resume: uploadedResume,
+        languages: languages,
+      },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json({ message: "Profile Updated Successfully!", user: user });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// GET single Student Profile
+exports.DeleteProfile = asyncHandler(async (req, res, next) => {
+  try {
+    const userID = req.user.id;
+    const requestedUser = await User.findById(req.user.id);
+    await Student.findByIdAndUpdate(
+      requestedUser.student,
+      {
+        isDeleted: true,
+      },
+      { new: true }
+    );
+
+    res.status(200).json({ message: "Student has been deleted Successfully!" });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
 });

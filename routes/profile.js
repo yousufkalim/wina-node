@@ -15,7 +15,11 @@ const upload = multer({ storage: storage });
 
 // Controller Functions //
 
-const { editProfile } = require("../controllers/profile");
+const {
+  editProfile,
+  DeleteProfile,
+  GetProfile,
+} = require("../controllers/profile");
 
 // middleware functions //
 
@@ -26,7 +30,11 @@ const {
   customer_dashboard,
 } = require("../middlewares/auth");
 
+// Get Single user  //
+router.get("/get-profile/:id", protect, GetProfile);
 // Edit Profile info //
 router.put("/editProfile", protect, editProfile);
+// Delete User Profile //
+router.delete("/delete-profile", protect, DeleteProfile);
 
 module.exports = router;
