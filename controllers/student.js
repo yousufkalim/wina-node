@@ -11,12 +11,23 @@ const Student = require("../models/Student");
 //// Register User Profile ////
 
 exports.register = asyncHandler(async (req, res, next) => {
-  const userType = req.user.type;
-  let UploadedPicture = "";
-  let video = "";
-  let uploadedResume = "";
-
   try {
+    const requestedUser = await User.findById(req.user.id);
+    if (
+      requestedUser.student ||
+      requestedUser.company ||
+      requestedUser.studentConsultant ||
+      requestedUser.companyConsultant
+    ) {
+      const error = new Error("Access Denied!");
+      error.status = 400;
+      throw error;
+    }
+    const userType = req.user.type;
+    let UploadedPicture = "";
+    let video = "";
+    let uploadedResume = "";
+
     // Validating body //
     const professional_network = Joi.object().keys({
       linkedIn: Joi.string().uri(),
@@ -103,12 +114,20 @@ exports.register = asyncHandler(async (req, res, next) => {
       }
       if (req.files.resume) {
         if (
-          req.files.resume[0] === "resume/pdf" ||
-          req.files.resume[0] === "resume/msword" ||
-          req.files.resume[0] ===
+          req.files.resume[0].mimetype === "resume/pdf" ||
+          req.files.resume[0].mimetype === "resume/msword" ||
+          req.files.resume[0].mimetype ===
             "resume/vnd.openxmlformats-officedocument.wordprocessingml.document"
         ) {
-          uploadedResume = req.files.resume[0].filename;
+          if (!(req.files.resume[0].size <= 10485760)) {
+            const error = new Error(
+              "Cannot upload file size greater than 10MB"
+            );
+            error.status = 400;
+            throw error;
+          } else {
+            uploadedResume = req.files.resume[0].filename;
+          }
         } else {
           const error = new Error(
             "Your resume file should be of File type PDF/DOC/DOCX"
@@ -263,12 +282,20 @@ exports.edit = asyncHandler(async (req, res, next) => {
       }
       if (req.files.resume) {
         if (
-          req.files.resume[0] === "resume/pdf" ||
-          req.files.resume[0] === "resume/msword" ||
-          req.files.resume[0] ===
+          req.files.resume[0].mimetype === "resume/pdf" ||
+          req.files.resume[0].mimetype === "resume/msword" ||
+          req.files.resume[0].mimetype ===
             "resume/vnd.openxmlformats-officedocument.wordprocessingml.document"
         ) {
-          uploadedResume = req.files.resume[0].filename;
+          if (!(req.files.resume[0].size <= 10485760)) {
+            const error = new Error(
+              "Cannot upload file size greater than 10MB"
+            );
+            error.status = 400;
+            throw error;
+          } else {
+            uploadedResume = req.files.resume[0].filename;
+          }
         } else {
           const error = new Error(
             "Your resume file should be of File type PDF/DOC/DOCX"
@@ -314,7 +341,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
 exports.DeleteProfile = asyncHandler(async (req, res, next) => {
   try {
     const userID = req.user.id;
-    const requestedUser = await User.findById(req.user.id);
+    const requestedUser = await User.findById(userID);
     await Student.findByIdAndUpdate(
       requestedUser.student,
       {

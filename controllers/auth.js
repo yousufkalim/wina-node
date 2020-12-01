@@ -11,7 +11,6 @@ const Joi = require("joi");
 const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
-const Material = require("../models/Material");
 const Skill = require("../models/Skill");
 
 //REGISTER USER API

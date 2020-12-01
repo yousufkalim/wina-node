@@ -1,80 +1,80 @@
-const express = require("express");
-const multer = require("multer");
-const router = express.Router();
+// const express = require("express");
+// const multer = require("multer");
+// const router = express.Router();
 
-// ADMIN CONTROLLER //
-const {
-  UsersList,
-  EditUser,
-  DeleteUser,
-  ProjectsList,
-  EditProject,
-  DeleteProject,
-  getAllCategories,
-  CreateCategory,
-  EditCategory,
-  DeleteCategory,
-  getAllSkills,
-  CreateSkillField,
-  CreateSkill,
-  EditSkillField,
-  DeleteSkillField,
-  getAllMaterials,
-  CreateMaterial,
-  EditMaterial,
-  DeleteMaterial,
-} = require("../controllers/admin");
+// // ADMIN CONTROLLER //
+// const {
+//   UsersList,
+//   EditUser,
+//   DeleteUser,
+//   ProjectsList,
+//   EditProject,
+//   DeleteProject,
+//   getAllCategories,
+//   CreateCategory,
+//   EditCategory,
+//   DeleteCategory,
+//   getAllSkills,
+//   CreateSkillField,
+//   CreateSkill,
+//   EditSkillField,
+//   DeleteSkillField,
+//   getAllMaterials,
+//   CreateMaterial,
+//   EditMaterial,
+//   DeleteMaterial,
+// } = require("../controllers/admin");
 
-// Middleware Functions //
-const {
-  protect,
-  authorize,
-  dashboard,
-  customer_dashboard,
-} = require("../middlewares/auth");
+// // Middleware Functions //
+// const {
+//   protect,
+//   authorize,
+//   dashboard,
+//   customer_dashboard,
+// } = require("../middlewares/auth");
 
-//// GET ALL USERS ////
-router.get("/userslist", protect, UsersList);
-// EDIT USERS //
-router.post("/edit-user", protect, EditUser);
-// DELETE USERS //
-router.post("/delete-user", protect, DeleteUser);
+// //// GET ALL USERS ////
+// router.get("/userslist", protect, UsersList);
+// // EDIT USERS //
+// router.post("/edit-user", protect, EditUser);
+// // DELETE USERS //
+// router.post("/delete-user", protect, DeleteUser);
 
-//// GET ALL PROJECTS ////
-router.get("/projectslist", protect, ProjectsList);
-// EDIT PROJECTS //
-router.post("/edit-project", protect, EditProject);
-// DELETE PROJECTS //
-router.post("/delete-project", protect, DeleteProject);
+// //// GET ALL PROJECTS ////
+// router.get("/projectslist", protect, ProjectsList);
+// // EDIT PROJECTS //
+// router.post("/edit-project", protect, EditProject);
+// // DELETE PROJECTS //
+// router.post("/delete-project", protect, DeleteProject);
 
-//// GET ALL Categories ////
-router.get("/categoryList", protect, getAllCategories);
-//// Create Project Category ////
-router.post("/create-category", protect, CreateCategory);
-// EDIT PROJECTS CATEGORY //
-router.post("/edit-category", protect, EditCategory);
-// DELETE PROJECTS CATEGORY //
-router.post("/delete-category", protect, DeleteCategory);
+// //// GET ALL Categories ////
+// router.get("/categoryList", protect, getAllCategories);
+// //// Create Project Category ////
+// router.post("/create-category", protect, CreateCategory);
+// // EDIT PROJECTS CATEGORY //
+// router.post("/edit-category", protect, EditCategory);
+// // DELETE PROJECTS CATEGORY //
+// router.post("/delete-category", protect, DeleteCategory);
 
-//// GET ALL Skills ////
-router.get("/skillList", protect, getAllSkills);
-// Create SkillField Route //
-router.post("/create-skillField", protect, CreateSkillField);
-// EDIT SkillField CATEGORY //
-router.post("/edit-skillField", protect, EditSkillField);
-// DELETE PROJECTS CATEGORY //
-router.post("/delete-skillField", protect, DeleteSkillField);
+// //// GET ALL Skills ////
+// router.get("/skillList", protect, getAllSkills);
+// // Create SkillField Route //
+// router.post("/create-skillField", protect, CreateSkillField);
+// // EDIT SkillField CATEGORY //
+// router.post("/edit-skillField", protect, EditSkillField);
+// // DELETE PROJECTS CATEGORY //
+// router.post("/delete-skillField", protect, DeleteSkillField);
 
-// Create Skills Route //
-router.post("/create-skill", protect, CreateSkill);
+// // Create Skills Route //
+// router.post("/create-skill", protect, CreateSkill);
 
-//// GET ALL Materials ////
-router.get("/materialList", protect, getAllMaterials);
-// Create Materials Route //
-router.post("/create-material", protect, CreateMaterial);
-// EDIT PROJECTS CATEGORY //
-router.post("/edit-material", protect, EditMaterial);
-// DELETE PROJECTS CATEGORY //
-router.post("/delete-material", protect, DeleteMaterial);
+// //// GET ALL Materials ////
+// router.get("/materialList", protect, getAllMaterials);
+// // Create Materials Route //
+// router.post("/create-material", protect, CreateMaterial);
+// // EDIT PROJECTS CATEGORY //
+// router.post("/edit-material", protect, EditMaterial);
+// // DELETE PROJECTS CATEGORY //
+// router.post("/delete-material", protect, DeleteMaterial);
 
-module.exports = router;
+// module.exports = router;

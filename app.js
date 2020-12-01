@@ -66,7 +66,6 @@ const auth = require("./routes/auth");
 const student = require("./routes/student");
 const company = require("./routes/company");
 const profile = require("./routes/profile");
-const project = require("./routes/project");
 const admin = require("./routes/admin");
 
 //// Mount Routers ////
@@ -75,8 +74,7 @@ app.use("/api/v1/auth", auth);
 app.use("/api/v1/student", student);
 app.use("/api/v1/company", company);
 app.use("/api/v1/profile", profile);
-app.use("/api/v1/project", project);
-app.use("/api/v1/admin", admin);
+// app.use("/api/v1/admin", admin);
 
 //// Setting Port for Server ////
 

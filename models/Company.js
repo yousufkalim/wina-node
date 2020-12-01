@@ -45,9 +45,21 @@ const CompanySchema = new mongoose.Schema({
   },
 
   contactPerson: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    person: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    positionHeld: {
+      type: String,
+    },
   },
+
+  job: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Job",
+    },
+  ],
 
   isDeleted: {
     type: Boolean,

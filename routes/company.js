@@ -14,13 +14,23 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Controller Functions //
-
-const { register } = require("../controllers/company");
-
-// middleware functions //
+const {
+  register,
+  editCompany,
+  deleteCompany,
+} = require("../controllers/company");
 
 //middleware functions
-
 const { protect, validateType } = require("../middlewares/auth");
+
+router.post("/register-company", [protect, validateType("company")], register);
+
+router.put("/edit-company", [protect, validateType("company")], editCompany);
+
+router.delete(
+  "/delete-company",
+  [protect, validateType("company")],
+  deleteCompany
+);
 
 module.exports = router;
