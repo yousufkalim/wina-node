@@ -38,6 +38,19 @@ exports.register = asyncHandler(async (req, res, next) => {
 
     const education_info = Joi.object().keys({
       school: Joi.string(),
+      levelOfEducation: Joi.string().valid(
+        "Brevet",
+        "CAP",
+        "BEP",
+        "MC",
+        "BacGénéral",
+        "BacProfessionel",
+        "BTS",
+        "DUT",
+        "Licence",
+        "Master",
+        "Doctorat"
+      ),
       end_Date: Joi.string(),
       description: Joi.string().max(600),
     });
@@ -60,6 +73,13 @@ exports.register = asyncHandler(async (req, res, next) => {
       education: Joi.array().items(education_info),
       professional_profile: Joi.array().items(professional_profileInfo),
       resume: Joi.string(),
+      positionSought: Joi.object().keys({
+        domain: Joi.string(),
+        position: Joi.string(),
+        startDate: Joi.string(),
+        duration: Joi.string(),
+        alternationRhythm: Joi.string(),
+      }),
       languages: Joi.array().items({
         name: Joi.string(),
         skill: Joi.string().valid(
@@ -144,6 +164,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       professional_profile,
       education,
       resume,
+      positionSought,
       languages,
     } = req.body;
 
@@ -155,6 +176,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       professional_networks: professional_networks,
       professional_profile: professional_profile,
       education: education,
+      positionSought: positionSought,
       languages: languages,
       resume: uploadedResume,
       user: req.user.id,
@@ -206,6 +228,19 @@ exports.edit = asyncHandler(async (req, res, next) => {
 
     const education_info = Joi.object().keys({
       school: Joi.string(),
+      levelOfEducation: Joi.string().valid(
+        "Brevet",
+        "CAP",
+        "BEP",
+        "MC",
+        "BacGénéral",
+        "BacProfessionel",
+        "BTS",
+        "DUT",
+        "Licence",
+        "Master",
+        "Doctorat"
+      ),
       end_Date: Joi.string(),
       description: Joi.string().max(600),
     });
@@ -228,6 +263,13 @@ exports.edit = asyncHandler(async (req, res, next) => {
       education: Joi.array().items(education_info),
       professional_profile: Joi.array().items(professional_profileInfo),
       resume: Joi.string(),
+      positionSought: Joi.object().keys({
+        domain: Joi.string(),
+        position: Joi.string(),
+        startDate: Joi.string(),
+        duration: Joi.string(),
+        alternationRhythm: Joi.string(),
+      }),
       languages: Joi.array().items({
         name: Joi.string(),
         skill: Joi.string().valid(
@@ -311,6 +353,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
       professional_networks,
       professional_profile,
       education,
+      positionSought,
       resume,
       languages,
     } = req.body;
@@ -324,6 +367,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
         professional_networks: professional_networks,
         professional_profile: professional_profile,
         education: education,
+        positionSought: positionSought,
         resume: uploadedResume,
         languages: languages,
       },

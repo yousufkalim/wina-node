@@ -64,6 +64,22 @@ const StudentSchema = new mongoose.Schema({
         type: String,
         required: false,
       },
+      levelOfEducation: {
+        type: String,
+        enum: [
+          "Brevet",
+          "CAP",
+          "BEP",
+          "MC",
+          "BacGénéral",
+          "BacProfessionel",
+          "BTS",
+          "DUT",
+          "Licence",
+          "Master",
+          "Doctorat",
+        ],
+      },
       end_Date: {
         type: String,
         required: false,
@@ -110,6 +126,29 @@ const StudentSchema = new mongoose.Schema({
       },
     },
   ],
+
+  positionSought: {
+    domain: {
+      type: String,
+      required: false,
+    },
+    position: {
+      type: String,
+      required: false,
+    },
+    startDate: {
+      type: String,
+      required: false,
+    },
+    duration: {
+      type: String,
+      required: false,
+    },
+    alternationRhythm: {
+      type: String,
+      required: false,
+    },
+  },
 
   isDeleted: {
     type: Boolean,

@@ -67,6 +67,7 @@ const student = require("./routes/student");
 const company = require("./routes/company");
 const profile = require("./routes/profile");
 const admin = require("./routes/admin");
+const job = require("./routes/job");
 
 //// Mount Routers ////
 
@@ -74,8 +75,17 @@ app.use("/api/v1/auth", auth);
 app.use("/api/v1/student", student);
 app.use("/api/v1/company", company);
 app.use("/api/v1/profile", profile);
+app.use("/api/v1/job", job);
+
 // app.use("/api/v1/admin", admin);
 
+//// Error Handler
+app.use((error, req, res, next) => {
+  console.log("main error", error);
+  const message = error.message;
+  const status = error.status || 500;
+  res.status(status).json({ message: message, error: error });
+});
 //// Setting Port for Server ////
 
 const PORT = 3000 || process.env.PORT;
