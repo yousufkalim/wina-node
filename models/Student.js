@@ -18,7 +18,8 @@ const StudentSchema = new mongoose.Schema({
     },
     status: {
       type: String,
-      enum: ["Approved", "Pending"],
+      enum: ["None", "Validated", "To be Validated"],
+      default: "Validated",
       required: false,
     },
     required: false,
@@ -32,8 +33,8 @@ const StudentSchema = new mongoose.Schema({
     },
     status: {
       type: String,
-      enum: ["Approved", "Pending"],
-      default: "Approved",
+      enum: ["None", "Validated", "To be Validated"],
+      default: "Validated",
       required: false,
     },
     required: false,

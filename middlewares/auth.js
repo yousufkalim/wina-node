@@ -13,8 +13,6 @@ exports.protect = asyncHandler(async (req, res, next) => {
     token = req.headers.authorization.split(" ")[1];
   } else if (req.cookies.token) {
     token = req.cookies.token;
-    console.log(token);
-
   }
 
   //make sure token exists
@@ -24,7 +22,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
   try {
     //verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-     req.user = await User.findById(decoded.id);
+    req.user = await User.findById(decoded.id);
     next();
   } catch (err) {
     return res.status(401).send("Please Login to view that resource");
@@ -42,10 +40,10 @@ exports.authorize = (...roles) => {
   };
 };
 
-//Grant Access to specific types // 
+//Grant Access to specific types //
 
 exports.validateType = (...types) => {
-  return  (req, res, next) => {
+  return (req, res, next) => {
     if (!types.includes(req.user.type)) {
       return res.status(400).send("You have no access to view this resource");
     }

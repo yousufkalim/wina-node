@@ -1,80 +1,83 @@
-// const express = require("express");
-// const multer = require("multer");
-// const router = express.Router();
+const express = require("express");
+const multer = require("multer");
+const router = express.Router();
 
-// // ADMIN CONTROLLER //
-// const {
-//   UsersList,
-//   EditUser,
-//   DeleteUser,
-//   ProjectsList,
-//   EditProject,
-//   DeleteProject,
-//   getAllCategories,
-//   CreateCategory,
-//   EditCategory,
-//   DeleteCategory,
-//   getAllSkills,
-//   CreateSkillField,
-//   CreateSkill,
-//   EditSkillField,
-//   DeleteSkillField,
-//   getAllMaterials,
-//   CreateMaterial,
-//   EditMaterial,
-//   DeleteMaterial,
-// } = require("../controllers/admin");
+// MULTER Configuaration //
 
-// // Middleware Functions //
-// const {
-//   protect,
-//   authorize,
-//   dashboard,
-//   customer_dashboard,
-// } = require("../middlewares/auth");
+const storage = multer.diskStorage({
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+  destination: function (req, file, cb) {
+    cb(null, "views/uploads");
+  },
+});
+const upload = multer({ storage: storage }).single("image");
 
-// //// GET ALL USERS ////
-// router.get("/userslist", protect, UsersList);
-// // EDIT USERS //
-// router.post("/edit-user", protect, EditUser);
-// // DELETE USERS //
-// router.post("/delete-user", protect, DeleteUser);
+// ADMIN CONTROLLER //
+const {
+  skillList,
+  createSkill,
+  editSkill,
+  deleteSkill,
+  jobList,
+  CreateJob,
+  EditJob,
+  DeleteJob,
+  registerCompany,
+  editCompany,
+  deleteCompany,
+  companyList,
+  registerUser,
+  GetProfile,
+  userList,
+  editProfile,
+  DeleteProfile,
+  validateFiles,
+  StudentfilesToValidate,
+} = require("../controllers/admin");
 
-// //// GET ALL PROJECTS ////
-// router.get("/projectslist", protect, ProjectsList);
-// // EDIT PROJECTS //
-// router.post("/edit-project", protect, EditProject);
-// // DELETE PROJECTS //
-// router.post("/delete-project", protect, DeleteProject);
+// Middleware Functions //
+const { protect, authorize } = require("../middlewares/auth");
 
-// //// GET ALL Categories ////
-// router.get("/categoryList", protect, getAllCategories);
-// //// Create Project Category ////
-// router.post("/create-category", protect, CreateCategory);
-// // EDIT PROJECTS CATEGORY //
-// router.post("/edit-category", protect, EditCategory);
-// // DELETE PROJECTS CATEGORY //
-// router.post("/delete-category", protect, DeleteCategory);
+// ROUTES
 
-// //// GET ALL Skills ////
-// router.get("/skillList", protect, getAllSkills);
-// // Create SkillField Route //
-// router.post("/create-skillField", protect, CreateSkillField);
-// // EDIT SkillField CATEGORY //
-// router.post("/edit-skillField", protect, EditSkillField);
-// // DELETE PROJECTS CATEGORY //
-// router.post("/delete-skillField", protect, DeleteSkillField);
+//Skills
+router.get("/skill-list", [protect, authorize("admin")], skillList);
+router.post("/create-skill", [protect, authorize("admin")], createSkill);
+router.put("/edit-skill/:id", [protect, authorize("admin")], editSkill);
+router.put("/delete-skill/:id", [protect, authorize("admin")], deleteSkill);
 
-// // Create Skills Route //
-// router.post("/create-skill", protect, CreateSkill);
+//Jobs
+router.get("/job-list", [protect, authorize("admin")], upload, jobList);
+router.post("/create-job", [protect, authorize("admin")], upload, CreateJob);
+router.put("/edit-job/:id", [protect, authorize("admin")], upload, EditJob);
+router.put("/delete-job/:id", [protect, authorize("admin")], DeleteJob);
 
-// //// GET ALL Materials ////
-// router.get("/materialList", protect, getAllMaterials);
-// // Create Materials Route //
-// router.post("/create-material", protect, CreateMaterial);
-// // EDIT PROJECTS CATEGORY //
-// router.post("/edit-material", protect, EditMaterial);
-// // DELETE PROJECTS CATEGORY //
-// router.post("/delete-material", protect, DeleteMaterial);
+//Companies
+router.get("company-list", [protect, authorize("admin")], companyList);
 
-// module.exports = router;
+router.post(
+  "/register-company",
+  [protect, authorize("admin")],
+  registerCompany
+);
+router.put("/edit-company/:id", [protect, authorize("admin")], editCompany);
+router.put("/delete-company/:id", [protect, authorize("admin")], deleteCompany);
+
+//Users
+router.post("/register-user", [protect, authorize("admin")], registerUser);
+router.get("/get-profile/:id", [protect, authorize("admin")], GetProfile);
+router.get("/user-list", [protect, authorize("admin")], userList);
+router.put("/editProfile/:id", [protect, authorize("admin")], editProfile);
+router.put("/delete-profile/:id", [protect, authorize("admin")], DeleteProfile);
+
+// VALIDATE PICTURES & VIDEOS
+router.get(
+  "/filesToValidate",
+  [protect, authorize("admin")],
+  StudentfilesToValidate
+);
+router.post("/validate-files", [protect, authorize("admin")], validateFiles);
+
+module.exports = router;

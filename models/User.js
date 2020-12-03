@@ -41,7 +41,13 @@ const UserSchema = new mongoose.Schema({
 
   type: {
     type: String,
-    enum: ["student", "studentConsultant", "companyConsultant", "user"],
+    enum: [
+      "student",
+      "studentConsultant",
+      "companyConsultant",
+      "company",
+      "user",
+    ],
     required: false,
     default: "user",
   },

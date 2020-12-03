@@ -5,15 +5,18 @@ const SkillSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  skill : [{
-    
-      type : String,
-      required : false
-  }],
+  skillType: {
+    type: String,
+    enum: ["Soft SKill", "Hard Skill"],
+  },
   isDeleted: {
     type: Boolean,
     required: false,
     default: false,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 

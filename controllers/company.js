@@ -175,7 +175,13 @@ exports.deleteCompany = asyncHandler(async (req, res, next) => {
         isDeleted: true,
       },
       { new: true }
-    );
+    ).then(async () => {
+      await Job.update(
+        { company: companyID },
+        { $set: { isDeleted: true } },
+        { multi: true }
+      );
+    });
 
     res.status(200).json({ message: "Company has been deleted Successfully!" });
   } catch (err) {

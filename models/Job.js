@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const JobSchema = new mongoose.Schema({
   title: {
     type: String,
-    default: false,
+    required: false,
   },
   status: {
     type: String,
@@ -40,8 +40,8 @@ const JobSchema = new mongoose.Schema({
     },
     status: {
       type: String,
-      enum: ["Approved", "Pending"],
-      default: "Pending",
+      enum: ["None", "Validated", "To be Validated"],
+      default: "Validated",
       required: false,
     },
     required: false,
@@ -81,20 +81,18 @@ const JobSchema = new mongoose.Schema({
     },
   ],
 
-  skills: [
+  softSkills: [
     {
-      softSkills: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Skill",
-        },
-      ],
-      hardSkills: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Skill",
-        },
-      ],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Skill",
+      required: false,
+    },
+  ],
+  hardSkills: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Skill",
+      required: false,
     },
   ],
 

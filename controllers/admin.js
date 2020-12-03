@@ -1,350 +1,794 @@
-// const express = require("express");
-// const mongoose = require("mongoose");
-// const jwt = require("jsonwebtoken");
-// const bcrypt = require("bcryptjs");
-// const Joi = require("joi");
-// const ErrorResponse = require("../utils/errorResponse");
-// const asyncHandler = require("../middlewares/async");
-// const User = require("../models/User");
-// const Project = require("../models/Project");
-// const Category = require("../models/Student");
-// const Skill = require("../models/Skill");
-// const Material = require("../models/Material");
+const express = require("express");
+const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const Joi = require("joi");
+const ErrorResponse = require("../utils/errorResponse");
+const asyncHandler = require("../middlewares/async");
+const User = require("../models/User");
+const Skill = require("../models/Skill");
+const Job = require("../models/Job");
+const Company = require("../models/Company");
+const Student = require("../models/Student");
+const StudentConsultant = require("../models/StudentConsultant");
+const CompanyConsultant = require("../models/CompanyConsultant");
 
-// // GET ALL USERS //
-// exports.UsersList = asyncHandler(async (req, res, next) => {
-//   await User.find({ role: "user" }, function (err, docs) {
-//     if (err) res.json(err);
-//     else
-//       res.status(200).json({
-//         users: docs,
-//       });
-//   });
-// });
+// Get List of Skills
+exports.skillList = asyncHandler(async (req, res, next) => {
+  try {
+    const listOfSkills = await Skill.find({ isDeleted: false });
+    res.status(200).json({ listOfSkills: listOfSkills });
+  } catch (err) {
+    next(err);
+  }
+});
 
-// // EDIT USERS //
-// exports.EditUser = asyncHandler(async (req, res, next) => {
-//   const picture = req.file;
-//   if (picture) {
-//     var uploaded_Picture = req.file.filename;
-//   }
+// CREATE Skill
+exports.createSkill = asyncHandler(async (req, res, next) => {
+  try {
+    const schema = Joi.object().keys({
+      skillField: Joi.string(),
+      skillType: Joi.string().valid("Soft SKill", "Hard Skill"),
+    });
 
-//   const nestedSchema = Joi.object().keys({
-//     skillField: Joi.string().max(20),
-//     specialization: Joi.string().max(20),
-//     score: Joi.number().max(20),
-//   });
-//   let services = Joi.array().max(3).items(nestedSchema);
+    const results = schema.validate(req.body);
+    if (results.error) {
+      return res.status(400).send(results.error.details[0].message);
+    }
+    const { skillField, skillType } = req.body;
 
-//   const schema = Joi.object().keys({
-//     username: Joi.string().min(5).max(20),
-//     city: Joi.string().max(20),
-//     profile_picture: Joi.string().max(255),
-//     profile_description: Joi.string().max(600),
-//     skills: services,
-//     material: Joi.array().items(Joi.string()),
-//   });
+    const newSkill = new Skill({
+      skillField: skillField,
+      skillType: skillType,
+    });
+    await newSkill.save();
+    res.status(200).json({ message: "Skill Created Successfully" });
+  } catch (err) {
+    next(err);
+  }
+});
 
-//   const user = await User.findByIdAndUpdate(
-//     req.query.id,
-//     {
-//       username: req.body.username,
-//       city: req.body.city,
-//       profile_description: req.body.profile_description,
-//       profile_picture: uploaded_Picture || "default.png",
-//       skills: req.body.skills,
-//       $push: { material: req.body.material },
-//     },
-//     { new: true }
-//   );
-//   res.status(200).json({ user: user });
-// });
+// EDIT Skill
+exports.editSkill = asyncHandler(async (req, res, next) => {
+  try {
+    const skillID = req.params.id;
+    const schema = Joi.object().keys({
+      skillField: Joi.string(),
+      skillType: Joi.string().valid("Soft Skill", "Hard Skill"),
+    });
 
-// // DELETE USERS //
-// exports.DeleteUser = asyncHandler(async (req, res, next) => {
-//   const user = await User.findByIdAndUpdate(req.query.id, {
-//     isDeleted: true,
-//   });
-//   res.status(200).send("Profile Deleted Successfully");
-// });
+    const results = schema.validate(req.body);
+    if (results.error) {
+      return res.status(400).send(results.error.details[0].message);
+    }
+    const { skillField, skillType } = req.body;
+    const skill = await Skill.findByIdAndUpdate(
+      skillID,
+      {
+        skillField: skillField,
+        skillType: skillType,
+      },
+      {
+        new: true,
+      }
+    );
+    res.status(200).json({ message: "Skill Updated Successfully" });
+  } catch (err) {
+    next(err);
+  }
+});
 
-// // GET ALL PROJECTS //
-// exports.ProjectsList = asyncHandler(async (req, res, next) => {
-//   await Project.find({ isDeleted: false }, function (err, docs) {
-//     if (err) res.json(err);
-//     else
-//       res.status(200).json({
-//         projects: docs,
-//       });
-//   });
-// });
+//DELETE Skill
+exports.deleteSkill = asyncHandler(async (req, res, next) => {
+  try {
+    const skillID = req.params.id;
 
-// // EDIT PROJECTS //
-// exports.EditProject = asyncHandler(async (req, res, next) => {
-//   const picture = req.file;
-//   if (picture) {
-//     var uploaded_Picture = req.file.filename;
-//   }
+    const skill = await Skill.findByIdAndUpdate(
+      skillID,
+      {
+        isDeleted: true,
+      },
+      {
+        new: true,
+      }
+    );
+    res.status(200).json({ message: "Skill Deleted Successfully" });
+  } catch (err) {
+    next(err);
+  }
+});
 
-//   //// Validation ////
+//JOBS
 
-//   const nestedSchema = Joi.object().keys({
-//     name: Joi.string().max(20),
-//     status: Joi.string(),
-//     skillField: Joi.string(),
-//     speciality: Joi.string().max(20),
-//     material: Joi.array().items(Joi.string()),
-//     contributing_user: Joi.array().items(Joi.string()),
-//   });
+// Get List of jobs
+exports.jobList = asyncHandler(async (req, res, next) => {
+  try {
+    const jobList = await Job.find({ isDeleted: false });
+    res.status(200).json({ ListOfJobs: jobList });
+  } catch (err) {
+    next(err);
+  }
+});
 
-//   let services = Joi.array().items(nestedSchema);
+//Create Job
+exports.CreateJob = asyncHandler(async (req, res, next) => {
+  try {
+    const requestedUser = await User.findById(req.user.id);
+    const companyID = req.body.company;
+    //validations
+    const location_object = Joi.object().keys({
+      street: Joi.string().required(),
+      city: Joi.string().required(),
+      zip: Joi.string().required(),
+      latitude: Joi.number().required(),
+      longitude: Joi.number().required(),
+    });
 
-//   const schema = Joi.object().keys({
-//     title: Joi.string().min(5).max(40),
-//     type: Joi.string(),
-//     progress: Joi.string(),
-//     general_photo: Joi.string().max(255),
-//     general_description: Joi.string().max(600),
-//     implementation_steps: services,
-//     category: Joi.string(),
-//   });
+    const schema = Joi.object().keys({
+      title: Joi.string(),
+      status: Joi.string().valid("open", "filled"),
+      domain: Joi.string(),
+      photo: Joi.string(),
+      position: Joi.string(),
+      startDate: Joi.string(),
+      duration: Joi.string(),
+      location: location_object,
+      alternationRhythm: Joi.string(),
+      softSkills: Joi.array(),
+      hardSkills: Joi.array(),
+      company: Joi.string(),
+      levelOfEducation: Joi.string().valid(
+        "Brevet",
+        "CAP",
+        "BEP",
+        "MC",
+        "BacGénéral",
+        "BacProfessionel",
+        "BTS",
+        "DUT",
+        "Licence",
+        "Master",
+        "Doctorat"
+      ),
+    });
+    const results = schema.validate(req.body);
+    if (results.error) {
+      return res.status(400).send(results.error.details[0].message);
+    }
+    let UploadedPicture = "";
+    if (req.file) {
+      if (
+        req.file.mimetype == "image/jpeg" ||
+        req.file.mimetype == "image/jpg" ||
+        req.file.mimetype == "image/png"
+      ) {
+        if (!(req.file.size <= 10485760)) {
+          const error = new Error("Cannot upload file size greater than 10MB");
+          error.status = 400;
+          throw error;
+        } else {
+          UploadedPicture = {
+            image: req.file.filename,
+            status: "Pending",
+          };
+        }
+      } else {
+        const error = new Error(
+          "Please select an image of File type JPEG/JPG/PNG"
+        );
+        error.status = 400;
+        throw error;
+      }
+    }
 
-//   const results = schema.validate(req.body);
-//   if (results.error) {
-//     return res.status(400).send(results.error.details[0].message);
-//   }
+    const {
+      title,
+      status,
+      domain,
+      position,
+      startDate,
+      duration,
+      location,
+      alternationRhythm,
+      softSkills,
+      hardSkills,
+      levelOfEducation,
+    } = req.body;
 
-//   //// Updating Implementation Steps Array ////
+    // Creating new student in Database //
+    const newJob = new Job({
+      title: title,
+      status: status,
+      domain: domain,
+      position: position,
+      startDate: startDate,
+      duration: duration,
+      location: location,
+      alternationRhythm: alternationRhythm,
+      photo: UploadedPicture || "",
+      softSkills: softSkills,
+      hardSkills: hardSkills,
+      levelOfEducation: levelOfEducation,
+      company: companyID,
+    });
+    await newJob.save();
 
-//   const project = await Project.findByIdAndUpdate(
-//     req.query.id,
-//     {
-//       title: req.body.title,
-//       type: req.body.type,
-//       progress: req.body.progress,
-//       general_description: req.body.general_description,
-//       general_photo: uploaded_Picture || "default.png",
-//       implementation_steps: req.body.implementation_steps,
-//     },
-//     { new: true }
-//   );
-//   res.status(200).json({ project: project });
-// });
+    // Assigning new job ID to company //
+    const company = await Company.findByIdAndUpdate(companyID, {
+      $push: { job: newJob._id },
+    });
 
-// // DELETE PROJECTS //
-// exports.DeleteProject = asyncHandler(async (req, res, next) => {
-//   await Project.findByIdAndUpdate(req.query.id, {
-//     isDeleted: true,
-//   });
-//   res.status(200).send("Project Deleted Successfully");
-// });
+    res.status(200).json({
+      message: "Success! Job created.",
+      job: newJob,
+      user: requestedUser,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
-// // Get All Categories //
-// exports.getAllCategories = asyncHandler(async (req, res, next) => {
-//   await Category.find(function (err, docs) {
-//     if (err) res.json(err);
-//     else
-//       res.status(200).json({
-//         categories: docs,
-//       });
-//   });
-// });
+//// Edit Job ////
 
-// // Create Project Category//
-// exports.CreateCategory = asyncHandler(async (req, res, next) => {
-//   const { name, color } = req.body;
+exports.EditJob = asyncHandler(async (req, res, next) => {
+  try {
+    const requestedUser = await User.findById(req.user.id);
+    const companyID = req.body.company;
+    //validations
+    const location_object = Joi.object().keys({
+      street: Joi.string().required(),
+      city: Joi.string().required(),
+      zip: Joi.string().required(),
+      latitude: Joi.number().required(),
+      longitude: Joi.number().required(),
+    });
 
-//   //// Check If Category exists with this name or not ////
+    const schema = Joi.object().keys({
+      title: Joi.string(),
+      status: Joi.string().valid("open", "filled"),
+      domain: Joi.string(),
+      photo: Joi.string(),
+      position: Joi.string(),
+      startDate: Joi.string(),
+      duration: Joi.string(),
+      location: location_object,
+      alternationRhythm: Joi.string(),
+      softSkills: Joi.array(),
+      hardSkills: Joi.array(),
+      levelOfEducation: Joi.string().valid(
+        "Brevet",
+        "CAP",
+        "BEP",
+        "MC",
+        "BacGénéral",
+        "BacProfessionel",
+        "BTS",
+        "DUT",
+        "Licence",
+        "Master",
+        "Doctorat"
+      ),
+    });
+    const results = schema.validate(req.body);
+    if (results.error) {
+      return res.status(400).send(results.error.details[0].message);
+    }
+    let UploadedPicture = "";
+    if (req.file) {
+      if (
+        req.file.mimetype == "image/jpeg" ||
+        req.file.mimetype == "image/jpg" ||
+        req.file.mimetype == "image/png"
+      ) {
+        if (!(req.file.size <= 10485760)) {
+          const error = new Error("Cannot upload file size greater than 10MB");
+          error.status = 400;
+          throw error;
+        } else {
+          UploadedPicture = {
+            image: req.file.filename,
+            status: "Pending",
+          };
+        }
+      } else {
+        const error = new Error(
+          "Please select an image of File type JPEG/JPG/PNG"
+        );
+        error.status = 400;
+        throw error;
+      }
+    }
 
-//   const result = await Category.findOne({ name: name });
-//   if (result) {
-//     res.status(400).send("Category name already exists");
-//   } else {
-//     // Saving Category in DataBase
-//     const category = await Category.create({
-//       name,
-//       color,
-//     });
-//     res.status(200).json({ category: category });
-//   }
-// });
+    const {
+      title,
+      domain,
+      position,
+      startDate,
+      duration,
+      location,
+      alternationRhythm,
+      softSkills,
+      hardSkills,
+      levelOfEducation,
+    } = req.body;
 
-// // Edit Project Category //
-// exports.EditCategory = asyncHandler(async (req, res, next) => {
-//   const { name, color } = req.body;
+    const updatedJob = await Job.findByIdAndUpdate(
+      req.params.id,
+      {
+        title: title,
+        domain: domain,
+        position: position,
+        startDate: startDate,
+        duration: duration,
+        location: location,
+        alternationRhythm: alternationRhythm,
+        photo: UploadedPicture || "",
+        softSkills: softSkills,
+        hardSkills: hardSkills,
+        levelOfEducation: levelOfEducation,
+      },
+      {
+        new: true,
+      }
+    );
+    res
+      .status(200)
+      .json({ message: "Success! Job Updated by ADMIN", Job: updatedJob });
+  } catch (err) {
+    next(err);
+  }
+});
 
-//   //// Check If Category exists with this name or not ////
+// Delete Job
+exports.DeleteJob = asyncHandler(async (req, res, next) => {
+  try {
+    const jobID = req.params.id;
+    const job = await Job.findById(jobID);
+    const companyID = job.company;
 
-//   const result = await Category.findOne({ name: name });
-//   if (result) {
-//     res.status(400).send("Category name already exists");
-//   } else {
-//     const category = await Category.findByIdAndUpdate(
-//       req.query.id,
-//       {
-//         name: req.body.name,
-//         color: req.body.color,
-//       },
-//       { new: true }
-//     );
-//     res.status(200).json({ category: category });
-//   }
-// });
+    await Job.findByIdAndUpdate(jobID, {
+      isDeleted: true,
+    }).then(async () => {
+      const company = await Company.findByIdAndUpdate(companyID, {
+        $pull: { job: jobID },
+      });
+    });
+    res
+      .status(200)
+      .json({ message: "Job has been deleted successfully by ADMIN" });
+  } catch (err) {
+    next(err);
+  }
+});
 
-// // Delete Project Category //
-// exports.DeleteCategory = asyncHandler(async (req, res, next) => {
-//   await Category.findByIdAndUpdate(req.query.id, {
-//     isDeleted: true,
-//   });
-//   res.status(200).send("Category Deleted Successfully");
-// });
+//Company
 
-// // Get All Skills //
-// exports.getAllSkills = asyncHandler(async (req, res, next) => {
-//   await Skill.find({ isDeleted: false }, function (err, docs) {
-//     if (err) res.json(err);
-//     else
-//       res.status(200).json({
-//         skills: docs,
-//       });
-//   });
-// });
+//GET ALL COMPANIES
+exports.companyList = asyncHandler(async (req, res, next) => {
+  try {
+    const listOfCompanies = await Company.find({ isDeleted: false });
+    res.status(200).json({ listOfCompanies: listOfCompanies });
+  } catch (err) {
+    next(err);
+  }
+});
 
-// // Create SkillField //
-// exports.CreateSkillField = asyncHandler(async (req, res, next) => {
-//   const { skillField } = req.body;
+// Register Company
 
-//   //// Check If Skill exists with this name or not ////
+exports.registerCompany = asyncHandler(async (req, res, next) => {
+  try {
+    const requestedUser = await User.findById(req.user.id);
+    if (
+      requestedUser.student ||
+      requestedUser.company ||
+      requestedUser.studentConsultant ||
+      requestedUser.companyConsultant
+    ) {
+      const error = new Error("Access Denied!");
+      error.status = 400;
+      throw error;
+    }
+    // Validating body //
+    const address_object = Joi.object().keys({
+      street: Joi.string().required(),
+      city: Joi.string().required(),
+      zip: Joi.string().required(),
+      latitude: Joi.number().required(),
+      longitude: Joi.number().required(),
+    });
 
-//   const result = await Skill.findOne({ skillField: skillField });
-//   if (result) {
-//     res.status(400).send("SkillField already exists");
-//   } else {
-//     // Saving Skill in DataBase
-//     const skill = await Skill.create({
-//       skillField: skillField,
-//     });
-//     res.status(200).json({ skillField: skillField });
-//   }
-// });
+    const schema = Joi.object().keys({
+      name: Joi.string().max(250),
+      address: address_object.required(),
+      type: Joi.string().valid("Startup", "PME", "TPE", "GE", "ETI"),
+      siretNumber: Joi.string()
+        .max(20)
+        .pattern(/^[0-9]+$/),
+      website: Joi.string().uri().max(250),
+      linkedIn: Joi.string().uri().max(300),
+      groupName: Joi.string().max(100),
+      positionHeld: Joi.string().max(250),
+    });
 
-// // Edit SkillField //
-// exports.EditSkillField = asyncHandler(async (req, res, next) => {
-//   const { skillField, skills } = req.body;
+    // Returns Error if any
+    const results = schema.validate(req.body);
+    if (results.error) {
+      return res.status(400).send(results.error.details[0].message);
+    }
 
-//   const skillFieldID = req.query.id;
-//   //// Check If SkillField exists with this name or not ////
-//   if (skillField) {
-//     const result = await Skill.findOne({ skillField: skillField });
-//     if (result) {
-//       res.status(400).send("SkillField already exists");
-//       return;
-//     } else {
-//       const skill = await Skill.findByIdAndUpdate(
-//         req.query.id,
-//         {
-//           skillField: skillField,
-//         },
-//         { new: true }
-//       );
-//     }
-//   }
-//   if (skills == undefined) {
-//     res.status(200).json({ message: "SkillField Updated Successfully" });
-//     return;
-//   } else {
-//     const result = await Skill.find({ id: skillFieldID, skill: skills });
-//     if (result.length == 0) {
-//       await Skill.findByIdAndUpdate(skillFieldID, {
-//         skill: skills,
-//       });
-//       return res.status(200).json({ message: "Skill Updated successfully" });
-//     } else {
-//       res.status(400).json({ message: "Skill name Already Exists" });
-//     }
-//   }
-// });
+    // parameters
+    const {
+      name,
+      address,
+      type,
+      siretNumber,
+      website,
+      linkedIn,
+      groupName,
+      positionHeld,
+    } = req.body;
 
-// // Delete SkillField //
-// exports.DeleteSkillField = asyncHandler(async (req, res, next) => {
-//   await Skill.findByIdAndUpdate(req.query.id, {
-//     isDeleted: true,
-//   });
-//   res.status(200).send("Skill Deleted Successfully");
-// });
+    // Creating new Company in Database //
+    const newCompany = new Company({
+      name: name,
+      address: address,
+      type: type,
+      siretNumber: siretNumber,
+      website: website,
+      linkedIn: linkedIn,
+      groupName: groupName,
+      contactPerson: {
+        person: req.user.id,
+        positionHeld: positionHeld,
+      },
+    });
+    await newCompany.save();
 
-// // Create Skill //
-// exports.CreateSkill = asyncHandler(async (req, res, next) => {
-//   const skillFieldID = req.query.id;
-//   const skill = req.body.skill;
+    // Assigning new Company ID to Loggined In User //
+    const user = await User.findByIdAndUpdate(req.user.id, {
+      company: newCompany._id,
+    });
+    res.status(200).json({
+      message: "Success! Company has been registered by ADMIN.",
+      Company: newCompany,
+      user: user,
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
 
-//   const result = await Skill.findOne({
-//     $and: [{ _id: skillFieldID, skill: skill }],
-//   });
-//   if (result) {
-//     res.status(403).json({ message: "Skill Name already exists" });
-//   } else {
-//     await Skill.findByIdAndUpdate(skillFieldID, {
-//       $push: { skill: skill },
-//     });
-//     res.status(200).json({ message: "Skill added in SkillField Successfully" });
-//   }
-// });
+// Edit Company
+exports.editCompany = asyncHandler(async (req, res, next) => {
+  try {
+    let user = await User.findById(req.user.id);
+    let companyID = req.params.id;
+    // Validating body //
+    const address_object = Joi.object().keys({
+      street: Joi.string().required(),
+      city: Joi.string().required(),
+      zip: Joi.string().required(),
+      latitude: Joi.number().required(),
+      longitude: Joi.number().required(),
+    });
 
-// // Create Material //
-// exports.CreateMaterial = asyncHandler(async (req, res, next) => {
-//   const { name } = req.body;
+    const schema = Joi.object().keys({
+      name: Joi.string().max(250),
+      address: address_object.required(),
+      type: Joi.string().valid("Startup", "PME", "TPE", "GE", "ETI"),
+      siretNumber: Joi.string()
+        .max(20)
+        .pattern(/^[0-9]+$/),
+      website: Joi.string().uri().max(250),
+      linkedIn: Joi.string().uri().max(300),
+      groupName: Joi.string().max(100),
+      positionHeld: Joi.string().max(250),
+    });
 
-//   //// Check If Material exists with this name or not ////
+    // Returns Error if any
+    const results = schema.validate(req.body);
+    if (results.error) {
+      return res.status(400).send(results.error.details[0].message);
+    }
 
-//   const result = await Material.findOne({ name: name });
-//   if (result) {
-//     res.status(400).send("Material name already exists");
-//   } else {
-//     // Saving Material in DataBase
-//     const material = await Material.create({
-//       name: req.body.name,
-//     });
-//     res.status(200).json({ material: material });
-//   }
-// });
+    // parameters
+    const {
+      name,
+      address,
+      type,
+      siretNumber,
+      website,
+      linkedIn,
+      groupName,
+      positionHeld,
+    } = req.body;
 
-// // Get All Materials //
-// exports.getAllMaterials = asyncHandler(async (req, res, next) => {
-//   await Material.find({ isDeleted: false }, function (err, docs) {
-//     if (err) res.json(err);
-//     else
-//       res.status(200).json({
-//         materials: docs,
-//       });
-//   });
-// });
+    const company = await Company.findByIdAndUpdate(
+      companyID,
+      {
+        name: name,
+        address: address,
+        type: type,
+        siretNumber: siretNumber,
+        website: website,
+        linkedIn: linkedIn,
+        groupName: groupName,
+        contactPerson: {
+          person: req.user.id,
+          positionHeld: positionHeld,
+        },
+      },
+      { new: true }
+    );
+    res.status(200).json({
+      message: "Company Updated Successfully by Admin!",
+      company: company,
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
 
-// // Edit Material //
-// exports.EditMaterial = asyncHandler(async (req, res, next) => {
-//   const { name } = req.body;
+// Delete Company
+exports.deleteCompany = asyncHandler(async (req, res, next) => {
+  try {
+    const userID = req.user.id;
+    const companyID = req.params.id;
+    const requestedUser = await User.findById(userID);
+    await Company.findByIdAndUpdate(
+      companyID,
+      {
+        isDeleted: true,
+      },
+      { new: true }
+    ).then(async () => {
+      await Job.update(
+        { company: companyID },
+        { $set: { isDeleted: true } },
+        { multi: true }
+      );
+    });
 
-//   //// Check If Category exists with this name or not ////
+    res.status(200).json({ message: "Company has been deleted Successfully!" });
+  } catch (err) {
+    res.status(400).message({ message: err.message });
+  }
+});
 
-//   const result = await Material.findOne({ name: name });
-//   if (result) {
-//     res.status(400).send("Material name already exists");
-//   } else {
-//     const material = await Material.findByIdAndUpdate(
-//       req.query.id,
-//       {
-//         name: req.body.name,
-//       },
-//       { new: true }
-//     );
-//     res.status(200).json({ material: material });
-//   }
-// });
+//Users
 
-// // Delete Skill //
-// exports.DeleteMaterial = asyncHandler(async (req, res, next) => {
-//   await Material.findByIdAndUpdate(req.query.id, {
-//     isDeleted: true,
-//   });
-//   res.status(200).send("Material Deleted Successfully");
-// });
+// Create User
+exports.registerUser = asyncHandler(async (req, res, next) => {
+  try {
+    // Validation for req.body //
+    const address_object = Joi.object().keys({
+      street: Joi.string().required(),
+      city: Joi.string().required(),
+      zip: Joi.string().required(),
+      latitude: Joi.number().required(),
+      longitude: Joi.number().required(),
+    });
+
+    const schema = Joi.object().keys({
+      firstName: Joi.string().max(250).required(),
+      lastName: Joi.string().max(250).required(),
+      email: Joi.string().email().required(),
+      phone: Joi.string()
+        .max(10)
+        .pattern(/^[0-9]+$/)
+        .required(),
+      address: address_object.required(),
+      type: Joi.string().valid(
+        "student",
+        "company",
+        "studentConsultant",
+        "companyConsultant"
+      ),
+      status: Joi.string().valid("active", "deactive"),
+      password: Joi.string().min(6).max(255).required(),
+      confirm_password: Joi.string().min(6).max(255).required(),
+    });
+
+    // Storing Error Responses in Result //
+    const results = schema.validate(req.body);
+    if (results.error) {
+      return res.status(400).send(results.error.details[0].message);
+    }
+
+    const {
+      firstName,
+      lastName,
+      type,
+      status,
+      email,
+      password,
+      confirm_password,
+      address,
+      phone,
+    } = req.body;
+
+    //// Check If Password and Confirm Password are same or not ////
+    if (password !== confirm_password) {
+      res.status(403).send("Password and Confirm Password are not same");
+    }
+
+    //// Check If user exist with this Email or not ////
+    const result = await User.findOne({ email: email });
+    if (result) {
+      res.status(404).send("User already registered with this Email Address");
+    } else {
+      // Saving User in DataBase
+      const user = await User.create({
+        firstName,
+        lastName,
+        email,
+        type,
+        status: "active",
+        address,
+        password,
+        phone,
+      });
+
+      res
+        .status(200)
+        .json({ message: "User created successfully", user: user });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET single user Profile
+exports.GetProfile = asyncHandler(async (req, res, next) => {
+  try {
+    const userID = req.params.id;
+    const user = await User.findById(userID);
+    res.status(200).json({ user: user });
+  } catch (err) {
+    res.status(400).res.json({ message: err.message });
+  }
+});
+
+// Edit profile
+exports.editProfile = asyncHandler(async (req, res, next) => {
+  // Validation for req.body //
+  try {
+    const userID = req.params.id;
+    const address_object = Joi.object().keys({
+      street: Joi.string().required(),
+      city: Joi.string().required(),
+      zip: Joi.string().required(),
+      latitude: Joi.number().required(),
+      longitude: Joi.number().required(),
+    });
+
+    const schema = Joi.object().keys({
+      firstName: Joi.string().max(250).required(),
+      lastName: Joi.string().max(250).required(),
+      phone: Joi.string()
+        .max(10)
+        .pattern(/^[0-9]+$/)
+        .required(),
+      address: address_object.required(),
+    });
+    // Check if the skills are in database or not, If Not then saving them in the database//
+
+    const user = await User.findByIdAndUpdate(
+      userID,
+      {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        address: req.body.address,
+        phone: req.body.phone,
+      },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json({ message: "Profile updated successfully by ADMIN!", user: user });
+  } catch (err) {
+    res.status(400).res.json({ message: err.message });
+  }
+});
+
+// Delete User profile
+exports.DeleteProfile = asyncHandler(async (req, res, next) => {
+  try {
+    const userID = req.params.id;
+    const requestedUser = await User.findById(userID);
+    const user = await User.findByIdAndUpdate(
+      userID,
+      {
+        isDeleted: true,
+      },
+      { new: true }
+    ).then(async () => {
+      if (requestedUser.student) {
+        await Student.findByIdAndUpdate(requestedUser.student, {
+          isDeleted: true,
+        });
+      } else if (requestedUser.company) {
+        await Company.findByIdAndUpdate(requestedUser.company, {
+          isDeleted: true,
+        });
+      } else if (requestedUser.studentConsultant) {
+        await StudentConsultant.findByIdAndUpdate(
+          requestedUser.studentConsultant,
+          {
+            isDeleted: true,
+          }
+        );
+      } else if (requestedUser.companyConsultant) {
+        await CompanyConsultant.findByIdAndUpdate(
+          requestedUser.companyConsultant,
+          {
+            isDeleted: true,
+          }
+        );
+      }
+    });
+    res.status(200).json({ message: "User has been deleted Successfully!" });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET List of Users
+exports.userList = asyncHandler(async (req, res, next) => {
+  try {
+    const listOfUsers = await User.find({ isDeleted: false });
+    res.status(200).json({ listOfUsers: listOfUsers });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Validate PICTURES & VIDEOS
+exports.StudentfilesToValidate = asyncHandler(async (req, res, next) => {
+  try {
+    let pictures = [];
+    let videos = [];
+    const students = await Student.find({
+      $and: [
+        {
+          $or: [
+            { "professional_Picture.status": "To be Validated" },
+            { "presentation_Video.status": "To be Validated" },
+          ],
+        },
+        { isDeleted: false },
+      ],
+    });
+    students.map((item) => {
+      pictures.push(item.professional_Picture);
+      videos.push(item.presentation_Video);
+    });
+    res
+      .status(200)
+      .json({ students: students, pictures: pictures, videos: videos });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Validate PICTURES & VIDEOS
+exports.validateFiles = asyncHandler(async (req, res, next) => {
+  try {
+    const decision = req.body.decision;
+    const studentId = req.body.studentId;
+
+    if (decision == "Validated") {
+      const student = await Student.findByIdAndUpdate(studentId, {
+        "professional_Picture.status": "Validated",
+      });
+      res.status(200).json({ message: "Picture validated" });
+    } else if (decision == "refuse") {
+      const student = await Student.findByIdAndUpdate(studentId, {
+        $unset: { professional_Picture: 1 },
+      });
+      res.status(200).json({ message: "Picture has been deleted" });
+    }
+  } catch (err) {
+    next(err);
+  }
+});

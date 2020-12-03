@@ -75,6 +75,7 @@ app.use("/api/v1/auth", auth);
 app.use("/api/v1/student", student);
 app.use("/api/v1/company", company);
 app.use("/api/v1/profile", profile);
+app.use("/api/v1/admin", admin);
 app.use("/api/v1/job", job);
 
 // app.use("/api/v1/admin", admin);

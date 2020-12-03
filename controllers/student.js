@@ -109,7 +109,7 @@ exports.register = asyncHandler(async (req, res, next) => {
           } else {
             video = {
               video: req.files.video[0].filename,
-              status: "Pending",
+              status: "To be Validated",
             };
           }
         }
@@ -122,7 +122,7 @@ exports.register = asyncHandler(async (req, res, next) => {
         ) {
           UploadedPicture = {
             image: req.files.image[0].filename,
-            status: "Pending",
+            status: "To be Validated",
           };
         } else {
           const error = new Error(
@@ -215,7 +215,6 @@ exports.edit = asyncHandler(async (req, res, next) => {
 
   const userID = await User.findById(req.user.id);
   const studentID = userID.student;
-  console.log(studentID);
 
   try {
     // Validating body //
@@ -299,7 +298,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
           } else {
             video = {
               video: req.files.video[0].filename,
-              status: "Pending",
+              status: "To be Validated",
             };
           }
         }
@@ -312,7 +311,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
         ) {
           UploadedPicture = {
             image: req.files.image[0].filename,
-            status: "Pending",
+            status: "To be Validated",
           };
         } else {
           const error = new Error(

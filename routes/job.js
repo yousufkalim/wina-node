@@ -13,26 +13,38 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage }).single([
-  {
-    name: "image",
-    maxCount: 1,
-  },
-]);
+const upload = multer({ storage: storage }).single("image");
 
 // Controller Functions //
 
-const { CreateJob } = require("../controllers/job");
+const { CreateJob, EditJob, DeleteJob } = require("../controllers/job");
 
 //middleware functions
 
 const { protect, validateType } = require("../middlewares/auth");
 
 // Routes for Jobs //
+
+// CREATE Job
 router.post(
   "/create-job",
   [protect, validateType("company")],
   upload,
   CreateJob
 );
+
+// EDIT Job
+router.put(
+  "/edit-job/:id",
+  [protect, validateType("company")],
+  upload,
+  EditJob
+);
+
+// DELETE Job
+router.put("/delete-job/:id", [protect, validateType("company")], DeleteJob);
+
+// VIEW Single Job
+// router.put("/view-job/:id", [protect, validateType("company")], getSingleJob);
+
 module.exports = router;

@@ -16,66 +16,70 @@ const Skill = require("../models/Skill");
 //REGISTER USER API
 
 exports.registerUser = asyncHandler(async (req, res, next) => {
-  // Validation for req.body //
-  const address_object = Joi.object().keys({
-    street: Joi.string().required(),
-    city: Joi.string().required(),
-    zip: Joi.string().required(),
-    latitude: Joi.number().required(),
-    longitude: Joi.number().required(),
-  });
-
-  const schema = Joi.object().keys({
-    firstName: Joi.string().max(250).required(),
-    lastName: Joi.string().max(250).required(),
-    email: Joi.string().email().required(),
-    phone: Joi.string()
-      .max(10)
-      .pattern(/^[0-9]+$/)
-      .required(),
-    address: address_object.required(),
-    password: Joi.string().min(6).max(255).required(),
-    confirm_password: Joi.string().min(6).max(255).required(),
-  });
-
-  // Storing Error Responses in Result //
-  const results = schema.validate(req.body);
-  if (results.error) {
-    return res.status(400).send(results.error.details[0].message);
-  }
-
-  const {
-    firstName,
-    lastName,
-    type,
-    email,
-    password,
-    confirm_password,
-    address,
-    phone,
-  } = req.body;
-
-  //// Check If Password and Confirm Password are same or not ////
-  if (password !== confirm_password) {
-    res.status(403).send("Password and Confirm Password are not same");
-  }
-
-  //// Check If user exist with this Email or not ////
-  const result = await User.findOne({ email: email });
-  if (result) {
-    res.status(404).send("User already registered with this Email Address");
-  } else {
-    // Saving User in DataBase
-    const user = await User.create({
-      firstName,
-      lastName,
-      email,
-      address,
-      password,
-      phone,
+  try {
+    // Validation for req.body //
+    const address_object = Joi.object().keys({
+      street: Joi.string().required(),
+      city: Joi.string().required(),
+      zip: Joi.string().required(),
+      latitude: Joi.number().required(),
+      longitude: Joi.number().required(),
     });
 
-    res.status(200).json({ user: user });
+    const schema = Joi.object().keys({
+      firstName: Joi.string().max(250).required(),
+      lastName: Joi.string().max(250).required(),
+      email: Joi.string().email().required(),
+      phone: Joi.string()
+        .max(10)
+        .pattern(/^[0-9]+$/)
+        .required(),
+      address: address_object.required(),
+      password: Joi.string().min(6).max(255).required(),
+      confirm_password: Joi.string().min(6).max(255).required(),
+    });
+
+    // Storing Error Responses in Result //
+    const results = schema.validate(req.body);
+    if (results.error) {
+      return res.status(400).send(results.error.details[0].message);
+    }
+
+    const {
+      firstName,
+      lastName,
+      type,
+      email,
+      password,
+      confirm_password,
+      address,
+      phone,
+    } = req.body;
+
+    //// Check If Password and Confirm Password are same or not ////
+    if (password !== confirm_password) {
+      res.status(403).send("Password and Confirm Password are not same");
+    }
+
+    //// Check If user exist with this Email or not ////
+    const result = await User.findOne({ email: email });
+    if (result) {
+      res.status(404).send("User already registered with this Email Address");
+    } else {
+      // Saving User in DataBase
+      const user = await User.create({
+        firstName,
+        lastName,
+        email,
+        address,
+        password,
+        phone,
+      });
+
+      res.status(200).json({ user: user });
+    }
+  } catch (err) {
+    next(err);
   }
 });
 
