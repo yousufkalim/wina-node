@@ -33,8 +33,10 @@ const {
   userList,
   editProfile,
   DeleteProfile,
-  validateFiles,
   StudentfilesToValidate,
+  validateImages,
+  validateVideo,
+  validateJobImages,
 } = require("../controllers/admin");
 
 // Middleware Functions //
@@ -78,6 +80,12 @@ router.get(
   [protect, authorize("admin")],
   StudentfilesToValidate
 );
-router.post("/validate-files", [protect, authorize("admin")], validateFiles);
+router.post("/validate-images", [protect, authorize("admin")], validateImages);
+router.post("/validate-videos", [protect, authorize("admin")], validateVideo);
+router.post(
+  "/validate-job-image",
+  [protect, authorize("admin")],
+  validateJobImages
+);
 
 module.exports = router;

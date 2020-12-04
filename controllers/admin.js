@@ -4,6 +4,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const Joi = require("joi");
 const ErrorResponse = require("../utils/errorResponse");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
+const async = require("async");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Skill = require("../models/Skill");
@@ -771,23 +774,265 @@ exports.StudentfilesToValidate = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Validate PICTURES & VIDEOS
-exports.validateFiles = asyncHandler(async (req, res, next) => {
+// Validate PICTURES
+exports.validateImages = asyncHandler(async (req, res, next) => {
   try {
     const decision = req.body.decision;
     const studentId = req.body.studentId;
+    const requestedStudent = await Student.findById(studentId);
+    const userID = requestedStudent.user;
+    const user = await User.findById(userID);
 
     if (decision == "Validated") {
       const student = await Student.findByIdAndUpdate(studentId, {
         "professional_Picture.status": "Validated",
+      });
+      let transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        tls: {
+          rejectUnauthorized: false,
+        },
+        auth: {
+          user: "hanan.falcon@gmail.com",
+          pass: "work@132",
+        },
+      });
+      var mailOptions = {
+        to: user.email,
+        from: "hanan.falcon@gmail.com",
+        subject: "Success! Validation Successful",
+        text: "Your Profile picture has been Validated successfully!",
+      };
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(400).json({ message: error.message });
+        }
       });
       res.status(200).json({ message: "Picture validated" });
     } else if (decision == "refuse") {
       const student = await Student.findByIdAndUpdate(studentId, {
         $unset: { professional_Picture: 1 },
       });
+      let transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        tls: {
+          rejectUnauthorized: false,
+        },
+        auth: {
+          user: "hanan.falcon@gmail.com",
+          pass: "work@132",
+        },
+      });
+      var mailOptions = {
+        to: user.email,
+        from: "hanan.falcon@gmail.com",
+        subject: "Validation failed",
+        text: "Failure! Inappropriate profile picture.",
+      };
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(400).json({ message: error.message });
+        }
+      });
+
       res.status(200).json({ message: "Picture has been deleted" });
     }
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Validate Videos
+exports.validateVideo = asyncHandler(async (req, res, next) => {
+  try {
+    const decision = req.body.decision;
+    const studentId = req.body.studentId;
+    const requestedStudent = await Student.findById(studentId);
+    const userID = requestedStudent.user;
+    const user = await User.findById(userID);
+
+    if (decision == "Validated") {
+      const student = await Student.findByIdAndUpdate(studentId, {
+        "presentation_Video.status": "Validated",
+      });
+      let transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        tls: {
+          rejectUnauthorized: false,
+        },
+        auth: {
+          user: "hanan.falcon@gmail.com",
+          pass: "work@132",
+        },
+      });
+      var mailOptions = {
+        to: user.email,
+        from: "hanan.falcon@gmail.com",
+        subject: "Success! Validation Successful",
+        text: "Your Presentational video has been Validated successfully!",
+      };
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(400).json({ message: error.message });
+        }
+      });
+      res.status(200).json({ message: "Video validated" });
+    } else if (decision == "refuse") {
+      const student = await Student.findByIdAndUpdate(studentId, {
+        $unset: { presentation_Video: 1 },
+      });
+      let transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        tls: {
+          rejectUnauthorized: false,
+        },
+        auth: {
+          user: "hanan.falcon@gmail.com",
+          pass: "work@132",
+        },
+      });
+      var mailOptions = {
+        to: user.email,
+        from: "hanan.falcon@gmail.com",
+        subject: "Validation failed",
+        text: "Failure! Inappropriate presentational video.",
+      };
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(400).json({ message: error.message });
+        }
+      });
+      res.status(200).json({ message: "Video has been deleted" });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+//Validate Job Images
+exports.validateJobImages = asyncHandler(async (req, res, next) => {
+  try {
+    const decision = req.body.decision;
+    const jobID = req.body.jobID;
+    const requestedJob = await Job.findById(jobID);
+    const companyID = requestedJob.company;
+    const company = await Company.findById(companyID);
+    const userID = company.contactPerson.person;
+
+    const user = await User.findById(userID);
+    if (decision == "Validated") {
+      const job = await Job.findByIdAndUpdate(jobID, {
+        "photo.status": "Validated",
+      });
+      let transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        tls: {
+          rejectUnauthorized: false,
+        },
+        auth: {
+          user: "hanan.falcon@gmail.com",
+          pass: "work@132",
+        },
+      });
+      var mailOptions = {
+        to: user.email,
+        from: "hanan.falcon@gmail.com",
+        subject: "Success! Validation Successful",
+        text: "Your job picture has been Validated successfully!",
+      };
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(400).json({ message: error.message });
+        }
+      });
+      res.status(200).json({ message: "Picture validated" });
+    } else if (decision == "refuse") {
+      const job = await Job.findByIdAndUpdate(jobID, {
+        $unset: { photo: 1 },
+      });
+      let transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        tls: {
+          rejectUnauthorized: false,
+        },
+        auth: {
+          user: "hanan.falcon@gmail.com",
+          pass: "work@132",
+        },
+      });
+      var mailOptions = {
+        to: user.email,
+        from: "hanan.falcon@gmail.com",
+        subject: "Validation failed",
+        text: "Failure! Inappropriate job picture.",
+      };
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(400).json({ message: error.message });
+        }
+      });
+
+      res.status(200).json({ message: "Image has been deleted" });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Create Consultant Profile
+exports.createConsultantProfile = asyncHandler(async (req, res, next) => {
+  try {
+    // Validation for req.body //
+    const address_object = Joi.object().keys({
+      street: Joi.string().required(),
+      city: Joi.string().required(),
+      zip: Joi.string().required(),
+      latitude: Joi.number().required(),
+      longitude: Joi.number().required(),
+    });
+
+    const schema = Joi.object().keys({
+      firstName: Joi.string().max(250).required(),
+      lastName: Joi.string().max(250).required(),
+      email: Joi.string().email().required(),
+      phone: Joi.string()
+        .max(10)
+        .pattern(/^[0-9]+$/)
+        .required(),
+      address: address_object.required(),
+      password: Joi.string().min(6).max(255).required(),
+      confirm_password: Joi.string().min(6).max(255).required(),
+      // professional_Picture
+    });
+
+    // Storing Error Responses in Result //
+    const results = schema.validate(req.body);
+    if (results.error) {
+      return res.status(400).send(results.error.details[0].message);
+    }
+
+    const {
+      firstName,
+      lastName,
+      type,
+      email,
+      password,
+      confirm_password,
+      address,
+      phone,
+    } = req.body;
   } catch (err) {
     next(err);
   }

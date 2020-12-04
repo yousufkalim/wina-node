@@ -82,7 +82,7 @@ app.use("/api/v1/job", job);
 
 //// Error Handler
 app.use((error, req, res, next) => {
-  console.log("main error", error);
+  console.log("Main Error =>", error);
   const message = error.message;
   const status = error.status || 500;
   res.status(status).json({ message: message, error: error });
