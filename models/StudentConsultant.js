@@ -1,16 +1,9 @@
 const mongoose = require("mongoose");
 
 const StudentConsultantSchema = new mongoose.Schema({
-  firstName: {
-    type: String,
-    required: false,
-  },
-  LastName: {
-    type: String,
-    required: false,
-  },
-  email: {
-    type: String,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: false,
   },
   video: {

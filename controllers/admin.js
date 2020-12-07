@@ -1006,6 +1006,8 @@ exports.createConsultantProfile = asyncHandler(async (req, res, next) => {
     const schema = Joi.object().keys({
       firstName: Joi.string().max(250).required(),
       lastName: Joi.string().max(250).required(),
+      type: Joi.string().valid("studentConsultant", "companyConsultant"),
+      status: Joi.string().valid("active", "deactive"),
       email: Joi.string().email().required(),
       phone: Joi.string()
         .max(10)
@@ -1027,12 +1029,67 @@ exports.createConsultantProfile = asyncHandler(async (req, res, next) => {
       firstName,
       lastName,
       type,
+      status,
       email,
       password,
       confirm_password,
       address,
       phone,
     } = req.body;
+
+    //// Check If Password and Confirm Password are same or not ////
+    if (password !== confirm_password) {
+      res.status(403).send("Password and Confirm Password are not same");
+    }
+
+    //// Check If user exist with this Email or not ////
+    const result = await User.findOne({ email: email });
+    if (result) {
+      res.status(404).send("User already registered with this Email Address");
+    } else {
+      // Saving User in DataBase
+      const user = await User({
+        firstName,
+        lastName,
+        type,
+        status,
+        email,
+        address,
+        password,
+        phone,
+      });
+      user.save().then(async () => {
+        if (type == "studentConsultant") {
+          const studentConsultant = new StudentConsultant({
+            user: user._id,
+            video: "video",
+            professional_Picture: "DEFAULT.png",
+          });
+          studentConsultant.save().then(async () => {
+            await User.findByIdAndUpdate(user._id, {
+              studentConsultant: studentConsultant._id,
+            });
+          });
+          res
+            .status(200)
+            .json({ user: user, studentConsultant: studentConsultant });
+        } else if (type == "companyConsultant") {
+          const companyConsultant = new CompanyConsultant({
+            user: user._id,
+            video: "video",
+            professional_Picture: "DEFAULT.png",
+          });
+          companyConsultant.save().then(async () => {
+            await User.findByIdAndUpdate(user._id, {
+              companyConsultant: companyConsultant._id,
+            });
+          });
+          res
+            .status(200)
+            .json({ user: user, companyConsultant: companyConsultant });
+        }
+      });
+    }
   } catch (err) {
     next(err);
   }

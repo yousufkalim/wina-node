@@ -37,6 +37,7 @@ const {
   validateImages,
   validateVideo,
   validateJobImages,
+  createConsultantProfile,
 } = require("../controllers/admin");
 
 // Middleware Functions //
@@ -86,6 +87,13 @@ router.post(
   "/validate-job-image",
   [protect, authorize("admin")],
   validateJobImages
+);
+
+//Create Consultant Profiles
+router.post(
+  "/create-consultant-profile",
+  [protect, authorize("admin")],
+  createConsultantProfile
 );
 
 module.exports = router;

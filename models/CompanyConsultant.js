@@ -1,18 +1,6 @@
 const mongoose = require("mongoose");
 
 const CompanyConsultantSchema = new mongoose.Schema({
-  firstName: {
-    type: String,
-    required: false,
-  },
-  LastName: {
-    type: String,
-    required: false,
-  },
-  email: {
-    type: String,
-    required: false,
-  },
   video: {
     video: {
       type: String,
@@ -40,6 +28,10 @@ const CompanyConsultantSchema = new mongoose.Schema({
       required: false,
     },
     required: false,
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
   isDeleted: {
     type: Boolean,

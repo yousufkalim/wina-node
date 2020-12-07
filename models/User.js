@@ -72,13 +72,13 @@ const UserSchema = new mongoose.Schema({
 
   studentConsultant: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "studentConsultant",
+    ref: "SudentConsultant",
     required: false,
   },
 
   companyConsultant: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "companyConsultant",
+    ref: "CompanyConsultant",
     required: false,
   },
 
