@@ -34,6 +34,11 @@ const StudentConsultantSchema = new mongoose.Schema({
     },
     required: false,
   },
+  availableHours: {
+    type: String,
+    required: false,
+  },
+
   isDeleted: {
     type: Boolean,
     required: false,

@@ -29,6 +29,11 @@ const CompanyConsultantSchema = new mongoose.Schema({
     },
     required: false,
   },
+  availableHours: {
+    type: String,
+    required: false,
+  },
+
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

@@ -1094,3 +1094,5 @@ exports.createConsultantProfile = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
+
+// SCHOOLS
