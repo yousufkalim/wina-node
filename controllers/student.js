@@ -7,6 +7,7 @@ const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Student = require("../models/Student");
+const Appointment = require("../models/Appointment");
 
 //// Register User Profile ////
 
@@ -353,7 +354,6 @@ exports.edit = asyncHandler(async (req, res, next) => {
       professional_profile,
       education,
       positionSought,
-      resume,
       languages,
     } = req.body;
 
@@ -396,5 +396,31 @@ exports.DeleteProfile = asyncHandler(async (req, res, next) => {
     res.status(200).json({ message: "Student has been deleted Successfully!" });
   } catch (err) {
     res.status(400).json({ message: err.message });
+  }
+});
+
+// Appointment for coaching //
+exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
+  try {
+    const slotTimmings = req.body.time;
+    const studentID = req.user.student;
+
+    const newAppointment = new Appointment({
+      student: studentID,
+      timmings: slotTimmings,
+    });
+    newAppointment.save();
+
+    await User.findByIdAndUpdate(req.user._id, {
+      $push: {
+        appointments: newAppointment._id,
+      },
+    });
+
+    // const admin = await User.findan({ role: "admin" });
+
+    res.status(200).json({ message: "Success! Appoinment Created" });
+  } catch (err) {
+    next(err);
   }
 });

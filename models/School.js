@@ -6,6 +6,10 @@ const SchoolSchema = new mongoose.Schema({
     required: false,
     default: false,
   },
+  createdBy: {
+    type: String,
+    required: false,
+  },
   datasetid: {
     type: String,
     required: false,

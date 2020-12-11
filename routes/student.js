@@ -35,6 +35,7 @@ const {
   edit,
   GetStudentProfile,
   DeleteProfile,
+  bookCoachingAppointment,
 } = require("../controllers/student");
 
 //middleware functions
@@ -49,5 +50,12 @@ router.post("/add-info", [protect, validateType("student")], upload, register);
 router.put("/edit-info/:id", [protect, validateType("student")], upload, edit);
 
 router.delete("/delete-profile", protect, DeleteProfile);
+
+// Book Coaching Appointment //
+router.post(
+  "/book-appointment",
+  [protect, validateType("student")],
+  bookCoachingAppointment
+);
 
 module.exports = router;

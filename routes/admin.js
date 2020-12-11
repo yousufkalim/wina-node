@@ -38,6 +38,9 @@ const {
   validateVideo,
   validateJobImages,
   createConsultantProfile,
+  registerSchool,
+  editSchool,
+  deleteSchool,
 } = require("../controllers/admin");
 
 // Middleware Functions //
@@ -95,5 +98,10 @@ router.post(
   [protect, authorize("admin")],
   createConsultantProfile
 );
+
+// School //
+router.post("/register-school", [protect, authorize("admin")], registerSchool);
+router.put("/edit-school/:id", [protect, authorize("admin")], editSchool);
+router.put("/delete-school/:id", [protect, authorize("admin")], deleteSchool);
 
 module.exports = router;

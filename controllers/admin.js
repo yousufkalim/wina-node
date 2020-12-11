@@ -15,6 +15,8 @@ const Company = require("../models/Company");
 const Student = require("../models/Student");
 const StudentConsultant = require("../models/StudentConsultant");
 const CompanyConsultant = require("../models/CompanyConsultant");
+const School = require("../models/School");
+const { updateMany } = require("../models/User");
 
 // Get List of Skills
 exports.skillList = asyncHandler(async (req, res, next) => {
@@ -1096,3 +1098,109 @@ exports.createConsultantProfile = asyncHandler(async (req, res, next) => {
 });
 
 // SCHOOLS
+exports.registerSchool = asyncHandler(async (req, res, next) => {
+  try {
+    const userID = req.user._id;
+    const user = await User.findById(userID);
+    const schema = Joi.object().keys({
+      secteur_d_etablissement: Joi.string(),
+      code_postal_uai: Joi.string(),
+      coordonnees: Joi.array().length(2),
+      uo_lib: Joi.string(),
+    });
+
+    const results = schema.validate(req.body);
+    if (results.error) {
+      return res.status(400).send(results.error.details[0].message);
+    }
+    const {
+      secteur_d_etablissement,
+      code_postal_uai,
+      coordonnees,
+      uo_lib,
+    } = req.body;
+
+    const newSchool = new School({
+      fields: {
+        uo_lib: uo_lib,
+        secteur_d_etablissement: secteur_d_etablissement,
+        code_postal_uai: code_postal_uai,
+        coordonnees: coordonnees,
+      },
+      createdBy: user.role,
+    });
+    await newSchool.save();
+    res
+      .status(200)
+      .json({ message: "School Created Successfully", school: newSchool });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Edit School //
+exports.editSchool = asyncHandler(async (req, res, next) => {
+  try {
+    const userID = req.user._id;
+    const user = await User.findById(userID);
+    const schoolId = req.params.id;
+
+    const schema = Joi.object().keys({
+      secteur_d_etablissement: Joi.string(),
+      code_postal_uai: Joi.string(),
+      coordonnees: Joi.array().length(2),
+      uo_lib: Joi.string(),
+    });
+
+    const results = schema.validate(req.body);
+    if (results.error) {
+      return res.status(400).send(results.error.details[0].message);
+    }
+    const {
+      secteur_d_etablissement,
+      code_postal_uai,
+      coordonnees,
+      uo_lib,
+    } = req.body;
+    const updatedSchool = await School.findByIdAndUpdate(
+      schoolId,
+      {
+        fields: {
+          uo_lib: uo_lib,
+          secteur_d_etablissement: secteur_d_etablissement,
+          code_postal_uai: code_postal_uai,
+          coordonnees: coordonnees,
+        },
+      },
+      { new: true }
+    );
+
+    res
+      .status(200)
+      .json({ message: "School updated Successfully", school: updatedSchool });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Delete School //
+// Edit School //
+exports.deleteSchool = asyncHandler(async (req, res, next) => {
+  try {
+    const schoolId = req.params.id;
+
+    const updatedSchool = await School.findByIdAndUpdate(
+      schoolId,
+      {
+        isDeleted: true,
+      },
+      { new: true }
+    );
+
+    res
+      .status(200)
+      .json({ message: "School deleted Successfully", school: updatedSchool });
+  } catch (err) {
+    next(err);
+  }
+});

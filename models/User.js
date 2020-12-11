@@ -88,6 +88,12 @@ const UserSchema = new mongoose.Schema({
       description: String,
     },
   ],
+  appointments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Appointment",
+    },
+  ],
 
   isDeleted: {
     type: Boolean,

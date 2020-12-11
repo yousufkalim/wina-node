@@ -7,7 +7,6 @@ const Company = require("../models/Company");
 const Job = require("../models/Job");
 
 //// Create Job ////
-
 exports.CreateJob = asyncHandler(async (req, res, next) => {
   try {
     const requestedUser = await User.findById(req.user.id);
@@ -131,7 +130,6 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
 });
 
 //// Edit Job ////
-
 exports.EditJob = asyncHandler(async (req, res, next) => {
   try {
     const requestedUser = await User.findById(req.user.id);
