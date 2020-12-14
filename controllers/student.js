@@ -1,9 +1,4 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 const Joi = require("joi");
-const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Student = require("../models/Student");
@@ -204,7 +199,7 @@ exports.GetStudentProfile = asyncHandler(async (req, res, next) => {
     const student = await Student.findById(studentID).populate("student");
     res.status(200).json({ user: student });
   } catch (err) {
-    res.status(400).res.json({ message: err.message });
+    next(err);
   }
 });
 
@@ -376,7 +371,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
       .status(200)
       .json({ message: "Profile Updated Successfully!", user: user });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 });
 
@@ -395,7 +390,7 @@ exports.DeleteProfile = asyncHandler(async (req, res, next) => {
 
     res.status(200).json({ message: "Student has been deleted Successfully!" });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 });
 
@@ -417,7 +412,12 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
       },
     });
 
-    // const admin = await User.findan({ role: "admin" });
+    const admin = await User.updateMany(
+      { role: "admin" },
+      {
+        $push: { appointments: newAppointment._id },
+      }
+    );
 
     res.status(200).json({ message: "Success! Appoinment Created" });
   } catch (err) {

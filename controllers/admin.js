@@ -17,6 +17,7 @@ const StudentConsultant = require("../models/StudentConsultant");
 const CompanyConsultant = require("../models/CompanyConsultant");
 const School = require("../models/School");
 const { updateMany } = require("../models/User");
+const Appointment = require("../models/Appointment");
 
 // Get List of Skills
 exports.skillList = asyncHandler(async (req, res, next) => {
@@ -1018,7 +1019,6 @@ exports.createConsultantProfile = asyncHandler(async (req, res, next) => {
       address: address_object.required(),
       password: Joi.string().min(6).max(255).required(),
       confirm_password: Joi.string().min(6).max(255).required(),
-      // professional_Picture
     });
 
     // Storing Error Responses in Result //
@@ -1184,7 +1184,6 @@ exports.editSchool = asyncHandler(async (req, res, next) => {
 });
 
 // Delete School //
-// Edit School //
 exports.deleteSchool = asyncHandler(async (req, res, next) => {
   try {
     const schoolId = req.params.id;
@@ -1200,6 +1199,16 @@ exports.deleteSchool = asyncHandler(async (req, res, next) => {
     res
       .status(200)
       .json({ message: "School deleted Successfully", school: updatedSchool });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Validate students appointments for coaching
+exports.validateStudentAppointment = asyncHandler(async (req, res, next) => {
+  try {
+    const appointmentId = req.body.appointmentId;
+    const appointment = await Appointment.findById(appointmentId);
   } catch (err) {
     next(err);
   }
