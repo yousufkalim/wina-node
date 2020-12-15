@@ -416,6 +416,12 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
       { role: "admin" },
       {
         $push: { appointments: newAppointment._id },
+        $push: {
+          notifications: {
+            title: "Coaching Appointment for  Student",
+            description: "Student has requested for Coaching Appointment",
+          },
+        },
       }
     );
 

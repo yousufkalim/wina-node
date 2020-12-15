@@ -18,6 +18,7 @@ const CompanyConsultant = require("../models/CompanyConsultant");
 const School = require("../models/School");
 const { updateMany } = require("../models/User");
 const Appointment = require("../models/Appointment");
+const { promises } = require("fs");
 
 // Get List of Skills
 exports.skillList = asyncHandler(async (req, res, next) => {
@@ -1204,11 +1205,77 @@ exports.deleteSchool = asyncHandler(async (req, res, next) => {
   }
 });
 
+// Appoitmnets API's
+//GET GETALL ADD EDIT DELETE
+
 // Validate students appointments for coaching
 exports.validateStudentAppointment = asyncHandler(async (req, res, next) => {
   try {
+    //Parameters
+    const decision = req.body.decision;
     const appointmentId = req.body.appointmentId;
-    const appointment = await Appointment.findById(appointmentId);
+
+    // if "Approve" pass Consultant ID
+    const consultantId = req.body.consultantId;
+    const consultant = await StudentConsultant.findById(consultantId);
+
+    //Declarations
+
+    if (decision == "Approve") {
+      const appointment = await Appointment.findByIdAndUpdate(
+        appointmentId,
+        {
+          studentConsultant: consultantId,
+          status: "Approved",
+        },
+        { new: true }
+      );
+      const student = await Student.findById(appointment.student);
+      const user = await User.findByIdAndUpdate(
+        student.user,
+        {
+          $push: {
+            notifications: {
+              title: "Success! Appointment Approved",
+              description: "Your Appointment has been approved successfully",
+            },
+          },
+        },
+        { new: true }
+      );
+      const consultantUser = await User.findByIdAndUpdate(consultant.user, {
+        $push: {
+          notifications: {
+            title: "Appointment Scheduled",
+            description: "Admin has assigned you an appointment",
+          },
+        },
+      });
+
+      res.status(200).json({ message: "Appointment approved successfully!" });
+    } else if (decision == "Disapprove") {
+      const appointment = await Appointment.findByIdAndUpdate(
+        appointmentId,
+        {
+          status: "Disapproved",
+        },
+        { new: true }
+      );
+      const student = await Student.findById(appointment.student);
+      const studentUser = await User.findByIdAndUpdate(
+        student.user,
+        {
+          $push: {
+            notifications: {
+              title: "Appointment Cancelled",
+              description: "Your Appointment has been cancelled by the Admin",
+            },
+          },
+        },
+        { new: true }
+      );
+      res.status(200).json({ message: "Appointment cancelled!" });
+    }
   } catch (err) {
     next(err);
   }

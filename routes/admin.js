@@ -41,6 +41,7 @@ const {
   registerSchool,
   editSchool,
   deleteSchool,
+  validateStudentAppointment,
 } = require("../controllers/admin");
 
 // Middleware Functions //
@@ -103,5 +104,12 @@ router.post(
 router.post("/register-school", [protect, authorize("admin")], registerSchool);
 router.put("/edit-school/:id", [protect, authorize("admin")], editSchool);
 router.put("/delete-school/:id", [protect, authorize("admin")], deleteSchool);
+
+//Validate Appointments
+router.post(
+  "/validate-student-appointmnet",
+  [protect, authorize("admin")],
+  validateStudentAppointment
+);
 
 module.exports = router;

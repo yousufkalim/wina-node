@@ -36,6 +36,10 @@ const { editInfo } = require("../controllers/studentConsultant");
 
 const { protect, validateType } = require("../middlewares/auth");
 
-router.put("/edit-info", protect, editInfo);
+router.put(
+  "/edit-info",
+  [protect, validateType("studentConsultant")],
+  editInfo
+);
 
 module.exports = router;

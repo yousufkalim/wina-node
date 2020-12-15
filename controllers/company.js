@@ -8,6 +8,7 @@ const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Student = require("../models/Student");
 const Company = require("../models/Company");
+const Appointment = require("../models/Appointment");
 
 // Register Company
 
@@ -186,5 +187,42 @@ exports.deleteCompany = asyncHandler(async (req, res, next) => {
     res.status(200).json({ message: "Company has been deleted Successfully!" });
   } catch (err) {
     res.status(400).message({ message: err.message });
+  }
+});
+
+// Request for coaching Appointment
+exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
+  try {
+    const slotTimmings = req.body.time;
+    const companyId = req.user.company;
+
+    const newAppointment = new Appointment({
+      company: companyId,
+      timmings: slotTimmings,
+    });
+    newAppointment.save();
+
+    await User.findByIdAndUpdate(req.user._id, {
+      $push: {
+        appointments: newAppointment._id,
+      },
+    });
+
+    const admin = await User.updateMany(
+      { role: "admin" },
+      {
+        $push: { appointments: newAppointment._id },
+        $push: {
+          notifications: {
+            title: "Coaching Appointment for  Company",
+            description: "Company has requested for Coaching Appointment",
+          },
+        },
+      }
+    );
+
+    res.status(200).json({ message: "Success! Appoinment Created" });
+  } catch (err) {
+    next(err);
   }
 });
