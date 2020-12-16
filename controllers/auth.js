@@ -1,17 +1,9 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const session = require("express-session");
-const passport = require("passport");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const async = require("async");
 const Joi = require("joi");
-const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
-const Skill = require("../models/Skill");
 
 //REGISTER USER API
 
@@ -130,13 +122,13 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
             rejectUnauthorized: false,
           },
           auth: {
-            user: "hanan.falcon@gmail.com",
-            pass: "work@132",
+            user: process.env.MailingId,
+            pass: process.env.MailingPassword,
           },
         });
         var mailOptions = {
           to: user.email,
-          from: "hanan.falcon@gmail.com",
+          from: process.env.MailingId,
           subject: "Verfication Email Request for WINA",
           text:
             "You are receiving this because you (or someone else) have requested to register your account on WINA.\n\n" +
@@ -200,13 +192,13 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
                   rejectUnauthorized: false,
                 },
                 auth: {
-                  user: "hanan.falcon@gmail.com",
-                  pass: "work@132",
+                  user: process.env.MailingId,
+                  pass: process.env.MailingPassword,
                 },
               });
               var mailOptions = {
                 to: user.email,
-                from: "hanan.falcon@gmail.com",
+                from: process.env.MailingId,
                 subject: "Success Message",
                 text:
                   "Hello,\n\n" +

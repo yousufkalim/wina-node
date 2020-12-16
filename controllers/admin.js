@@ -799,13 +799,13 @@ exports.validateImages = asyncHandler(async (req, res, next) => {
           rejectUnauthorized: false,
         },
         auth: {
-          user: "hanan.falcon@gmail.com",
-          pass: "work@132",
+          user: process.env.MailingId,
+          pass: process.env.MailingPassword,
         },
       });
       var mailOptions = {
         to: user.email,
-        from: "hanan.falcon@gmail.com",
+        from: process.env.MailingId,
         subject: "Success! Validation Successful",
         text: "Your Profile picture has been Validated successfully!",
       };
@@ -827,13 +827,13 @@ exports.validateImages = asyncHandler(async (req, res, next) => {
           rejectUnauthorized: false,
         },
         auth: {
-          user: "hanan.falcon@gmail.com",
-          pass: "work@132",
+          user: process.env.MailingId,
+          pass: process.env.MailingPassword,
         },
       });
       var mailOptions = {
         to: user.email,
-        from: "hanan.falcon@gmail.com",
+        from: process.env.MailingId,
         subject: "Validation failed",
         text: "Failure! Inappropriate profile picture.",
       };
@@ -871,13 +871,13 @@ exports.validateVideo = asyncHandler(async (req, res, next) => {
           rejectUnauthorized: false,
         },
         auth: {
-          user: "hanan.falcon@gmail.com",
-          pass: "work@132",
+          user: process.env.MailingId,
+          pass: process.env.MailingPassword,
         },
       });
       var mailOptions = {
         to: user.email,
-        from: "hanan.falcon@gmail.com",
+        from: process.env.MailingId,
         subject: "Success! Validation Successful",
         text: "Your Presentational video has been Validated successfully!",
       };
@@ -899,13 +899,13 @@ exports.validateVideo = asyncHandler(async (req, res, next) => {
           rejectUnauthorized: false,
         },
         auth: {
-          user: "hanan.falcon@gmail.com",
-          pass: "work@132",
+          user: process.env.MailingId,
+          pass: process.env.MailingPassword,
         },
       });
       var mailOptions = {
         to: user.email,
-        from: "hanan.falcon@gmail.com",
+        from: process.env.MailingId,
         subject: "Validation failed",
         text: "Failure! Inappropriate presentational video.",
       };
@@ -944,13 +944,13 @@ exports.validateJobImages = asyncHandler(async (req, res, next) => {
           rejectUnauthorized: false,
         },
         auth: {
-          user: "hanan.falcon@gmail.com",
-          pass: "work@132",
+          user: process.env.MailingId,
+          pass: process.env.MailingPassword,
         },
       });
       var mailOptions = {
         to: user.email,
-        from: "hanan.falcon@gmail.com",
+        from: process.env.MailingId,
         subject: "Success! Validation Successful",
         text: "Your job picture has been Validated successfully!",
       };
@@ -972,13 +972,13 @@ exports.validateJobImages = asyncHandler(async (req, res, next) => {
           rejectUnauthorized: false,
         },
         auth: {
-          user: "hanan.falcon@gmail.com",
-          pass: "work@132",
+          user: process.env.MailingId,
+          pass: process.env.MailingPassword,
         },
       });
       var mailOptions = {
         to: user.email,
-        from: "hanan.falcon@gmail.com",
+        from: process.env.MailingId,
         subject: "Validation failed",
         text: "Failure! Inappropriate job picture.",
       };
@@ -1206,10 +1206,105 @@ exports.deleteSchool = asyncHandler(async (req, res, next) => {
 });
 
 // Appoitmnets API's
-//GET GETALL ADD EDIT DELETE
+//GET All Appointments
+
+exports.getAllAppointments = asyncHandler(async (req, res, next) => {
+  try {
+    const appointments = await Appointment.find({ isDeleted: false });
+    if (!appointments) {
+      res.status(200).json({ message: "There is no Appointment ATM" });
+    } else {
+      res.status(200).json({ message: "Success!", Appointments: appointments });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+//GET All Pending Appointments
+
+exports.getAllPendingAppointments = asyncHandler(async (req, res, next) => {
+  try {
+    const appointments = await Appointment.find({ status: "Pending" });
+    if (!appointments) {
+      res.status(200).json({ message: "There is no Appointment ATM" });
+    } else {
+      res.status(200).json({ message: "Success!", Appointments: appointments });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+//GET All Pending Student Appointments
+exports.getAllStudentAppointments = asyncHandler(async (req, res, next) => {
+  try {
+    let filteredArray = [];
+    const appointments = await Appointment.find({
+      status: "Pending",
+    });
+    const result = appointments.filter((item) => {
+      if (item.student) {
+        filteredArray.push(item);
+      }
+    });
+    if (filteredArray.length == 0) {
+      res.status(200).json({ message: "There is no Appointment ATM" });
+    } else {
+      res
+        .status(200)
+        .json({ message: "Success!", Appointments: filteredArray });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+//GET All Pending Company Appointments
+exports.getAllCompanyAppointments = asyncHandler(async (req, res, next) => {
+  try {
+    let filteredArray = [];
+    const appointments = await Appointment.find({
+      status: "Pending",
+    });
+    const result = appointments.filter((item) => {
+      if (item.company) {
+        filteredArray.push(item);
+      }
+    });
+    if (filteredArray.length == 0) {
+      res.status(200).json({ message: "There is no Appointment ATM" });
+    } else {
+      res
+        .status(200)
+        .json({ message: "Success!", Appointments: filteredArray });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+//Delete Appointment
+exports.deleteAppointment = asyncHandler(async (req, res, next) => {
+  try {
+    const appointmentId = req.params.id;
+    const appointmnet = await Appointment.findByIdAndUpdate(
+      appointmentId,
+      {
+        isDeleted: true,
+      },
+      {
+        new: true,
+      }
+    );
+    res.status(200).json({ message: "Success! Appointment Deleted" });
+  } catch (err) {
+    next(err);
+  }
+});
 
 // Validate students appointments for coaching
-exports.validateStudentAppointment = asyncHandler(async (req, res, next) => {
+exports.validateAppointment = asyncHandler(async (req, res, next) => {
   try {
     //Parameters
     const decision = req.body.decision;
@@ -1217,64 +1312,219 @@ exports.validateStudentAppointment = asyncHandler(async (req, res, next) => {
 
     // if "Approve" pass Consultant ID
     const consultantId = req.body.consultantId;
-    const consultant = await StudentConsultant.findById(consultantId);
-
     //Declarations
-
-    if (decision == "Approve") {
-      const appointment = await Appointment.findByIdAndUpdate(
-        appointmentId,
-        {
-          studentConsultant: consultantId,
-          status: "Approved",
-        },
-        { new: true }
-      );
-      const student = await Student.findById(appointment.student);
-      const user = await User.findByIdAndUpdate(
-        student.user,
-        {
-          $push: {
-            notifications: {
-              title: "Success! Appointment Approved",
-              description: "Your Appointment has been approved successfully",
+    const result = await Appointment.findById(appointmentId);
+    if (result.student) {
+      if (decision == "Approve") {
+        const consultant = await StudentConsultant.findById(consultantId);
+        const appointment = await Appointment.findByIdAndUpdate(
+          appointmentId,
+          {
+            studentConsultant: consultantId,
+            status: "Approved",
+          },
+          { new: true }
+        );
+        const student = await Student.findById(appointment.student);
+        const user = await User.findByIdAndUpdate(
+          student.user,
+          {
+            $push: {
+              notifications: {
+                title: "Success! Appointment Approved",
+                description: "Your Appointment has been approved successfully",
+              },
             },
           },
-        },
-        { new: true }
-      );
-      const consultantUser = await User.findByIdAndUpdate(consultant.user, {
-        $push: {
-          notifications: {
-            title: "Appointment Scheduled",
-            description: "Admin has assigned you an appointment",
-          },
-        },
-      });
-
-      res.status(200).json({ message: "Appointment approved successfully!" });
-    } else if (decision == "Disapprove") {
-      const appointment = await Appointment.findByIdAndUpdate(
-        appointmentId,
-        {
-          status: "Disapproved",
-        },
-        { new: true }
-      );
-      const student = await Student.findById(appointment.student);
-      const studentUser = await User.findByIdAndUpdate(
-        student.user,
-        {
+          { new: true }
+        );
+        const consultantUser = await User.findByIdAndUpdate(consultant.user, {
           $push: {
             notifications: {
-              title: "Appointment Cancelled",
-              description: "Your Appointment has been cancelled by the Admin",
+              title: "Appointment Scheduled",
+              description: "Admin has assigned you an appointment",
             },
           },
-        },
-        { new: true }
-      );
-      res.status(200).json({ message: "Appointment cancelled!" });
+        });
+
+        // Sending success mail
+        let transporter = nodemailer.createTransport({
+          host: "smtp.gmail.com",
+          port: 587,
+          secure: false,
+          tls: {
+            rejectUnauthorized: false,
+          },
+          auth: {
+            user: process.env.MailingId,
+            pass: process.env.MailingPassword,
+          },
+        });
+        var mailOptions = {
+          to: user.email,
+          from: process.env.MailingId,
+          subject: "Success! Validation Successful",
+          text: "Your request for Coaching Appointment has been Approved!",
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            return res.status(400).json({ message: error.message });
+          }
+        });
+
+        res.status(200).json({ message: "Appointment approved successfully!" });
+      } else if (decision == "Disapprove") {
+        const appointment = await Appointment.findByIdAndUpdate(
+          appointmentId,
+          {
+            status: "Disapproved",
+          },
+          { new: true }
+        );
+        const student = await Student.findById(appointment.student);
+        const studentUser = await User.findByIdAndUpdate(
+          student.user,
+          {
+            $push: {
+              notifications: {
+                title: "Appointment Cancelled",
+                description: "Your Appointment has been cancelled by the Admin",
+              },
+            },
+          },
+          { new: true }
+        );
+        let transporter = nodemailer.createTransport({
+          host: "smtp.gmail.com",
+          port: 587,
+          secure: false,
+          tls: {
+            rejectUnauthorized: false,
+          },
+          auth: {
+            user: process.env.MailingId,
+            pass: process.env.MailingPassword,
+          },
+        });
+        var mailOptions = {
+          to: studentUser.email,
+          from: process.env.MailingId,
+          subject: "Validation Failed",
+          text: "Your request for Coaching Appointment has been cancelled!",
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            return res.status(400).json({ message: error.message });
+          }
+        });
+        res.status(200).json({ message: "Appointment cancelled!" });
+      }
+    }
+    if (result.company) {
+      if (decision == "Approve") {
+        const consultant = await CompanyConsultant.findById(consultantId);
+        const appointment = await Appointment.findByIdAndUpdate(
+          appointmentId,
+          {
+            companyConsultant: consultantId,
+            status: "Approved",
+          },
+          { new: true }
+        );
+        const company = await Company.findById(appointment.company);
+        const user = await User.findByIdAndUpdate(
+          company.contactPerson.person,
+          {
+            $push: {
+              notifications: {
+                title: "Success! Appointment Approved",
+                description: "Your Appointment has been approved successfully",
+              },
+            },
+          },
+          { new: true }
+        );
+        const consultantUser = await User.findByIdAndUpdate(consultant.user, {
+          $push: {
+            notifications: {
+              title: "Appointment Scheduled",
+              description: "Admin has assigned you an appointment",
+            },
+          },
+        });
+
+        let transporter = nodemailer.createTransport({
+          host: "smtp.gmail.com",
+          port: 587,
+          secure: false,
+          tls: {
+            rejectUnauthorized: false,
+          },
+          auth: {
+            user: process.env.MailingId,
+            pass: process.env.MailingPassword,
+          },
+        });
+        var mailOptions = {
+          to: user.email,
+          from: process.env.MailingId,
+          subject: "Success! Validation Successful",
+          text: "Your request for Coaching Appointment has been Approved!",
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            return res.status(400).json({ message: error.message });
+          }
+        });
+
+        res.status(200).json({ message: "Appointment approved successfully!" });
+      } else if (decision == "Disapprove") {
+        const appointment = await Appointment.findByIdAndUpdate(
+          appointmentId,
+          {
+            status: "Disapproved",
+          },
+          { new: true }
+        );
+        const company = await Student.findById(appointment.company);
+        const compnayUser = await User.findByIdAndUpdate(
+          company.user,
+          {
+            $push: {
+              notifications: {
+                title: "Appointment Cancelled",
+                description: "Your Appointment has been cancelled by the Admin",
+              },
+            },
+          },
+          { new: true }
+        );
+
+        let transporter = nodemailer.createTransport({
+          host: "smtp.gmail.com",
+          port: 587,
+          secure: false,
+          tls: {
+            rejectUnauthorized: false,
+          },
+          auth: {
+            user: process.env.MailingId,
+            pass: process.env.MailingPassword,
+          },
+        });
+        var mailOptions = {
+          to: user.email,
+          from: process.env.MailingId,
+          subject: "Success! Validation Successful",
+          text: "Your request for Coaching Appointment has been cancelled!",
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            return res.status(400).json({ message: error.message });
+          }
+        });
+        res.status(200).json({ message: "Appointment cancelled!" });
+      }
     }
   } catch (err) {
     next(err);

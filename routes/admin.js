@@ -41,7 +41,12 @@ const {
   registerSchool,
   editSchool,
   deleteSchool,
-  validateStudentAppointment,
+  validateAppointment,
+  getAllAppointments,
+  getAllPendingAppointments,
+  getAllStudentAppointments,
+  getAllCompanyAppointments,
+  deleteAppointment,
 } = require("../controllers/admin");
 
 // Middleware Functions //
@@ -105,11 +110,44 @@ router.post("/register-school", [protect, authorize("admin")], registerSchool);
 router.put("/edit-school/:id", [protect, authorize("admin")], editSchool);
 router.put("/delete-school/:id", [protect, authorize("admin")], deleteSchool);
 
+//Appointments list
+router.get(
+  "/appointment-list",
+  [protect, authorize("admin")],
+  getAllAppointments
+);
+//Pending Appointments list
+router.get(
+  "/pending-appointmnets",
+  [protect, authorize("admin")],
+  getAllPendingAppointments
+);
+
+//GET All Pending Student Appointments
+router.get(
+  "/student-pending-appointmnets",
+  [protect, authorize("admin")],
+  getAllStudentAppointments
+);
+
+//GET All Pending company Appointments
+router.get(
+  "/company-pending-appointmnets",
+  [protect, authorize("admin")],
+  getAllCompanyAppointments
+);
+
+//Delete Appointment
+router.put(
+  "/delete-appointment/:id",
+  [protect, authorize("admin")],
+  deleteAppointment
+);
 //Validate Appointments
 router.post(
-  "/validate-student-appointmnet",
+  "/validate-appointmnet",
   [protect, authorize("admin")],
-  validateStudentAppointment
+  validateAppointment
 );
 
 module.exports = router;
