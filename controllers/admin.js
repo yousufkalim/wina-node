@@ -1,12 +1,5 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 const Joi = require("joi");
-const ErrorResponse = require("../utils/errorResponse");
 const nodemailer = require("nodemailer");
-const crypto = require("crypto");
-const async = require("async");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Skill = require("../models/Skill");
@@ -16,9 +9,7 @@ const Student = require("../models/Student");
 const StudentConsultant = require("../models/StudentConsultant");
 const CompanyConsultant = require("../models/CompanyConsultant");
 const School = require("../models/School");
-const { updateMany } = require("../models/User");
 const Appointment = require("../models/Appointment");
-const { promises } = require("fs");
 
 // Get List of Skills
 exports.skillList = asyncHandler(async (req, res, next) => {
@@ -1286,6 +1277,26 @@ exports.getAllCompanyAppointments = asyncHandler(async (req, res, next) => {
 
 //Delete Appointment
 exports.deleteAppointment = asyncHandler(async (req, res, next) => {
+  try {
+    const appointmentId = req.params.id;
+    const appointmnet = await Appointment.findByIdAndUpdate(
+      appointmentId,
+      {
+        timmings: req.body.slotTimmings,
+        status: req.body.status,
+      },
+      {
+        new: true,
+      }
+    );
+    res.status(200).json({ message: "Success! Appointment Edited" });
+  } catch (err) {
+    next(err);
+  }
+});
+
+//Edit Appointment
+exports.editAppointment = asyncHandler(async (req, res, next) => {
   try {
     const appointmentId = req.params.id;
     const appointmnet = await Appointment.findByIdAndUpdate(

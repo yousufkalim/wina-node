@@ -1,8 +1,6 @@
-const express = require("express");
 const Joi = require("joi");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
-const Student = require("../models/Student");
 const Company = require("../models/Company");
 const Job = require("../models/Job");
 

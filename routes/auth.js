@@ -1,43 +1,37 @@
 const express = require("express");
 const multer = require("multer");
-const User = require("../models/User");
 const router = express.Router();
 
 // MULTER Configuaration //
 const storage = multer.diskStorage({
-  
-    filename: function (req, file, cb) {
-      cb(null, file.originalname);
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
   },
-    destination: function (req, file, cb) {
-      cb(null, "views/uploads");
+  destination: function (req, file, cb) {
+    cb(null, "views/uploads");
   },
 });
 
 const upload = multer({ storage: storage });
 
 // Controller Functions //
-const { 
+const {
   registerUser,
-  verifyEmail, 
+  verifyEmail,
   verifyEmailProcess,
-  login, 
-  logout 
+  login,
+  logout,
 } = require("../controllers/auth");
 
 //middleware functions
 
-const {
-  protect,
-  authorize,
-  dashboard,
-} = require("../middlewares/auth");
+const { protect, authorize, dashboard } = require("../middlewares/auth");
 
 //Register USER routes
 
 router.post("/register", registerUser);
-router.post("/email-verfication",verifyEmail);
-router.post("/verify-email/:token",verifyEmailProcess)
+router.post("/email-verfication", verifyEmail);
+router.post("/verify-email/:token", verifyEmailProcess);
 
 //LOGIN Route
 
