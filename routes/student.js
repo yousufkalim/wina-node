@@ -36,6 +36,7 @@ const {
   GetStudentProfile,
   DeleteProfile,
   bookCoachingAppointment,
+  searchForJob,
 } = require("../controllers/student");
 
 //middleware functions
@@ -57,5 +58,8 @@ router.post(
   [protect, validateType("student")],
   bookCoachingAppointment
 );
+
+// Search for Jobs //
+router.post("/search-job", [protect, validateType("student")], searchForJob);
 
 module.exports = router;

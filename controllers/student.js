@@ -3,7 +3,7 @@ const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Student = require("../models/Student");
 const Appointment = require("../models/Appointment");
-
+const matchingAlgo = require("../services/algorithm");
 //// Register User Profile ////
 
 exports.register = asyncHandler(async (req, res, next) => {
@@ -426,6 +426,14 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
     );
 
     res.status(200).json({ message: "Success! Appoinment Created" });
+  } catch (err) {
+    next(err);
+  }
+});
+
+exports.searchForJob = asyncHandler(async (req, res, next) => {
+  try {
+    matchingAlgo.dealBreaker("startingDate", req, res, next);
   } catch (err) {
     next(err);
   }
