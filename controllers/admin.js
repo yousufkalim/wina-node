@@ -26,7 +26,7 @@ exports.createSkill = asyncHandler(async (req, res, next) => {
   try {
     const schema = Joi.object().keys({
       skillField: Joi.string(),
-      skillType: Joi.string().valid("Soft SKill", "Hard Skill"),
+      skillType: Joi.string().valid("Soft Skill", "Hard Skill"),
     });
 
     const results = schema.validate(req.body);

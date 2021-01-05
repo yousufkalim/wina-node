@@ -151,6 +151,21 @@ const StudentSchema = new mongoose.Schema({
     },
   },
 
+  softSkills: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Skill",
+      required: false,
+    },
+  ],
+  hardSkills: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Skill",
+      required: false,
+    },
+  ],
+
   isDeleted: {
     type: Boolean,
     default: false,

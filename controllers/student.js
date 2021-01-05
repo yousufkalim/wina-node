@@ -4,6 +4,9 @@ const User = require("../models/User");
 const Student = require("../models/Student");
 const Appointment = require("../models/Appointment");
 const matchingAlgo = require("../services/algorithm");
+
+var matchingCriteria = new matchingAlgo.MatchingCriteria();
+var dealBreaker = new matchingAlgo.DealBreaker();
 //// Register User Profile ////
 
 exports.register = asyncHandler(async (req, res, next) => {
@@ -68,6 +71,8 @@ exports.register = asyncHandler(async (req, res, next) => {
       professional_networks: professional_network,
       education: Joi.array().items(education_info),
       professional_profile: Joi.array().items(professional_profileInfo),
+      softSkills: Joi.array(),
+      hardSkills: Joi.array(),
       resume: Joi.string(),
       positionSought: Joi.object().keys({
         domain: Joi.string(),
@@ -159,6 +164,8 @@ exports.register = asyncHandler(async (req, res, next) => {
       professional_networks,
       professional_profile,
       education,
+      softSkills,
+      hardSkills,
       resume,
       positionSought,
       languages,
@@ -172,6 +179,8 @@ exports.register = asyncHandler(async (req, res, next) => {
       professional_networks: professional_networks,
       professional_profile: professional_profile,
       education: education,
+      softSkills: softSkills,
+      hard_Skills: hardSkills,
       positionSought: positionSought,
       languages: languages,
       resume: uploadedResume,
@@ -258,6 +267,8 @@ exports.edit = asyncHandler(async (req, res, next) => {
       education: Joi.array().items(education_info),
       professional_profile: Joi.array().items(professional_profileInfo),
       resume: Joi.string(),
+      softSkills: Joi.array(),
+      hardSkills: Joi.array(),
       positionSought: Joi.object().keys({
         domain: Joi.string(),
         position: Joi.string(),
@@ -348,6 +359,8 @@ exports.edit = asyncHandler(async (req, res, next) => {
       professional_networks,
       professional_profile,
       education,
+      softSkills,
+      hardSkills,
       positionSought,
       languages,
     } = req.body;
@@ -360,6 +373,8 @@ exports.edit = asyncHandler(async (req, res, next) => {
         professional_Picture: UploadedPicture,
         professional_networks: professional_networks,
         professional_profile: professional_profile,
+        softSkills: softSkills,
+        hardSkills: hardSkills,
         education: education,
         positionSought: positionSought,
         resume: uploadedResume,
@@ -433,7 +448,9 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
 
 exports.searchForJob = asyncHandler(async (req, res, next) => {
   try {
-    matchingAlgo.dealBreaker("startingDate", req, res, next);
+    // matchingAlgo.dealBreaker("startingDate", req, res, next);
+    matchingCriteria.location(req, res, next);
+    // matchingCriteria.softSkills(req, res, next);
   } catch (err) {
     next(err);
   }
