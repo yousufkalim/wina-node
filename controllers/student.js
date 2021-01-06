@@ -38,17 +38,17 @@ exports.register = asyncHandler(async (req, res, next) => {
     const education_info = Joi.object().keys({
       school: Joi.string(),
       levelOfEducation: Joi.string().valid(
-        "Brevet",
-        "CAP",
-        "BEP",
-        "MC",
-        "BacGénéral",
-        "BacProfessionel",
-        "BTS",
-        "DUT",
-        "Licence",
-        "Master",
-        "Doctorat"
+        "1:Brevet",
+        "2:CAP",
+        "3:BEP",
+        "4:MC",
+        "5:BacGénéral",
+        "6:BacProfessionel",
+        "7:BTS",
+        "8:DUT",
+        "9:Licence",
+        "10:Master",
+        "11:Doctorat"
       ),
       end_Date: Joi.string(),
       description: Joi.string().max(600),
@@ -80,7 +80,21 @@ exports.register = asyncHandler(async (req, res, next) => {
         startDate: Joi.string(),
         duration: Joi.string(),
         alternationRhythm: Joi.string(),
+        levelOfEducation: Joi.string().valid(
+          "1:Brevet",
+          "2:CAP",
+          "3:BEP",
+          "4:MC",
+          "5:BacGénéral",
+          "6:BacProfessionel",
+          "7:BTS",
+          "8:DUT",
+          "9:Licence",
+          "10:Master",
+          "11:Doctorat"
+        ),
       }),
+      dateOfBirth: Joi.string(),
       languages: Joi.array().items({
         name: Joi.string(),
         skill: Joi.string().valid(
@@ -168,6 +182,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       hardSkills,
       resume,
       positionSought,
+      dateOfBirth,
       languages,
     } = req.body;
 
@@ -182,6 +197,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       softSkills: softSkills,
       hard_Skills: hardSkills,
       positionSought: positionSought,
+      dateOfBirth: dateOfBirth,
       languages: languages,
       resume: uploadedResume,
       user: req.user.id,
@@ -233,17 +249,17 @@ exports.edit = asyncHandler(async (req, res, next) => {
     const education_info = Joi.object().keys({
       school: Joi.string(),
       levelOfEducation: Joi.string().valid(
-        "Brevet",
-        "CAP",
-        "BEP",
-        "MC",
-        "BacGénéral",
-        "BacProfessionel",
-        "BTS",
-        "DUT",
-        "Licence",
-        "Master",
-        "Doctorat"
+        "1:Brevet",
+        "2:CAP",
+        "3:BEP",
+        "4:MC",
+        "5:BacGénéral",
+        "6:BacProfessionel",
+        "7:BTS",
+        "8:DUT",
+        "9:Licence",
+        "10:Master",
+        "11:Doctorat"
       ),
       end_Date: Joi.string(),
       description: Joi.string().max(600),
@@ -275,7 +291,21 @@ exports.edit = asyncHandler(async (req, res, next) => {
         startDate: Joi.string(),
         duration: Joi.string(),
         alternationRhythm: Joi.string(),
+        levelOfEducation: Joi.string().valid(
+          "1:Brevet",
+          "2:CAP",
+          "3:BEP",
+          "4:MC",
+          "5:BacGénéral",
+          "6:BacProfessionel",
+          "7:BTS",
+          "8:DUT",
+          "9:Licence",
+          "10:Master",
+          "11:Doctorat"
+        ),
       }),
+      dateOfBirth: Joi.string(),
       languages: Joi.array().items({
         name: Joi.string(),
         skill: Joi.string().valid(
@@ -362,6 +392,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
       softSkills,
       hardSkills,
       positionSought,
+      dateOfBirth,
       languages,
     } = req.body;
 
@@ -377,6 +408,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
         hardSkills: hardSkills,
         education: education,
         positionSought: positionSought,
+        dateOfBirth: dateOfBirth,
         resume: uploadedResume,
         languages: languages,
       },
@@ -449,8 +481,14 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
 exports.searchForJob = asyncHandler(async (req, res, next) => {
   try {
     // matchingAlgo.dealBreaker("startingDate", req, res, next);
-    matchingCriteria.location(req, res, next);
-    // matchingCriteria.softSkills(req, res, next);
+    // matchingCriteria.location(req, res, next);
+    // matchingCriteria.softSkills(req, res, next)
+    // matchingCriteria.hardSkills(req, res, next);
+    // matchingCriteria.field(req, res, next);
+    // matchingCriteria.jobName(req, res, next);
+    // matchingCriteria.startDate(req, res, next);
+    // matchingCriteria.lengthOfTheAlternate(req, res, next);
+    matchingCriteria.levelOfEducation(req, res, next);
   } catch (err) {
     next(err);
   }

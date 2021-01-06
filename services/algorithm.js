@@ -87,28 +87,222 @@ class MatchingCriteria extends DealBreaker {
       const user = req.user;
       const student = await Student.findById(user.student);
       const userSoftSkills = student.softSkills;
-      const userHardSkills = student.hardSkills;
 
+      const softSkillsArray = [];
+      var n = 0;
+      var score = 0;
       const jobs = await this.startingDate(req.user, next);
+
       const result = jobs.filter((job) => {
-        console.log(userSoftSkills, "hey1");
-        console.log(job.softSkills, "hey2");
-        var n = 0;
-        for (let i = 0; i < userSoftSkills.length; i++) {
-          // Loop for array2
-          for (let j = 0; j < job.softSkills.length; j++) {
-            // Compare the element of each and
-            // every element from both of the
-            // arrays
-            if (userSoftSkills[i] == job.softSkills[j]) {
-              console.log("matched1");
-              // Return if common element found
+        n = 0;
+        userSoftSkills.map((item) => {
+          job.softSkills.map((item1) => {
+            if (item.toString() == item1.toString()) {
               n++;
             }
-            return n;
-          }
+          });
+        });
+        if (n == 0) {
+          score = 0;
+        } else if (n == 1) {
+          score = 0.5;
+        } else if (n == 2) {
+          score = 0.8;
+        } else if (n == 3) {
+          score = 1;
         }
+        score = score * 15;
+        return softSkillsArray.push({ id: job.id, score: score });
       });
+      console.log(softSkillsArray);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  hardSkills = async (req, res, next) => {
+    try {
+      const user = req.user;
+      const student = await Student.findById(user.student);
+      const userHardSkills = student.hardSkills;
+
+      const hardSkillsArray = [];
+      var n = 0;
+      var score = 0;
+      const jobs = await this.startingDate(req.user, next);
+
+      const result = jobs.filter((job) => {
+        n = 0;
+        userHardSkills.map((item) => {
+          job.hardSkills.map((item1) => {
+            if (item.toString() == item1.toString()) {
+              n++;
+            }
+          });
+        });
+        if (n == 0) {
+          score = 0;
+        } else if (n == 1) {
+          score = 0.5;
+        } else if (n == 2) {
+          score = 0.8;
+        } else if (n == 3) {
+          score = 1;
+        }
+        score = score * 20;
+        return hardSkillsArray.push({ id: job.id, score: score });
+      });
+      console.log(hardSkillsArray);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  field = async (req, res, next) => {
+    try {
+      const user = req.user;
+      const student = await Student.findById(user.student);
+      const studentField = student.positionSought.domain;
+
+      let score = 0;
+      let fieldArray = [];
+      const jobs = await this.startingDate(req.user, next);
+      jobs.map((job) => {
+        if (job.domain === studentField) {
+          score = 1;
+        } else {
+          score = 0;
+        }
+        score = score * 35;
+        return fieldArray.push({ id: job.id, score: score });
+      });
+      console.log(fieldArray);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  jobName = async (req, res, next) => {
+    try {
+      const user = req.user;
+      const student = await Student.findById(user.student);
+      const studentPosition = student.positionSought.position.toUpperCase();
+
+      let score = 0;
+      let jobNameArray = [];
+
+      const jobs = await this.startingDate(req.user, next);
+
+      jobs.map((job) => {
+        const jobTitle = job.title.toUpperCase();
+        const result = studentPosition.localeCompare(jobTitle);
+        if (result === 0) {
+          score = 1;
+        } else {
+          score = 0;
+        }
+        score = score * 4;
+        return jobNameArray.push({ id: job.id, score: score });
+      });
+      console.log(jobNameArray);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // Starting Date //
+  startDate = async (req, res, next) => {
+    try {
+      const user = req.user;
+      const student = await Student.findById(user.student);
+      const studentStartingDate = moment(
+        student.positionSought.startDate,
+        "MM-DD-YYYY"
+      );
+
+      const jobs = await this.startingDate(req.user, next);
+      var startDateArray = [];
+      let score = 0;
+
+      jobs.map((job) => {
+        const jobDate = moment(job.startDate, "MM-DD-YYYY");
+        const result = Math.abs(studentStartingDate.diff(jobDate, "weeks"));
+        if (result <= 1) {
+          score = 1;
+        } else if (result > 1 && result <= 2) {
+          score = 0.8;
+        } else if (result > 2 && result <= 4) {
+          score = 0.3;
+        } else if (result > 4) {
+          score = 0;
+        }
+        score = score * 5;
+        return startDateArray.push({ id: job.id, score: score });
+      });
+      console.log(startDateArray);
+      // res.status(200).json({ Jobs: filteredJobs });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  lengthOfTheAlternate = async (req, res, next) => {
+    try {
+      const user = req.user;
+      const student = await Student.findById(user.student);
+      const studentDuration = student.positionSought.duration.split(" ");
+
+      const jobs = await this.startingDate(req.user, next);
+      var lengthOfTheAlternateArray = [];
+      let score = 0;
+
+      jobs.map((job) => {
+        const jobDuration = job.duration.split(" ");
+        const result = studentDuration[0] - jobDuration[0];
+        if (result == 0) {
+          score = 1;
+        } else if (result == 1) {
+          score = 0.4;
+        } else if (result > 1) {
+          score = 0;
+        }
+        score = score * 5;
+        return lengthOfTheAlternateArray.push({ id: job.id, score: score });
+      });
+      console.log(lengthOfTheAlternateArray);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  levelOfEducation = async (req, res, next) => {
+    try {
+      const user = req.user;
+      const student = await Student.findById(user.student);
+      const studentEducation = student.positionSought.levelOfEducation.split(
+        ":"
+      );
+
+      console.log(studentEducation[0]);
+
+      // const jobs = await this.startingDate(req.user, next);
+      // var lengthOfTheAlternateArray = [];
+      // let score = 0;
+
+      // jobs.map((job) => {
+      //   const jobDuration = job.duration.split(" ");
+      //   const result = studentDuration[0] - jobDuration[0];
+      //   if (result == 0) {
+      //     score = 1;
+      //   } else if (result == 1) {
+      //     score = 0.4;
+      //   } else if (result > 1) {
+      //     score = 0;
+      //   }
+      //   score = score * 5;
+      //   return lengthOfTheAlternateArray.push({ id: job.id, score: score });
+      // });
+      // console.log(lengthOfTheAlternateArray);
     } catch (err) {
       next(err);
     }
