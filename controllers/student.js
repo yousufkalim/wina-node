@@ -488,7 +488,10 @@ exports.searchForJob = asyncHandler(async (req, res, next) => {
     // matchingCriteria.jobName(req, res, next);
     // matchingCriteria.startDate(req, res, next);
     // matchingCriteria.lengthOfTheAlternate(req, res, next);
-    matchingCriteria.levelOfEducation(req, res, next);
+    // matchingCriteria.levelOfEducation(req, res, next);
+    // matchingCriteria.frequencyOfApprenticeship(req, res, next);
+    // matchingCriteria.ageRange(req, res, next);
+    matchingCriteria.search(req, res, next);
   } catch (err) {
     next(err);
   }
