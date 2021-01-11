@@ -19,6 +19,7 @@ const {
   editCompany,
   deleteCompany,
   bookCoachingAppointment,
+  searchForStudents,
 } = require("../controllers/company");
 
 //middleware functions
@@ -39,6 +40,13 @@ router.post(
   "/book-coaching-appointment",
   [protect, validateType("company")],
   bookCoachingAppointment
+);
+
+// Search for Students //
+router.post(
+  "/search-students",
+  [protect, validateType("company")],
+  searchForStudents
 );
 
 module.exports = router;

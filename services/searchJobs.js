@@ -3,6 +3,7 @@ const moment = require("moment");
 const User = require("../models/User");
 const Job = require("../models/Job");
 const Student = require("../models/Student");
+const { Promise } = require("mongoose");
 
 class DealBreaker {
   // Starting Date //
@@ -375,71 +376,94 @@ class MatchingCriteria extends DealBreaker {
         let locationIndex = locationResult.findIndex(
           (loc) => loc.id === job.id
         );
-        totalScore += locationResult[locationIndex].score;
-
+        totalScore += locationResult[locationIndex].score / 100;
         // Soft Skills Filter //
         let softSkillIndex = softSkillsResult.findIndex(
           (softSkill) => softSkill.id === job.id
         );
-        totalScore += softSkillsResult[softSkillIndex].score;
+        totalScore += softSkillsResult[softSkillIndex].score / 100;
 
         // Hard Skills Filter //
         let hardSkillIndex = hardSkillsResult.findIndex(
           (hardSkill) => hardSkill.id === job.id
         );
-        totalScore += hardSkillsResult[hardSkillIndex].score;
+        totalScore += hardSkillsResult[hardSkillIndex].score / 100;
 
         // Field Filter //
         let fieldIndex = fieldResult.findIndex((field) => field.id === job.id);
-        totalScore += fieldResult[fieldIndex].score;
+        totalScore += fieldResult[fieldIndex].score / 100;
 
         // Job Name Filter //
         let jobNameIndex = jobNameResult.findIndex(
           (jobName) => jobName.id === job.id
         );
-        totalScore += jobNameResult[jobNameIndex].score;
+        totalScore += jobNameResult[jobNameIndex].score / 100;
 
         // Start Date Filter //
         let startDateIndex = startDateResult.findIndex(
           (startDate) => startDate.id === job.id
         );
-        totalScore += startDateResult[startDateIndex].score;
+        totalScore += startDateResult[startDateIndex].score / 100;
 
         // Length of the Alternate Filter //
         let lengthOfTheAlternateIndex = lengthOfTheAlternateResult.findIndex(
           (lengthOfTheAlternate) => lengthOfTheAlternate.id === job.id
         );
         totalScore +=
-          lengthOfTheAlternateResult[lengthOfTheAlternateIndex].score;
+          lengthOfTheAlternateResult[lengthOfTheAlternateIndex].score / 100;
 
         // Level Of Education Filter //
         let levelOfEducationIndex = levelOfEducationResult.findIndex(
           (levelOfEducation) => levelOfEducation.id === job.id
         );
-        totalScore += levelOfEducationResult[levelOfEducationIndex].score;
+        totalScore += levelOfEducationResult[levelOfEducationIndex].score / 100;
 
         // Frequency of Apprenticeship Filter //
         let frequencyOfApprenticeshipIndex = frequencyOfApprenticeshipResult.findIndex(
           (frequencyOfApprenticeship) => frequencyOfApprenticeship.id === job.id
         );
         totalScore +=
-          frequencyOfApprenticeshipResult[frequencyOfApprenticeshipIndex].score;
+          frequencyOfApprenticeshipResult[frequencyOfApprenticeshipIndex]
+            .score / 100;
 
         // Age Range Filter //
         let ageRangeIndex = ageRangeResult.findIndex(
           (ageRange) => ageRange.id === job.id
         );
-        totalScore += ageRangeResult[ageRangeIndex].score;
+        totalScore += ageRangeResult[ageRangeIndex].score / 100;
 
         newArray.push({
           jobId: job.id,
           score: totalScore,
         });
         newArray.sort(function (a, b) {
-          return a.score - b.score;
+          return b.score - a.score;
         });
       });
       return newArray;
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  display = async (req, res, next) => {
+    try {
+      let output = [];
+      const sortedArray = await this.search(req, res, next);
+      return new Promise(async (resolve, reject) => {
+        try {
+          await Promise.all(
+            sortedArray.map(async (job) => {
+              const result = await Job.findById(job.jobId);
+              output.push(result);
+            })
+          );
+          resolve(output);
+          res.status(200).json({ jobs: output });
+        } catch (e) {
+          reject(e);
+        }
+      });
     } catch (err) {
       next(err);
     }

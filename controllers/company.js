@@ -3,6 +3,10 @@ const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Appointment = require("../models/Appointment");
+const matchingAlgo = require("../services/searchStudents");
+
+var matchingCriteria = new matchingAlgo.MatchingCriteria();
+var dealBreaker = new matchingAlgo.DealBreaker();
 
 // Register Company
 
@@ -216,6 +220,26 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
     );
 
     res.status(200).json({ message: "Success! Appoinment Created" });
+  } catch (err) {
+    next(err);
+  }
+});
+
+exports.searchForStudents = asyncHandler(async (req, res, next) => {
+  try {
+    // matchingAlgo.dealBreaker("startingDate", req, res, next);
+    // matchingCriteria.location(req, res, next);
+    // matchingCriteria.softSkills(req, res, next)
+    // matchingCriteria.hardSkills(req, res, next);
+    // matchingCriteria.field(req, res, next);
+    // matchingCriteria.jobName(req, res, next);
+    // matchingCriteria.startDate(req, res, next);
+    // matchingCriteria.lengthOfTheAlternate(req, res, next);
+    // matchingCriteria.levelOfEducation(req, res, next);
+    // matchingCriteria.frequencyOfApprenticeship(req, res, next);
+    // matchingCriteria.ageRange(req, res, next);
+    // matchingCriteria.search(req, res, next);
+    matchingCriteria.display(req, res, next);
   } catch (err) {
     next(err);
   }

@@ -3,7 +3,7 @@ const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Student = require("../models/Student");
 const Appointment = require("../models/Appointment");
-const matchingAlgo = require("../services/algorithm");
+const matchingAlgo = require("../services/searchJobs");
 
 var matchingCriteria = new matchingAlgo.MatchingCriteria();
 var dealBreaker = new matchingAlgo.DealBreaker();
@@ -491,7 +491,8 @@ exports.searchForJob = asyncHandler(async (req, res, next) => {
     // matchingCriteria.levelOfEducation(req, res, next);
     // matchingCriteria.frequencyOfApprenticeship(req, res, next);
     // matchingCriteria.ageRange(req, res, next);
-    matchingCriteria.search(req, res, next);
+    // matchingCriteria.search(req, res, next);
+    matchingCriteria.display(req, res, next);
   } catch (err) {
     next(err);
   }
