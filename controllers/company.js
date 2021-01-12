@@ -218,7 +218,6 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
         },
       }
     );
-
     res.status(200).json({ message: "Success! Appoinment Created" });
   } catch (err) {
     next(err);

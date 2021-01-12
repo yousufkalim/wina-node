@@ -10,6 +10,7 @@ const StudentConsultant = require("../models/StudentConsultant");
 const CompanyConsultant = require("../models/CompanyConsultant");
 const School = require("../models/School");
 const Appointment = require("../models/Appointment");
+const { socket, io } = require("../app");
 
 // Get List of Skills
 exports.skillList = asyncHandler(async (req, res, next) => {
@@ -1355,6 +1356,13 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           },
           { new: true }
         );
+
+        // Sending Notification //
+        socket.broadcast.emit(`recieveNotification${student.user}`, {
+          title: "Success! Appointment Approved",
+          message: "Your Appointment has been approved successfully",
+        });
+
         const consultantUser = await User.findByIdAndUpdate(consultant.user, {
           $push: {
             notifications: {
@@ -1362,6 +1370,12 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
               description: "Admin has assigned you an appointment",
             },
           },
+        });
+
+        // Sending Notification //
+        socket.broadcast.emit(`recieveNotification${consultant.user}`, {
+          title: "Appointment Scheduled",
+          message: "Admin has assigned you an appointment",
         });
 
         // Sending success mail
@@ -1411,6 +1425,13 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           },
           { new: true }
         );
+
+        // Sending Notification //
+        socket.broadcast.emit(`recieveNotification${student.user}`, {
+          title: "Appointment Cancelled",
+          message: "Your Appointment has been cancelled by the Admin",
+        });
+
         let transporter = nodemailer.createTransport({
           host: "smtp.gmail.com",
           port: 587,
@@ -1461,6 +1482,16 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           },
           { new: true }
         );
+
+        // Sending Notification //
+        socket.broadcast.emit(
+          `recieveNotification${company.contactPerson.person}`,
+          {
+            title: "Success! Appointment Approved",
+            message: "Your Appointment has been approved successfully",
+          }
+        );
+
         const consultantUser = await User.findByIdAndUpdate(consultant.user, {
           $push: {
             notifications: {
@@ -1468,6 +1499,12 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
               description: "Admin has assigned you an appointment",
             },
           },
+        });
+
+        // Sending Notification //
+        socket.broadcast.emit(`recieveNotification${consultant.user}`, {
+          title: "Appointment Scheduled",
+          message: "Admin has assigned you an appointment",
         });
 
         let transporter = nodemailer.createTransport({
@@ -1516,6 +1553,12 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           },
           { new: true }
         );
+
+        // Sending Notification //
+        socket.broadcast.emit(`recieveNotification${company.user}`, {
+          title: "Appointment Cancelled",
+          message: "Your Appointment has been cancelled by the Admin",
+        });
 
         let transporter = nodemailer.createTransport({
           host: "smtp.gmail.com",

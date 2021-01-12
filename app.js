@@ -12,9 +12,13 @@ const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Joi = require("joi");
+const socketio = require("socket.io");
+const http = require("http");
 var cors = require("cors");
 const app = express();
+const server = http.createServer(app);
 
+const notificationService = require("./socket.io/notifications");
 app.use(cors());
 
 //// Body Parser Middleware ////
@@ -29,6 +33,14 @@ app.use(cookieParser());
 
 app.use("/assets", express.static("assets"));
 app.use("/views", express.static("views"));
+
+// socket io connection
+const io = socketio(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  },
+});
 
 //// Sessions Middleware ////
 
@@ -93,7 +105,45 @@ app.use((error, req, res, next) => {
 });
 //// Setting Port for Server ////
 
+//// Setting Port for Server ////
 const PORT = 3000 || process.env.PORT;
-app.listen(PORT, () => {
-  console.log(`Server is listening to port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Server listening to port ${PORT}`);
+});
+
+// Socket configuration //
+io.on("connection", (socket) => {
+  console.log("Connected");
+  logInfo.info(
+    "Connection Established ",
+    socket.id,
+    " accepted at ",
+    new Date().toJSON()
+  );
+  exports.socket = { socket, io };
+  var useris = socket.handshake.query.userConnectionId;
+  socket.join(useris);
+  //Leave the room if the user closes the socket
+  socket.on("disconnect", () => {
+    socket.leave(useris);
+  });
+
+  // for dynamic notifications
+  var recieverId = socket.handshake.query.recieverId;
+  socket.on(`sendNotification`, (data) => {
+    // logic to save notifications in our db
+    notificationService
+      .addNotifcation({
+        id: data.id,
+        title: data.title,
+        message: data.message,
+      })
+      .then((message) => {
+        socket.broadcast.emit(`recieveNotification${data.id}`, {
+          title: data.title,
+          message: data.message,
+        });
+      })
+      .catch((e) => console.log(e));
+  });
 });
