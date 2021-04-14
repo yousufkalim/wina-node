@@ -4,6 +4,7 @@ const async = require("async");
 const Joi = require("joi");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
+const Company = require("../models/Company");
 
 //REGISTER USER API
 
@@ -22,6 +23,8 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
       firstName: Joi.string().max(250).required(),
       lastName: Joi.string().max(250).required(),
       email: Joi.string().email().required(),
+      type: Joi.string().required(),
+      role: Joi.string().optional().allow(""),
       phone: Joi.string()
         .max(10)
         .pattern(/^[0-9]+$/)
@@ -45,6 +48,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
       password,
       confirm_password,
       address,
+      role,
       phone,
     } = req.body;
 
@@ -56,7 +60,9 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
     //// Check If user exist with this Email or not ////
     const result = await User.findOne({ email: email });
     if (result) {
-      res.status(404).send("User already registered with this Email Address");
+      res
+        .status(404)
+        .send({ message: "User already registered with this Email Address" });
     } else {
       // Saving User in DataBase
       const user = await User.create({
@@ -66,164 +72,183 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
         address,
         password,
         phone,
+        type,
       });
 
-      res.status(200).json({ user: user });
+      res
+        .status(200)
+        .json({ user: user, message: "User is registered successfully" });
     }
   } catch (err) {
+    res.status(400).json({ message: err.message });
     next(err);
   }
 });
 
 // Email Verfication for new Registrations //
 exports.verifyEmail = asyncHandler(async (req, res, next) => {
-  async.waterfall(
-    [
-      function (done) {
-        crypto.randomBytes(20, function (err, buf) {
-          var token = buf.toString("hex");
-          done(err, token);
-        });
-      },
-      function (token, done) {
-        const email = req.body.email;
-        User.findOne(
-          {
-            email: email,
-          },
-          function (err, user) {
-            if (!user) {
-              return res
-                .status(403)
-                .json({ message: "No account with that email address exists" });
-            }
-            User.findOneAndUpdate(
-              { email: email },
-              {
-                $set: {
-                  verifyEmailToken: token,
-                  emailVerificationExpiresIn: Date.now() + 36000000,
-                },
-              },
-              { new: true },
-              function (err) {
-                done(err, token, user);
+  try {
+    async.waterfall(
+      [
+        function (done) {
+          crypto.randomBytes(20, function (err, buf) {
+            var token = buf.toString("hex");
+            done(err, token);
+          });
+        },
+        function (token, done) {
+          const email = req.body.email;
+          User.findOne(
+            {
+              email: email,
+            },
+            function (err, user) {
+              if (!user) {
+                return res.status(403).send({
+                  message: "No account with that email address exists",
+                });
               }
-            );
-          }
-        );
-      },
-      function (token, user, done) {
-        let transporter = nodemailer.createTransport({
-          host: "smtp.gmail.com",
-          port: 587,
-          secure: false,
-          tls: {
-            rejectUnauthorized: false,
-          },
-          auth: {
-            user: process.env.MailingId,
-            pass: process.env.MailingPassword,
-          },
-        });
-        var mailOptions = {
-          to: user.email,
-          from: process.env.MailingId,
-          subject: "Verfication Email Request for WINA",
-          text:
-            "You are receiving this because you (or someone else) have requested to register your account on WINA.\n\n" +
-            "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
-            "http://" +
-            req.headers.host +
-            "/reset/" +
-            token +
-            "\n\n" +
-            "If you did not request this, please ignore this email.\n",
-        };
+              User.findOneAndUpdate(
+                { email: email },
+                {
+                  $set: {
+                    verifyEmailToken: token,
+                    emailVerificationExpiresIn: Date.now() + 36000000,
+                  },
+                },
+                { new: true },
+                function (err) {
+                  done(err, token, user);
+                }
+              );
+            }
+          );
+        },
+        function (token, user, done) {
+          let transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false,
+            tls: {
+              rejectUnauthorized: false,
+            },
+            auth: {
+              user: process.env.MailingId,
+              pass: process.env.MailingPassword,
+            },
+          });
+          var mailOptions = {
+            to: user.email,
+            from: process.env.MailingId,
+            subject: "Verfication Email Request for WINA",
+            text:
+              "You are receiving this because you (or someone else) have requested to register your account on WINA.\n\n" +
+              "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
+              "http://" +
+              "localhost:3000" +
+              "/verifyEmail/" +
+              token +
+              "\n\n" +
+              "If you did not request this, please ignore this email.\n",
+          };
 
-        transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-            return res.status(400).json({ message: error.message });
-          }
-          res.status(200).json({ message: "Verification Email has been sent" });
-        });
-      },
-    ],
-    function (err) {
-      if (err) return next(err);
-      res.status(200).send("Verfication Email has been sent Successfully");
-    }
-  );
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              return res.status(400).json({ message: error.message });
+            }
+            res
+              .status(200)
+              .json({ message: "Verification Email has been sent" });
+          });
+        },
+      ],
+      function (err) {
+        if (err) return next(err);
+        res.status(200).send("Verfication Email has been sent Successfully");
+      }
+    );
+  } catch (error) {
+    res.status(400).send({ message: error.message });
+
+    next(error);
+  }
 });
 
 exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
-  async.waterfall(
-    [
-      function (done) {
-        User.findOne(
-          {
-            verifyEmailToken: req.params.token,
-            emailVerificationExpiresIn: {
-              $gt: Date.now(),
+  try {
+    async.waterfall(
+      [
+        function (done) {
+          User.findOne(
+            {
+              verifyEmailToken: req.params.token,
+              emailVerificationExpiresIn: {
+                $gt: Date.now(),
+              },
             },
-          },
-          async function (err, user) {
-            if (!user) {
-              return res.status(403).json({
-                message: "Password reset token is invalid or has expired",
-              });
-            } else {
-              var user = await User.findOneAndUpdate(
-                {
-                  verifyEmailToken: req.params.token,
-                },
-                {
-                  $set: {
-                    status: "active",
-                  },
-                }
-              );
-
-              let transporter = nodemailer.createTransport({
-                host: "smtp.gmail.com",
-                port: 587,
-                secure: false,
-                tls: {
-                  rejectUnauthorized: false,
-                },
-                auth: {
-                  user: process.env.MailingId,
-                  pass: process.env.MailingPassword,
-                },
-              });
-              var mailOptions = {
-                to: user.email,
-                from: process.env.MailingId,
-                subject: "Success Message",
-                text:
-                  "Hello,\n\n" +
-                  "You have successfully verified " +
-                  user.email +
-                  " \n",
-              };
-              transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                  return res.status(400).json({ message: error.message });
-                }
-                res.status(200).json({
-                  message: "Success! You have successfully registed on WINA",
+            async function (err, user) {
+              if (!user) {
+                return res.status(403).json({
+                  message: "Password reset token is invalid or has expired",
                 });
-                done(err);
-              });
+              } else {
+                var user = await User.findOneAndUpdate(
+                  {
+                    verifyEmailToken: req.params.token,
+                  },
+                  {
+                    $set: {
+                      status: "active",
+                    },
+                  }
+                );
+
+                let transporter = nodemailer.createTransport({
+                  host: "smtp.gmail.com",
+                  port: 587,
+                  secure: false,
+                  tls: {
+                    rejectUnauthorized: false,
+                  },
+                  auth: {
+                    user: process.env.MailingId,
+                    pass: process.env.MailingPassword,
+                  },
+                });
+                var mailOptions = {
+                  to: user.email,
+                  from: process.env.MailingId,
+                  subject: "Success Message",
+                  text:
+                    "Hello,\n\n" +
+                    "You have successfully verified " +
+                    user.email +
+                    " \n",
+                };
+                transporter.sendMail(mailOptions, (error, info) => {
+                  if (error) {
+                    return res.status(400).json({ message: error.message });
+                  }
+                  res.status(200).json({
+                    message: "Success! You have successfully registed on WINA",
+                  });
+                  done(err);
+                });
+              }
             }
-          }
-        );
-      },
-    ],
-    function (err) {
-      console.log(err);
-    }
-  );
+          );
+        },
+      ],
+      function (err) {
+        console.log(err);
+      }
+    );
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+    });
+    next(err);
+  }
 });
 
 //Login User
@@ -242,13 +267,17 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   //validating email and password
   if (!email || !password) {
-    return res.status(400).send("Please provide email and password");
+    return res
+      .status(400)
+      .send({ message: "Please provide email and password" });
   }
 
   // check if user exists //
   const user = await User.findOne({ email: email }).select("+password");
   if (!user) {
-    return res.status(400).send("You are not registered, Please Sign up!");
+    return res
+      .status(400)
+      .send({ message: "You are not registered, Please Sign up!" });
   }
 
   // check if user exists //
@@ -256,14 +285,16 @@ exports.login = asyncHandler(async (req, res, next) => {
     "+password"
   );
   if (!result) {
-    return res.status(400).send("You haven't verify your email address yet");
+    return res
+      .status(400)
+      .send({ message: "You haven't verify your email address yet" });
   }
   // Check if password matches
 
   const isMatch = await user.matchPassword(password);
 
   if (!isMatch) {
-    return res.status(400).send("Password is Invalid");
+    return res.status(400).send({ message: "Password is Invalid" });
   }
 
   sendTokenResponse(user, 200, res);
@@ -271,7 +302,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 
 //Get token from Model create cookie and send response
 
-const sendTokenResponse = (user, statusCode, res) => {
+const sendTokenResponse = async (user, statusCode, res) => {
   //create token
 
   const token = user.getSignedJwtToken();
@@ -287,12 +318,15 @@ const sendTokenResponse = (user, statusCode, res) => {
     options.secure = true;
   }
   if (user) {
-    res
-      .status(statusCode)
-      .cookie("token", token, options)
-      .json({ token: token, user: user });
+    const student = await User.findById(user._id).populate("student");
+
+    res.status(statusCode).cookie("token", token, options).json({
+      token: token,
+      user: student,
+      message: "User Login Successfully",
+    });
   } else {
-    res.send("Something went wrong");
+    res.send({ message: "Something went wrong" });
   }
 };
 

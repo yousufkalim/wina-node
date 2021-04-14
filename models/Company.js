@@ -13,7 +13,7 @@ const CompanySchema = new mongoose.Schema({
     longitude: { type: Number, required: false },
   },
 
-  type: {
+  company_type: {
     type: String,
     enum: ["Startup", "PME", "TPE", "GE", "ETI"],
     required: false,
@@ -45,10 +45,7 @@ const CompanySchema = new mongoose.Schema({
   },
 
   contactPerson: {
-    person: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
+    person: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     positionHeld: {
       type: String,
     },

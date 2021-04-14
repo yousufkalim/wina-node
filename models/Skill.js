@@ -7,7 +7,7 @@ const SkillSchema = new mongoose.Schema({
   },
   skillType: {
     type: String,
-    enum: ["Soft Skill", "Hard Skill"],
+    enum: ["Soft_Skill", "Hard_Skill"],
   },
   isDeleted: {
     type: Boolean,

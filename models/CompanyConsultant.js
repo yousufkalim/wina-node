@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const CompanyConsultantSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
   video: {
     video: {
       type: String,
@@ -34,10 +38,6 @@ const CompanyConsultantSchema = new mongoose.Schema({
     required: false,
   },
 
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
   isDeleted: {
     type: Boolean,
     required: false,

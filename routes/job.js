@@ -17,7 +17,7 @@ const upload = multer({ storage: storage }).single("image");
 
 // Controller Functions //
 
-const { CreateJob, EditJob, DeleteJob } = require("../controllers/job");
+const { CreateJob, EditJob, DeleteJob, GetJob } = require("../controllers/job");
 
 //middleware functions
 
@@ -40,7 +40,8 @@ router.put(
   upload,
   EditJob
 );
-
+// get single Job
+router.get("/get-job/:id", protect, GetJob);
 // DELETE Job
 router.put("/delete-job/:id", [protect, validateType("company")], DeleteJob);
 

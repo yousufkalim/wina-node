@@ -27,7 +27,7 @@ exports.createSkill = asyncHandler(async (req, res, next) => {
   try {
     const schema = Joi.object().keys({
       skillField: Joi.string(),
-      skillType: Joi.string().valid("Soft Skill", "Hard Skill"),
+      skillType: Joi.string().valid("Soft_Skill", "Hard_Skill"),
     });
 
     const results = schema.validate(req.body);
@@ -41,7 +41,10 @@ exports.createSkill = asyncHandler(async (req, res, next) => {
       skillType: skillType,
     });
     await newSkill.save();
-    res.status(200).json({ message: "Skill Created Successfully" });
+    const skills = await Skill.find();
+    res
+      .status(200)
+      .json({ message: "Skill Created Successfully", skills: skills });
   } catch (err) {
     next(err);
   }

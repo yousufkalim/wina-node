@@ -1,32 +1,9 @@
 const express = require("express");
-const multer = require("multer");
+
 const router = express.Router();
+const { upload } = require("../middlewares/multer");
 
 // MULTER Configuaration //
-
-const storage = multer.diskStorage({
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-  destination: function (req, file, cb) {
-    cb(null, "views/uploads");
-  },
-});
-
-const upload = multer({ storage: storage }).fields([
-  {
-    name: "video",
-    maxCount: 1,
-  },
-  {
-    name: "image",
-    maxCount: 1,
-  },
-  {
-    name: "resume",
-    maxCount: 1,
-  },
-]);
 
 // Controller Functions //
 
@@ -37,20 +14,37 @@ const {
   DeleteProfile,
   bookCoachingAppointment,
   searchForJob,
+  GetUser,
+  DeleteSchool,
+  DeleteProfessionalInfo,
+  GetSkills,
 } = require("../controllers/student");
-
 //middleware functions
 
 const { protect, validateType } = require("../middlewares/auth");
 
 // Routes for Students //
 router.get("/getStudentProfile/:id", protect, GetStudentProfile);
+router.post("/get_skills", protect, GetSkills);
+
+router.post("/get-info", [protect, validateType("student")], GetUser);
 
 router.post("/add-info", [protect, validateType("student")], upload, register);
+// router.put("/edit-info/:id", [protect, validateType("student")], upload, edit);
 
-router.put("/edit-info/:id", [protect, validateType("student")], upload, edit);
+router.put("/edit-info", [protect, validateType("student")], upload, edit);
 
 router.delete("/delete-profile", protect, DeleteProfile);
+router.delete(
+  "/delete-school/:id",
+  [protect, validateType("student")],
+  DeleteSchool
+);
+router.delete(
+  "/delete-professional-info/:id",
+  [protect, validateType("student")],
+  DeleteProfessionalInfo
+);
 
 // Book Coaching Appointment //
 router.post(

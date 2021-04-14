@@ -48,7 +48,6 @@ const StudentConsultantSchema = new mongoose.Schema({
       ],
     },
   ],
-
   isDeleted: {
     type: Boolean,
     required: false,

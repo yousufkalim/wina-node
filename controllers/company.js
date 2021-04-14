@@ -12,18 +12,7 @@ var dealBreaker = new matchingAlgo.DealBreaker();
 
 exports.register = asyncHandler(async (req, res, next) => {
   try {
-    const requestedUser = await User.findById(req.user.id);
-    if (
-      requestedUser.student ||
-      requestedUser.company ||
-      requestedUser.studentConsultant ||
-      requestedUser.companyConsultant
-    ) {
-      const error = new Error("Access Denied!");
-      error.status = 400;
-      throw error;
-    }
-    // Validating body //
+    // Validation for req.body //
     const address_object = Joi.object().keys({
       street: Joi.string().required(),
       city: Joi.string().required(),
@@ -33,66 +22,108 @@ exports.register = asyncHandler(async (req, res, next) => {
     });
 
     const schema = Joi.object().keys({
-      name: Joi.string().max(250),
+      name: Joi.string().max(250).required(),
       address: address_object.required(),
-      type: Joi.string().valid("Startup", "PME", "TPE", "GE", "ETI"),
-      siretNumber: Joi.string()
-        .max(20)
-        .pattern(/^[0-9]+$/),
-      website: Joi.string().uri().max(250),
-      linkedIn: Joi.string().uri().max(300),
-      groupName: Joi.string().max(100),
-      positionHeld: Joi.string().max(250),
-    });
+      company_type: Joi.string().valid("Startup", "PME", "TPE", "GE", "ETI"),
+      siretNumber: Joi.string().required(),
+      website: Joi.string().required().optional().allow(""),
+      groupName: Joi.string().required().optional().allow(""),
+      linkedIn: Joi.string().required().optional().allow(""),
+      type: Joi.string().required().optional().allow(""),
 
-    // Returns Error if any
+      contactPerson: Joi.object().keys({
+        firstName: Joi.string().max(250).required(),
+        lastName: Joi.string().max(250).required(),
+        email: Joi.string().email().required(),
+        positionHeld: Joi.string().required(),
+        phone: Joi.string()
+          .max(10)
+          .pattern(/^[0-9]+$/)
+          .required(),
+
+        password: Joi.string().min(6).max(255).required(),
+        confirm_password: Joi.string().min(6).max(255).required(),
+      }),
+    });
+    // Storing Error Responses in Result //
     const results = schema.validate(req.body);
+
     if (results.error) {
       return res.status(400).send(results.error.details[0].message);
     }
 
-    // parameters
     const {
       name,
+      company_type,
       address,
-      type,
       siretNumber,
       website,
-      linkedIn,
       groupName,
-      positionHeld,
-    } = req.body;
-
-    // Creating new Company in Database //
-    const newCompany = new Company({
-      name: name,
-      address: address,
-      type: type,
-      siretNumber: siretNumber,
-      website: website,
-      linkedIn: linkedIn,
-      groupName: groupName,
+      linkedIn,
+      type,
       contactPerson: {
-        person: req.user.id,
-        positionHeld: positionHeld,
+        firstName,
+        lastName,
+        email,
+        password,
+        confirm_password,
+        phone,
+        positionHeld,
       },
-    });
-    await newCompany.save();
+    } = req.body;
+    //// Check If Password and Confirm Password are same or not ////
+    if (password !== confirm_password) {
+      res.status(403).send("Password and Confirm Password are not same");
+    }
 
-    // Assigning new Company ID to Loggined In User //
-    const user = await User.findByIdAndUpdate(req.user.id, {
-      company: newCompany._id,
-    });
-    res.status(200).json({
-      message: "Success! Company has been registered.",
-      Company: newCompany,
-      user: user,
-    });
+    //// Check If user exist with this Email or not ////
+    const result = await User.findOne({ email: email });
+    if (result) {
+      res
+        .status(404)
+        .send({ message: "User already registered with this Email Address" });
+    } else {
+      // Saving User in DataBase
+
+      const user = await User.create({
+        firstName,
+        lastName,
+        email,
+        password,
+        phone,
+        type,
+      });
+      const company = await Company.create({
+        name,
+        company_type,
+        address,
+        siretNumber,
+        website,
+        groupName,
+        linkedIn,
+        contactPerson: {
+          person: user._id,
+          positionHeld,
+        },
+      });
+      const updatedUser = await User.findByIdAndUpdate(
+        user._id,
+        {
+          $set: { company: company._id },
+        },
+        { new: true }
+      );
+
+      res.status(200).json({
+        user: updatedUser,
+        message: "User is registered successfully",
+      });
+    }
   } catch (err) {
     res.status(400).json({ message: err.message });
+    next(err);
   }
 });
-
 // Edit Company
 exports.editCompany = asyncHandler(async (req, res, next) => {
   try {

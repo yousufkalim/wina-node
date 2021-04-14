@@ -19,6 +19,8 @@ const {
   editProfile,
   DeleteProfile,
   GetProfile,
+  requestForgetPassword,
+  forgetPassword,
 } = require("../controllers/profile");
 
 // middleware functions //
@@ -29,7 +31,10 @@ const {
   dashboard,
   customer_dashboard,
 } = require("../middlewares/auth");
-
+// request for forget password //
+router.post("/request-forget-password", requestForgetPassword);
+// Update password //
+router.post("/reset-password", forgetPassword);
 // Get Single user  //
 router.get("/get-profile/:id", protect, GetProfile);
 // Edit Profile info //

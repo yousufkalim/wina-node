@@ -65,6 +65,10 @@ const StudentSchema = new mongoose.Schema({
         type: String,
         required: false,
       },
+      image: {
+        type: String,
+        required: false,
+      },
       levelOfEducation: {
         type: String,
         enum: [
@@ -85,6 +89,11 @@ const StudentSchema = new mongoose.Schema({
         type: String,
         required: false,
       },
+      start_Date: {
+        type: String,
+        required: false,
+      },
+
       description: {
         type: String,
         required: false,
@@ -97,6 +106,23 @@ const StudentSchema = new mongoose.Schema({
       position: {
         type: String,
         required: false,
+      },
+      image: {
+        type: String,
+        required: false,
+      },
+      type: {
+        type: String,
+        required: false,
+      },
+      place: {
+        type: String,
+        required: false,
+      },
+      position_hold: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
       company: {
         type: String,

@@ -4,6 +4,7 @@ const User = require("../models/User");
 const Student = require("../models/Student");
 const Appointment = require("../models/Appointment");
 const matchingAlgo = require("../services/searchJobs");
+const Skill = require("../models/Skill");
 
 var matchingCriteria = new matchingAlgo.MatchingCriteria();
 var dealBreaker = new matchingAlgo.DealBreaker();
@@ -202,6 +203,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       resume: uploadedResume,
       user: req.user.id,
     });
+
     await newStudent.save();
 
     // Assigning new student ID to Loggined In User //
@@ -230,24 +232,50 @@ exports.GetStudentProfile = asyncHandler(async (req, res, next) => {
 
 //// Edit Student info ////
 exports.edit = asyncHandler(async (req, res, next) => {
+  const {
+    general_Presentation,
+    professional_networks,
+    professional_profile,
+    education,
+    softSkills,
+    hardSkills,
+    positionSought,
+    dateOfBirth,
+    languages,
+  } = req.body;
   let UploadedPicture = "";
   let video = "";
   let uploadedResume = "";
+  let EDUCATION;
+  let PROFESSION_INFO;
+  let PROFESSIONAL_NETWORKS;
 
-  const userID = await User.findById(req.user.id);
-  const studentID = userID.student;
-
+  if (professional_networks) {
+    PROFESSIONAL_NETWORKS = JSON.parse(professional_networks);
+    req.body.professional_networks = PROFESSIONAL_NETWORKS;
+  }
+  if (education) {
+    EDUCATION = JSON.parse(education);
+    req.body.education = EDUCATION;
+  }
+  if (professional_profile) {
+    PROFESSION_INFO = JSON.parse(professional_profile);
+    req.body.professional_profile = PROFESSION_INFO;
+  }
+  const user = await User.findById(req.user.id);
   try {
     // Validating body //
     const professional_network = Joi.object().keys({
-      linkedIn: Joi.string().uri(),
-      Behance: Joi.string().uri(),
-      Dribble: Joi.string().uri(),
-      Github: Joi.string().uri(),
+      linkedIn: Joi.string().uri().optional().allow(""),
+      Behance: Joi.string().uri().optional().allow(""),
+      Dribble: Joi.string().uri().optional().allow(""),
+      Github: Joi.string().uri().optional().allow(""),
     });
 
     const education_info = Joi.object().keys({
       school: Joi.string(),
+      image: Joi.string(),
+
       levelOfEducation: Joi.string().valid(
         "1:Brevet",
         "2:CAP",
@@ -262,11 +290,17 @@ exports.edit = asyncHandler(async (req, res, next) => {
         "11:Doctorat"
       ),
       end_Date: Joi.string(),
+      start_Date: Joi.string(),
       description: Joi.string().max(600),
     });
 
     const professional_profileInfo = Joi.object().keys({
       position: Joi.string().max(250),
+      type: Joi.string().max(250),
+      place: Joi.string().max(250),
+      position_hold: Joi.boolean(),
+      image: Joi.string(),
+
       company: Joi.string().max(250),
       duration: Joi.object().keys({
         start_date: Joi.string(),
@@ -278,6 +312,10 @@ exports.edit = asyncHandler(async (req, res, next) => {
     const schema = Joi.object().keys({
       general_Presentation: Joi.string().max(2000),
       presentation_Video: Joi.string(),
+      image: Joi.string(),
+
+      // School_Index: Joi.number(),
+
       professional_Picture: Joi.string(),
       professional_networks: professional_network,
       education: Joi.array().items(education_info),
@@ -316,6 +354,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
         ),
       }),
     });
+    // Pasrsing
 
     const results = schema.validate(req.body);
     if (results.error) {
@@ -358,6 +397,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
           throw error;
         }
       }
+
       if (req.files.resume) {
         if (
           req.files.resume[0].mimetype === "resume/pdf" ||
@@ -384,40 +424,76 @@ exports.edit = asyncHandler(async (req, res, next) => {
       }
     }
 
-    const {
-      general_Presentation,
-      professional_networks,
-      professional_profile,
-      education,
-      softSkills,
-      hardSkills,
-      positionSought,
-      dateOfBirth,
-      languages,
-    } = req.body;
+    const studentID = user.student;
+    // console.log(EDUCATION, "EDUCATION");
 
-    const user = await Student.findByIdAndUpdate(
-      studentID,
-      {
+    // let parsed_professional_network = JSON.parse(professional_networks);
+    let userobj;
+    if (studentID) {
+      let tempUser = await Student.findById(studentID);
+      userobj = await Student.findByIdAndUpdate(
+        studentID,
+        {
+          general_Presentation: general_Presentation
+            ? general_Presentation
+            : tempUser.general_Presentation,
+          presentation_Video: video ? video : tempUser.presentation_Video,
+          professional_Picture: UploadedPicture
+            ? UploadedPicture
+            : tempUser.professional_Picture,
+          professional_networks: PROFESSIONAL_NETWORKS
+            ? PROFESSIONAL_NETWORKS
+            : tempUser.professional_networks,
+          professional_profile: PROFESSION_INFO
+            ? PROFESSION_INFO
+            : tempUser.professional_profile,
+          softSkills: softSkills ? softSkills : tempUser.softSkills,
+          hardSkills: hardSkills ? hardSkills : tempUser.hardSkills,
+          education: EDUCATION ? EDUCATION : tempUser.education,
+          positionSought: positionSought
+            ? positionSought
+            : tempUser.positionSought,
+          dateOfBirth: dateOfBirth ? dateOfBirth : tempUser.dateOfBirth,
+          resume: uploadedResume,
+          languages: languages ? languages : tempUser.languages,
+        },
+        { new: true }
+      );
+    } else {
+      // Creating new student in Database //
+      userobj = new Student({
         general_Presentation: general_Presentation,
         presentation_Video: video,
         professional_Picture: UploadedPicture,
         professional_networks: professional_networks,
         professional_profile: professional_profile,
-        softSkills: softSkills,
-        hardSkills: hardSkills,
         education: education,
+        softSkills: softSkills,
+        hard_Skills: hardSkills,
         positionSought: positionSought,
         dateOfBirth: dateOfBirth,
-        resume: uploadedResume,
         languages: languages,
-      },
-      { new: true }
-    );
+        resume: uploadedResume,
+        user: user._id,
+      });
+
+      await userobj.save();
+
+      // Assigning new student ID to Loggined In User //
+      await user.updateOne({
+        student: userobj._id,
+      });
+    }
+
+    const updateUser = await User.findByIdAndUpdate(req.user.id, {
+      student: userobj._id,
+    }).populate("student");
+
     res
       .status(200)
-      .json({ message: "Profile Updated Successfully!", user: user });
+      .json({ message: "Profile Updated Successfully!", user: updateUser });
   } catch (err) {
+    res.status(400).json({ message: err.message });
     next(err);
   }
 });
@@ -494,6 +570,94 @@ exports.searchForJob = asyncHandler(async (req, res, next) => {
     // matchingCriteria.search(req, res, next);
     matchingCriteria.display(req, res, next);
   } catch (err) {
+    res.status(400).json({ message: err.message });
+
+    next(err);
+  }
+});
+
+// GET single Student Profile
+
+exports.GetUser = asyncHandler(async (req, res, next) => {
+  try {
+    const { type } = req.body;
+    const userID = req.user.id;
+    const requestedUser = await User.findOne({
+      _id: userID,
+      type: type,
+    }).populate(type);
+
+    res.status(200).json({
+      message: "User has been fetched Successfully!",
+      user: requestedUser,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+// Delete school of Student Profile
+exports.DeleteSchool = asyncHandler(async (req, res, next) => {
+  try {
+    const schoolID = req.params.id;
+    const user = await User.findById(req.user.id);
+    let student = await Student.findById(user.student);
+
+    await Student.findByIdAndUpdate(
+      student._id,
+      {
+        $pull: { education: { _id: schoolID } },
+      },
+      { new: true }
+    );
+    const updated_user = await User.findByIdAndUpdate(req.user.id, {
+      student: student._id,
+    }).populate("student");
+    res.status(200).json({
+      message: "School has been deleted Successfully!",
+      user: updated_user,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+// Delete ProfessionalInfo  of Student Profile
+exports.DeleteProfessionalInfo = asyncHandler(async (req, res, next) => {
+  try {
+    const schoolID = req.params.id;
+    const user = await User.findById(req.user.id);
+    let student = await Student.findById(user.student);
+
+    await Student.findByIdAndUpdate(
+      student._id,
+      {
+        $pull: { professional_profile: { _id: schoolID } },
+      },
+      { new: true }
+    );
+    const updated_user = await User.findByIdAndUpdate(req.user.id, {
+      student: student._id,
+    }).populate("student");
+    res.status(200).json({
+      message: "professional info has been deleted Successfully!",
+      user: updated_user,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// get soft skills
+
+exports.GetSkills = asyncHandler(async (req, res, next) => {
+  try {
+    const { type } = req.body;
+    const skills = await Skill.find({ skillType: type });
+    if (skills) {
+      res
+        .status(200)
+        .send({ skills: skills, message: "Skills has fetched successfully" });
+    }
+  } catch (error) {
     next(err);
   }
 });

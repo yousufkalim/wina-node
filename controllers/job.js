@@ -13,7 +13,7 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       error.status = 400;
       throw error;
     }
-    const companyID = requestedUser.company;
+    const companyID = requestedUser._id;
     //validations
     const location_object = Joi.object().keys({
       street: Joi.string().required(),
@@ -277,7 +277,32 @@ exports.DeleteJob = asyncHandler(async (req, res, next) => {
 });
 
 // GET single Job
-// exports.getSingleJob = asyncHandler(async (req, res, next) => {
-//   const jobID = req.params.id;
-//   const job = await Job.findById(jobID).populate()
-// })
+exports.GetJob = asyncHandler(async (req, res, next) => {
+  try {
+    const populateQuery = [
+      {
+        path: "company",
+        select: "name",
+      },
+      {
+        path: "softSkills",
+      },
+      {
+        path: "hardSkills",
+      },
+    ];
+    const requestedUser = await User.findById(req.user.id);
+    if (!requestedUser.type) {
+      res.status(400).send({ message: "You are not authorized to get Job" });
+    }
+    const jobID = req.params.id;
+    const job = await Job.findById(jobID).populate(populateQuery);
+    if (job) {
+      res.status(200).send({ job: job, message: "Job fetched successfully" });
+    }
+  } catch (error) {
+    res.status(200).send({ message: error });
+
+    next(err);
+  }
+});

@@ -25,7 +25,7 @@ const {
 //middleware functions
 const { protect, validateType } = require("../middlewares/auth");
 
-router.post("/register-company", [protect, validateType("company")], register);
+router.post("/register-company", register);
 
 router.put("/edit-company", [protect, validateType("company")], editCompany);
 

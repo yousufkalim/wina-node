@@ -30,6 +30,7 @@ const { protect, authorize, dashboard } = require("../middlewares/auth");
 //Register USER routes
 
 router.post("/register", registerUser);
+
 router.post("/email-verfication", verifyEmail);
 router.post("/verify-email/:token", verifyEmailProcess);
 

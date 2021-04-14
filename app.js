@@ -82,6 +82,7 @@ const companyConsultant = require("./routes/companyConsultant");
 const profile = require("./routes/profile");
 const admin = require("./routes/admin");
 const job = require("./routes/job");
+const FileUpload = require("./routes/FileUpload");
 
 //// Mount Routers ////
 
@@ -93,6 +94,7 @@ app.use("/api/v1/company-consultant", companyConsultant);
 app.use("/api/v1/profile", profile);
 app.use("/api/v1/admin", admin);
 app.use("/api/v1/job", job);
+app.use("/api/v1", FileUpload);
 
 // app.use("/api/v1/admin", admin);
 
@@ -106,7 +108,7 @@ app.use((error, req, res, next) => {
 //// Setting Port for Server ////
 
 //// Setting Port for Server ////
-const PORT = 3000 || process.env.PORT;
+const PORT = 5000 || process.env.PORT;
 server.listen(PORT, () => {
   console.log(`Server listening to port ${PORT}`);
 });
