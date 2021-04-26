@@ -50,7 +50,21 @@ const CompanySchema = new mongoose.Schema({
       type: String,
     },
   },
-
+  notifications: [
+    {
+      title: String,
+      description: String,
+      statusNew: { type: Boolean, default: true },
+      jobID: {
+        type: String,
+        required: false,
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
   job: [
     {
       type: mongoose.Schema.Types.ObjectId,

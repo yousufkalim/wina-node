@@ -10,9 +10,30 @@ const JobSchema = new mongoose.Schema({
     enum: ["open", "filled"],
     default: "open",
   },
+  student_requests: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+        required: false,
+      },
+
+      status: {
+        type: String,
+        enum: ["requested", "rejected", "pending"],
+        default: "pending",
+      },
+    },
+  ],
+
   domain: {
     type: String,
     required: false,
+  },
+  score: {
+    type: Number,
+    required: false,
+    default: 0,
   },
   position: {
     type: String,
@@ -69,7 +90,7 @@ const JobSchema = new mongoose.Schema({
   ageRange: {
     type: String,
     enum: ["18-20", "21-24", "25+"],
-    default: false,
+    default: "18-20",
   },
   likedBy: [
     {

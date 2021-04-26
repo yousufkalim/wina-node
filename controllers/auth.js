@@ -5,6 +5,7 @@ const Joi = require("joi");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Company = require("../models/Company");
+const Student = require("../models/Student");
 
 //REGISTER USER API
 
@@ -74,10 +75,22 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
         phone,
         type,
       });
+      userobj = new Student({
+        general_Presentation: "",
+        presentation_Video: "",
+        professional_Picture: "",
+        professional_networks: "",
 
+        user: user._id,
+      });
+
+      await userobj.save();
+      const updateUser = await User.findByIdAndUpdate(user._id, {
+        student: userobj._id,
+      }).populate("student");
       res
         .status(200)
-        .json({ user: user, message: "User is registered successfully" });
+        .json({ user: updateUser, message: "User is registered successfully" });
     }
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -145,7 +158,7 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
               "You are receiving this because you (or someone else) have requested to register your account on WINA.\n\n" +
               "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
               "http://" +
-              "localhost:3000" +
+              "160.153.249.64:9001" +
               "/verifyEmail/" +
               token +
               "\n\n" +
@@ -189,7 +202,7 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
             async function (err, user) {
               if (!user) {
                 return res.status(403).json({
-                  message: "Password reset token is invalid or has expired",
+                  message: " token is invalid or has expired",
                 });
               } else {
                 var user = await User.findOneAndUpdate(
@@ -240,14 +253,17 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
         },
       ],
       function (err) {
-        console.log(err);
+        console.log(err, "err");
+        res.status(400).json({
+          message: err.message,
+        });
       }
     );
   } catch (error) {
     res.status(400).json({
       message: error.message,
     });
-    next(err);
+    next(error);
   }
 });
 

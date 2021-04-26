@@ -119,7 +119,7 @@ exports.requestForgetPassword = asyncHandler(async (req, res, next) => {
           "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
           "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
           "http://" +
-          "localhost:3000" +
+          "160.153.249.64:9001" +
           "/reset/" +
           token +
           "\n\n" +

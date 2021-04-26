@@ -44,7 +44,7 @@ router.post(
 
 // Search for Students //
 router.post(
-  "/search-students",
+  "/search-students/:id",
   [protect, validateType("company")],
   searchForStudents
 );

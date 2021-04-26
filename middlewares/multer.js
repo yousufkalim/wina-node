@@ -19,6 +19,10 @@ exports.upload = multer({ storage: storage }).fields([
     maxCount: 1,
   },
   {
+    name: "photo",
+    maxCount: 1,
+  },
+  {
     name: "school_image",
     maxCount: 1,
   },

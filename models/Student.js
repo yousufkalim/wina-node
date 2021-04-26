@@ -5,7 +5,16 @@ const StudentSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-
+  score: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  offer_status: {
+    type: String,
+    enum: ["accepted", "rejected", "proposal"],
+    default: "proposal",
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

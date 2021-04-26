@@ -327,7 +327,7 @@ class MatchingCriteria extends DealBreaker {
 
   search = async (req, res, next) => {
     try {
-      const job = await Job.findById(req.query.id);
+      const job = await Job.findById(req.params.id);
       const students = await this.startingDate(job, next);
 
       // Filters //
@@ -440,7 +440,8 @@ class MatchingCriteria extends DealBreaker {
 
       return newArray;
     } catch (err) {
-      next(err);
+      res.status(404).send({ message: err.message });
+      next(err.message);
     }
   };
 
@@ -448,20 +449,18 @@ class MatchingCriteria extends DealBreaker {
     try {
       let output = [];
       const sortedArray = await this.search(req, res, next);
-      return new Promise(async (resolve, reject) => {
-        try {
-          await Promise.all(
-            sortedArray.map(async (student) => {
-              const result = await Student.findById(student.studentId);
-              output.push(result);
-            })
-          );
-          resolve(output);
-          res.status(200).json({ students: output });
-        } catch (e) {
-          reject(e);
-        }
-      });
+
+      if (sortedArray !== undefined) {
+        await Promise.all(
+          sortedArray.map(async (student) => {
+            const result = await Student.findByIdAndUpdate(student.studentId, {
+              score: student.score,
+            }).populate("user");
+            output.push(result);
+          })
+        );
+        res.status(200).json({ students: output });
+      }
     } catch (err) {
       next(err);
     }

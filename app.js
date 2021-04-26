@@ -108,7 +108,7 @@ app.use((error, req, res, next) => {
 //// Setting Port for Server ////
 
 //// Setting Port for Server ////
-const PORT = 5000 || process.env.PORT;
+const PORT = 9190 || process.env.PORT;
 server.listen(PORT, () => {
   console.log(`Server listening to port ${PORT}`);
 });

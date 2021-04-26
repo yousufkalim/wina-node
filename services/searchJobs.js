@@ -160,6 +160,7 @@ class MatchingCriteria extends DealBreaker {
 
   jobName = async (user, jobs) => {
     const student = await Student.findById(user.student);
+
     const studentPosition = student.positionSought.position.toUpperCase();
 
     let score = 0;
@@ -450,21 +451,19 @@ class MatchingCriteria extends DealBreaker {
     try {
       let output = [];
       const sortedArray = await this.search(req, res, next);
-      return new Promise(async (resolve, reject) => {
-        try {
-          await Promise.all(
-            sortedArray.map(async (job) => {
-              const result = await Job.findById(job.jobId).populate("company");
-              output.push(result);
-            })
-          );
-          resolve(output);
-          res.status(200).json({ jobs: output });
-        } catch (e) {
-          reject(e);
-        }
-      });
+      if (sortedArray !== undefined) {
+        await Promise.all(
+          sortedArray.map(async (job) => {
+            const newJob = await Job.findByIdAndUpdate(job.jobId, {
+              score: job.score,
+            }).populate("company");
+            output.push(newJob);
+          })
+        );
+      }
+      res.status(200).json({ jobs: output });
     } catch (err) {
+      res.status(200).json({ message: err.message });
       next(err);
     }
   };
