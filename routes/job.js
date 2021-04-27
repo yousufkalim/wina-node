@@ -15,7 +15,12 @@ const {
   GetJobs,
   OfferDecisionByStudent,
   OfferDecisionByCompany,
-  GetAppliedJobs,
+  GetStudentAppliedJobs,
+  GetStudentRejectedJobs,
+  GetAppliedJobsByCompany,
+  GetCompanyAppliedJobs,
+  OffersRecievedDecisionByStudent,
+  OffersRecievedDecisionByCompany,
 } = require("../controllers/job");
 
 //middleware functions
@@ -42,27 +47,56 @@ router.put(
 // get single Job
 router.get("/get-job/:id", protect, GetJob);
 router.get("/get-jobs", [protect, validateType("company")], GetJobs);
+//get all offers requested by student
 router.get(
-  "/get-applied-jobs",
-  [protect, validateType("company")],
-  GetAppliedJobs
+  "/GetStudentAppliedJobs",
+  [protect, validateType("student")],
+  GetStudentAppliedJobs
 );
-
+//get all offers rejected by student
+router.get(
+  "/GetStudentRejectedJobs",
+  [protect, validateType("student")],
+  GetStudentRejectedJobs
+);
+//get all offers requested by company and recieved by specific student
+router.get(
+  "/GetCompanyAppliedJobs",
+  [protect, validateType("student")],
+  GetCompanyAppliedJobs
+);
+//get all offers requested by student and recieved by specific company
+router.get(
+  "/GetAppliedJobsByCompany",
+  [protect, validateType("company")],
+  GetAppliedJobsByCompany
+);
 // DELETE Job
 router.put("/delete-job/:id", [protect, validateType("company")], DeleteJob);
 
 // student Offers********************************
-// offer accepted by student
+// offer decision by student
 router.post(
   "/offer-decision-by-student/:id",
   [protect, validateType("student")],
   upload,
   OfferDecisionByStudent
 );
-
+router.post(
+  "/OffersRecievedDecisionByStudent/:id",
+  [protect, validateType("student")],
+  upload,
+  OffersRecievedDecisionByStudent
+);
+router.post(
+  "/OffersRecievedDecisionByCompany/:id",
+  [protect, validateType("company")],
+  upload,
+  OffersRecievedDecisionByCompany
+);
 // *****
 
-// offer accepted by company
+// offer decision by company
 router.post(
   "/offer-decision-by-company/:id",
   [protect, validateType("company")],

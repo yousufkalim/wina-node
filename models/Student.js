@@ -221,7 +221,21 @@ const StudentSchema = new mongoose.Schema({
       required: false,
     },
   ],
-
+  notifications: [
+    {
+      title: String,
+      description: String,
+      statusNew: { type: Boolean, default: true },
+      jobID: {
+        type: String,
+        required: false,
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
   isDeleted: {
     type: Boolean,
     default: false,

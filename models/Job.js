@@ -12,6 +12,21 @@ const JobSchema = new mongoose.Schema({
   },
   student_requests: [
     {
+      company: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Company",
+        required: false,
+      },
+
+      status: {
+        type: String,
+        enum: ["requested", "rejected", "accepted"],
+        default: "pending",
+      },
+    },
+  ],
+  company_requests: [
+    {
       student: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Student",
@@ -20,7 +35,7 @@ const JobSchema = new mongoose.Schema({
 
       status: {
         type: String,
-        enum: ["requested", "rejected", "pending"],
+        enum: ["requested", "rejected", "accepted"],
         default: "pending",
       },
     },
