@@ -317,7 +317,9 @@ exports.GetJobs = asyncHandler(async (req, res, next) => {
     if (!requestedUser.type) {
       res.status(400).send({ message: "You are not authorized to get Job" });
     }
-    const jobs = await Job.find().populate(populateQuery);
+    const jobs = await Job.find({ company: requestedUser.company }).populate(
+      populateQuery
+    );
 
     if (jobs) {
       res
@@ -411,10 +413,11 @@ exports.GetStudentRejectedJobs = asyncHandler(async (req, res, next) => {
         } else {
           let results = [];
           data.map((dt) => {
-            if (dt.student_requests && dt.student_requests.length > 0) {
-              let check = dt.student_requests.some(
+            if (dt.company_requests && dt.company_requests.length > 0) {
+              let check = dt.company_requests.some(
                 (ft) =>
-                  `${ft.student}` === req.user.id && ft.status === "rejected"
+                  `${ft.student}` === `${requestedUser.student}` &&
+                  ft.status === "rejected"
               );
               if (check) {
                 results.push(dt);
@@ -748,15 +751,14 @@ exports.CancelOfferDecisionByStudent = asyncHandler(async (req, res, next) => {
       } else {
         let fill = data.find((fl) => JOB_ID === `${fl._id}`);
         if (fill && fill.student_requests && fill.student_requests.length > 0) {
-          const newJobs = await Job.findOneAndUpdate(
-            { _id: JOB_ID },
-            { $pull: { "student_requests.status": `requested` } }
-            // {
-            //   arrayFilters: [{ "el.student": `${SENDER_ID}` }],
-            //   new: true,
-            // }
-          );
-          console.log(newJobs, "newJbs");
+          const newJobs = await Job.findByIdAndUpdate(JOB_ID, {
+            $pull: {
+              student_requests: {
+                $and: [{ status: "requested", student: SENDER_ID }],
+              },
+            },
+          });
+
           const jobs = await Job.find().populate(populateQuery);
           if (jobs) {
             res.status(200).send({
@@ -831,7 +833,7 @@ exports.GetCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
   }
 });
 // GET applied Jobs by company
-exports.GetAppliedJobsByCompany = asyncHandler(async (req, res, next) => {
+exports.GetAllStudentAppliedJobs = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
@@ -847,24 +849,24 @@ exports.GetAppliedJobsByCompany = asyncHandler(async (req, res, next) => {
     if (!requestedUser.type) {
       res.status(400).send({ message: "You are not authorized to get Job" });
     }
-    await Job.find({ company: requestedUser.company })
+    const JOB_ID = req.params.id;
+    await Job.find({ _id: JOB_ID })
       .populate(populateQuery)
       .exec(async (err, data) => {
+        let dt = data[0];
         if (err) {
           res.status(404).send({ message: err.message });
         } else {
           let results = [];
-          data.map((dt) => {
-            if (dt.student_requests && dt.student_requests.length > 0) {
-              let check = dt.student_requests.some(
-                (ft) => ft.status === "requested"
-              );
-              if (check) {
-                results.push(dt);
-              }
+          if (dt.student_requests && dt.student_requests.length > 0) {
+            let check = dt.student_requests.some(
+              (ft) => ft.status === "requested"
+            );
+            if (check) {
+              results.push(dt);
             }
-            return data;
-          });
+          }
+
           if (results && results.length > 0) {
             res
               .status(200)

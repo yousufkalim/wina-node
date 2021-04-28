@@ -202,3 +202,44 @@ exports.forgetPassword = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
+
+// Get all Notifications //
+exports.getAllNotifications = asyncHandler(async (req, res, next) => {
+  try {
+    const populateQuery = [
+      {
+        path: "company",
+      },
+      {
+        path: "student",
+      },
+      {
+        path: "hardSkills",
+      },
+    ];
+    const requestedUser = await User.findById(req.user.id).populate(
+      populateQuery
+    );
+    if (!requestedUser.type) {
+      res.status(400).send({ message: "You are not authorized to get Job" });
+    } else {
+      if (requestedUser.type === "company") {
+        const notifications = requestedUser.company.notifications.filter(
+          (not) => not.statusNew == true
+        );
+        res
+          .status(200)
+          .json({ message: "Success!", notifications: notifications });
+      } else {
+        const notifications = requestedUser.student.notifications.filter(
+          (not) => not.statusNew == true
+        );
+        res
+          .status(200)
+          .json({ message: "Success!", notifications: notifications });
+      }
+    }
+  } catch (err) {
+    next(err);
+  }
+});

@@ -17,7 +17,7 @@ const {
   OfferDecisionByCompany,
   GetStudentAppliedJobs,
   GetStudentRejectedJobs,
-  GetAppliedJobsByCompany,
+  GetAllStudentAppliedJobs,
   GetCompanyAppliedJobs,
   OffersRecievedDecisionByStudent,
   OffersRecievedDecisionByCompany,
@@ -68,9 +68,9 @@ router.get(
 );
 //get all offers requested by student and recieved by specific company
 router.get(
-  "/GetAppliedJobsByCompany",
+  "/GetAllStudentAppliedJobs/:id",
   [protect, validateType("company")],
-  GetAppliedJobsByCompany
+  GetAllStudentAppliedJobs
 );
 // DELETE Job
 router.put("/delete-job/:id", [protect, validateType("company")], DeleteJob);
