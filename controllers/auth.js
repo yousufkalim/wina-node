@@ -24,7 +24,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
       firstName: Joi.string().max(250).required(),
       lastName: Joi.string().max(250).required(),
       email: Joi.string().email().required(),
-      type: Joi.string().required(),
+      type: Joi.string().required().optional().allow(""),
       role: Joi.string().optional().allow(""),
       phone: Joi.string()
         .max(10)
