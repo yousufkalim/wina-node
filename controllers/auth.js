@@ -76,7 +76,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
         type,
       });
       let updateUser;
-      if (req.body.type === "student") {
+      if (req.body.type && req.body.type === "student") {
         userobj = new Student({
           general_Presentation: "",
           presentation_Video: "",

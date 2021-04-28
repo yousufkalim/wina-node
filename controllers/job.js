@@ -753,10 +753,8 @@ exports.CancelOfferDecisionByStudent = asyncHandler(async (req, res, next) => {
             { $pull: { "student_requests.$el.status": `requested` } },
             {
               arrayFilters: [{ "el.student": `${SENDER_ID}` }],
-              new: true,
             }
           );
-          console.log(SENDER_ID, "SENDER_ID");
           console.log(newJobs, "newJbs");
           const jobs = await Job.find().populate(populateQuery);
           if (jobs) {
