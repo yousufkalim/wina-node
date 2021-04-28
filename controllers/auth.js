@@ -158,7 +158,7 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
               "You are receiving this because you (or someone else) have requested to register your account on WINA.\n\n" +
               "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
               "http://" +
-              "160.153.249.64:9001" +
+              "localhost:3000" +
               "/verifyEmail/" +
               token +
               "\n\n" +
