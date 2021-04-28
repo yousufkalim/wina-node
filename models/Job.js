@@ -12,9 +12,9 @@ const JobSchema = new mongoose.Schema({
   },
   student_requests: [
     {
-      company: {
+      student: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Company",
+        ref: "Student",
         required: false,
       },
 

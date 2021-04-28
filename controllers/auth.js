@@ -75,19 +75,24 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
         phone,
         type,
       });
-      userobj = new Student({
-        general_Presentation: "",
-        presentation_Video: "",
-        professional_Picture: "",
-        professional_networks: "",
+      let updateUser;
+      if (req.body.type && req.body.type === "student") {
+        userobj = new Student({
+          general_Presentation: "",
+          presentation_Video: "",
+          professional_Picture: "",
+          professional_networks: "",
 
-        user: user._id,
-      });
+          user: user._id,
+        });
 
-      await userobj.save();
-      const updateUser = await User.findByIdAndUpdate(user._id, {
-        student: userobj._id,
-      }).populate("student");
+        await userobj.save();
+        updateUser = await User.findByIdAndUpdate(user._id, {
+          student: userobj._id,
+        }).populate("student");
+      } else {
+        updateUser = user;
+      }
       res
         .status(200)
         .json({ user: updateUser, message: "User is registered successfully" });

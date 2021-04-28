@@ -31,7 +31,7 @@ router.post("/get-info", [protect, validateType("student")], GetUser);
 
 router.post("/add-info", [protect, validateType("student")], upload, register);
 // router.put("/edit-info/:id", [protect, validateType("student")], upload, edit);
-
+// update student profile
 router.put("/edit-info", [protect, validateType("student")], upload, edit);
 
 router.delete("/delete-profile", protect, DeleteProfile);
