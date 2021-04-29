@@ -22,6 +22,8 @@ const {
   OffersRecievedDecisionByStudent,
   OffersRecievedDecisionByCompany,
   CancelOfferDecisionByStudent,
+  GetAllCompanyAppliedJobs,
+  CancelOfferDecisionByCompany,
 } = require("../controllers/job");
 
 //middleware functions
@@ -72,6 +74,11 @@ router.get(
   [protect, validateType("company")],
   GetAllStudentAppliedJobs
 );
+router.get(
+  "/GetAllCompanyAppliedJobs/:id",
+  [protect, validateType("company")],
+  GetAllCompanyAppliedJobs
+);
 // DELETE Job
 router.put("/delete-job/:id", [protect, validateType("company")], DeleteJob);
 
@@ -89,6 +96,13 @@ router.post(
   [protect, validateType("student")],
   upload,
   CancelOfferDecisionByStudent
+);
+// cancel offer decision by company
+router.post(
+  "/CancelOfferDecisionByCompany/:id",
+  [protect, validateType("company")],
+  upload,
+  CancelOfferDecisionByCompany
 );
 router.post(
   "/OffersRecievedDecisionByStudent/:id",
