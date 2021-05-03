@@ -15,7 +15,9 @@ const { socket, io } = require("../app");
 // Get List of Skills
 exports.skillList = asyncHandler(async (req, res, next) => {
   try {
-    const listOfSkills = await Skill.find({ isDeleted: false });
+    const listOfSkills = await Skill.find({ isDeleted: false }).sort({
+      _id: -1,
+    });
     res.status(200).json({ listOfSkills: listOfSkills });
   } catch (err) {
     next(err);
@@ -27,7 +29,7 @@ exports.createSkill = asyncHandler(async (req, res, next) => {
   try {
     const schema = Joi.object().keys({
       skillField: Joi.string(),
-      skillType: Joi.string().valid("Soft_Skill", "Hard_Skill"),
+      skillType: Joi.string().valid("Soft Skill", "Hard Skill"),
     });
 
     const results = schema.validate(req.body);
