@@ -463,15 +463,6 @@ class MatchingCriteria extends DealBreaker {
         );
       }
       res.status(200).json({ jobs: output });
-
-      // let fill = output.filter(
-      //   (ft) => ft.student_requests && ft.student_requests.length === 0
-      // );
-      // if (fill) {
-      //   res.status(200).json({ jobs: fill });
-      // } else {
-      //   res.status(200).json({ message: "No data found" });
-      // }
     } catch (err) {
       res.status(200).json({ message: err.message });
       next(err);

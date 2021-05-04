@@ -305,6 +305,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   const result = await User.findOne({ email: email, status: "active" }).select(
     "+password"
   );
+
   if (!result) {
     return res
       .status(400)
@@ -325,7 +326,12 @@ exports.login = asyncHandler(async (req, res, next) => {
 
 const sendTokenResponse = async (user, statusCode, res) => {
   //create token
-
+  const populateQuery = [
+    { path: "company" },
+    {
+      path: "student",
+    },
+  ];
   const token = user.getSignedJwtToken();
 
   const options = {
@@ -339,7 +345,7 @@ const sendTokenResponse = async (user, statusCode, res) => {
     options.secure = true;
   }
   if (user) {
-    const student = await User.findById(user._id).populate("student");
+    const student = await User.findById(user._id).populate(populateQuery);
 
     res.status(statusCode).cookie("token", token, options).json({
       token: token,

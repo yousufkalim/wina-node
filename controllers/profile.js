@@ -2,6 +2,8 @@ const Joi = require("joi");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Student = require("../models/Student");
+const Company = require("../models/Company");
+
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
@@ -227,6 +229,7 @@ exports.getAllNotifications = asyncHandler(async (req, res, next) => {
         const notifications = requestedUser.company.notifications.filter(
           (not) => not.statusNew == true
         );
+
         res
           .status(200)
           .json({ message: "Success!", notifications: notifications });
@@ -239,6 +242,61 @@ exports.getAllNotifications = asyncHandler(async (req, res, next) => {
           .json({ message: "Success!", notifications: notifications });
       }
     }
+  } catch (err) {
+    next(err);
+  }
+});
+
+// update user notification
+exports.updateNotifications = asyncHandler(async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const requestedUser = await User.findById(req.user.id);
+    if (!requestedUser.type) {
+      res.status(400).send({ message: "You are not authorized to get Job" });
+    }
+    let tempNotify;
+    // console.log(loggedInUser, "loggedIn");
+    if (requestedUser.type === "student") {
+      let user = await Student.findById(requestedUser.student).populate(
+        "student"
+      );
+      tempNotify = user.notifications;
+      await Student.findOneAndUpdate(
+        { _id: user._id },
+        {
+          $set: {
+            "notifications.$[el].statusNew": false,
+            "notifications.$[el].color": "white",
+          },
+        },
+        {
+          arrayFilters: [{ "el._id": `${userId}` }],
+          new: true,
+        }
+      );
+    } else if (requestedUser.type === "company") {
+      let user = await Company.findById(requestedUser.company).populate(
+        "company"
+      );
+
+      tempNotify = user.notifications;
+      await Company.findOneAndUpdate(
+        { _id: user._id },
+        {
+          $set: {
+            "notifications.$[el].statusNew": false,
+            "notifications.$[el].color": "#fff",
+          },
+        },
+        {
+          arrayFilters: [{ "el._id": `${userId}` }],
+          new: true,
+        }
+      );
+    }
+
+    res.status(200).json({ message: "Success!", notifications: tempNotify });
   } catch (err) {
     next(err);
   }
