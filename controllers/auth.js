@@ -1,11 +1,11 @@
-const nodemailer = require("nodemailer");
-const crypto = require("crypto");
-const async = require("async");
-const Joi = require("joi");
-const asyncHandler = require("../middlewares/async");
-const User = require("../models/User");
-const Company = require("../models/Company");
-const Student = require("../models/Student");
+const nodemailer = require("nodemailer")
+const crypto = require("crypto")
+const async = require("async")
+const Joi = require("joi")
+const asyncHandler = require("../middlewares/async")
+const User = require("../models/User")
+const Company = require("../models/Company")
+const Student = require("../models/Student")
 
 //REGISTER USER API
 
@@ -18,7 +18,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
       zip: Joi.string().required(),
       latitude: Joi.number().required(),
       longitude: Joi.number().required(),
-    });
+    })
 
     const schema = Joi.object().keys({
       firstName: Joi.string().max(250).required(),
@@ -33,12 +33,12 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
       address: address_object.required(),
       password: Joi.string().min(6).max(255).required(),
       confirm_password: Joi.string().min(6).max(255).required(),
-    });
+    })
 
     // Storing Error Responses in Result //
-    const results = schema.validate(req.body);
+    const results = schema.validate(req.body)
     if (results.error) {
-      return res.status(400).send(results.error.details[0].message);
+      return res.status(400).send(results.error.details[0].message)
     }
 
     const {
@@ -51,19 +51,19 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
       address,
       role,
       phone,
-    } = req.body;
+    } = req.body
 
     //// Check If Password and Confirm Password are same or not ////
     if (password !== confirm_password) {
-      res.status(403).send("Password and Confirm Password are not same");
+      res.status(403).send("Password and Confirm Password are not same")
     }
 
     //// Check If user exist with this Email or not ////
-    const result = await User.findOne({ email: email });
+    const result = await User.findOne({ email: email })
     if (result) {
       res
         .status(404)
-        .send({ message: "User already registered with this Email Address" });
+        .send({ message: "User already registered with this Email Address" })
     } else {
       // Saving User in DataBase
       const user = await User.create({
@@ -74,8 +74,8 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
         password,
         phone,
         type,
-      });
-      let updateUser;
+      })
+      let updateUser
       if (req.body.type && req.body.type === "student") {
         userobj = new Student({
           general_Presentation: "",
@@ -84,24 +84,24 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
           professional_networks: "",
 
           user: user._id,
-        });
+        })
 
-        await userobj.save();
+        await userobj.save()
         updateUser = await User.findByIdAndUpdate(user._id, {
           student: userobj._id,
-        }).populate("student");
+        }).populate("student")
       } else {
-        updateUser = user;
+        updateUser = user
       }
       res
         .status(200)
-        .json({ user: updateUser, message: "User is registered successfully" });
+        .json({ user: updateUser, message: "User is registered successfully" })
     }
   } catch (err) {
-    res.status(400).json({ message: err.message });
-    next(err);
+    res.status(400).json({ message: err.message })
+    next(err)
   }
-});
+})
 
 // Email Verfication for new Registrations //
 exports.verifyEmail = asyncHandler(async (req, res, next) => {
@@ -110,12 +110,12 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
       [
         function (done) {
           crypto.randomBytes(20, function (err, buf) {
-            var token = buf.toString("hex");
-            done(err, token);
-          });
+            var token = buf.toString("hex")
+            done(err, token)
+          })
         },
         function (token, done) {
-          const email = req.body.email;
+          const email = req.body.email
           User.findOne(
             {
               email: email,
@@ -124,7 +124,7 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
               if (!user) {
                 return res.status(403).send({
                   message: "No account with that email address exists",
-                });
+                })
               }
               User.findOneAndUpdate(
                 { email: email },
@@ -136,11 +136,11 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
                 },
                 { new: true },
                 function (err) {
-                  done(err, token, user);
+                  done(err, token, user)
                 }
-              );
+              )
             }
-          );
+          )
         },
         function (token, user, done) {
           let transporter = nodemailer.createTransport({
@@ -154,7 +154,7 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
               user: process.env.MailingId,
               pass: process.env.MailingPassword,
             },
-          });
+          })
           var mailOptions = {
             to: user.email,
             from: process.env.MailingId,
@@ -168,29 +168,29 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
               token +
               "\n\n" +
               "If you did not request this, please ignore this email.\n",
-          };
+          }
 
           transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
-              return res.status(400).json({ message: error.message });
+              return res.status(400).json({ message: error.message })
             }
             res
               .status(200)
-              .json({ message: "Verification Email has been sent" });
-          });
+              .json({ message: "Verification Email has been sent" })
+          })
         },
       ],
       function (err) {
-        if (err) return next(err);
-        res.status(200).send("Verfication Email has been sent Successfully");
+        if (err) return next(err)
+        res.status(200).send("Verfication Email has been sent Successfully")
       }
-    );
+    )
   } catch (error) {
-    res.status(400).send({ message: error.message });
+    res.status(400).send({ message: error.message })
 
-    next(error);
+    next(error)
   }
-});
+})
 
 exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
   try {
@@ -208,7 +208,7 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
               if (!user) {
                 return res.status(403).json({
                   message: " token is invalid or has expired",
-                });
+                })
               } else {
                 var user = await User.findOneAndUpdate(
                   {
@@ -219,7 +219,7 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
                       status: "active",
                     },
                   }
-                );
+                )
 
                 let transporter = nodemailer.createTransport({
                   host: "smtp.gmail.com",
@@ -232,7 +232,7 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
                     user: process.env.MailingId,
                     pass: process.env.MailingPassword,
                   },
-                });
+                })
                 var mailOptions = {
                   to: user.email,
                   from: process.env.MailingId,
@@ -242,85 +242,85 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
                     "You have successfully verified " +
                     user.email +
                     " \n",
-                };
+                }
                 transporter.sendMail(mailOptions, (error, info) => {
                   if (error) {
-                    return res.status(400).json({ message: error.message });
+                    return res.status(400).json({ message: error.message })
                   }
                   res.status(200).json({
                     message: "Success! You have successfully registed on WINA",
-                  });
-                  done(err);
-                });
+                  })
+                  done(err)
+                })
               }
             }
-          );
+          )
         },
       ],
       function (err) {
-        console.log(err, "err");
+        console.log(err, "err")
         res.status(400).json({
           message: err.message,
-        });
+        })
       }
-    );
+    )
   } catch (error) {
     res.status(400).json({
       message: error.message,
-    });
-    next(error);
+    })
+    next(error)
   }
-});
+})
 
 //Login User
 exports.login = asyncHandler(async (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body
 
   const schema = Joi.object().keys({
     email: Joi.string().max(40).required().email(),
     password: Joi.string().min(6).max(255).required(),
-  });
+  })
 
-  const results = schema.validate(req.body);
+  const results = schema.validate(req.body)
   if (results.error) {
-    return res.status(400).send(results.error.details[0].message);
+    return res.status(400).send(results.error.details[0].message)
   }
 
   //validating email and password
   if (!email || !password) {
     return res
       .status(400)
-      .send({ message: "Please provide email and password" });
+      .send({ message: "Please provide email and password" })
   }
 
   // check if user exists //
-  const user = await User.findOne({ email: email }).select("+password");
+  const user = await User.findOne({ email: email }).select("+password")
   if (!user) {
     return res
       .status(400)
-      .send({ message: "You are not registered, Please Sign up!" });
+      .send({ message: "You are not registered, Please Sign up!" })
   }
 
   // check if user exists //
   const result = await User.findOne({ email: email, status: "active" }).select(
     "+password"
-  );
+  )
 
   if (!result) {
     return res
       .status(400)
-      .send({ message: "You haven't verify your email address yet" });
+      .send({ message: "You haven't verify your email address yet" })
   }
   // Check if password matches
 
-  const isMatch = await user.matchPassword(password);
+  const isMatch = await user.matchPassword(password)
 
   if (!isMatch) {
-    return res.status(400).send({ message: "Password is Invalid" });
+    return res.status(400).send({ message: "Password is Invalid" })
   }
 
-  sendTokenResponse(user, 200, res);
-});
+  sendTokenResponse(user, 200, res)
+})
 
 //Get token from Model create cookie and send response
 
@@ -331,37 +331,37 @@ const sendTokenResponse = async (user, statusCode, res) => {
     {
       path: "student",
     },
-  ];
-  const token = user.getSignedJwtToken();
+  ]
+  const token = user.getSignedJwtToken()
 
   const options = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-  };
+  }
 
   if (process.env.NODE_ENV === "production") {
-    options.secure = true;
+    options.secure = true
   }
   if (user) {
-    const student = await User.findById(user._id).populate(populateQuery);
+    const student = await User.findById(user._id).populate(populateQuery)
 
     res.status(statusCode).cookie("token", token, options).json({
       token: token,
       user: student,
       message: "User Login Successfully",
-    });
+    })
   } else {
-    res.send({ message: "Something went wrong" });
+    res.send({ message: "Something went wrong" })
   }
-};
+}
 
 // USER Logout
 exports.logout = asyncHandler(async (req, res, next) => {
   req.session.destroy(() => {
-    req.logOut();
-    res.clearCookie("token");
-    res.status(200).send("Logged out successfully");
-  });
-});
+    req.logOut()
+    res.clearCookie("token")
+    res.status(200).send("Logged out successfully")
+  })
+})
