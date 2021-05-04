@@ -317,7 +317,9 @@ exports.GetJobs = asyncHandler(async (req, res, next) => {
     if (!requestedUser.type) {
       res.status(400).send({ message: "You are not authorized to get Job" });
     }
-    const jobs = await Job.find().populate(populateQuery);
+    const jobs = await Job.find({ company: requestedUser.company }).populate(
+      populateQuery
+    );
 
     if (jobs) {
       res
@@ -411,10 +413,11 @@ exports.GetStudentRejectedJobs = asyncHandler(async (req, res, next) => {
         } else {
           let results = [];
           data.map((dt) => {
-            if (dt.student_requests && dt.student_requests.length > 0) {
-              let check = dt.student_requests.some(
+            if (dt.company_requests && dt.company_requests.length > 0) {
+              let check = dt.company_requests.some(
                 (ft) =>
-                  `${ft.student}` === req.user.id && ft.status === "rejected"
+                  `${ft.student}` === `${requestedUser.student}` &&
+                  ft.status === "rejected"
               );
               if (check) {
                 results.push(dt);
@@ -608,98 +611,65 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(
           .status(400)
           .send({ message: results.error.details[0].message });
       }
-
-      await Job.aggregate([
+      await Job.findOneAndUpdate(
+        { _id: JOB_ID },
+        { $set: { "company_requests.$[el].status": req.body.status } },
         {
-          $project: {
-            company_requests: {
-              $filter: {
-                input: "$company_requests",
-                as: "item",
-                cond: {
-                  $gte: ["$$item.status", "requested"],
-                },
+          arrayFilters: [{ "el.student": `${SENDER_ID}` }],
+          new: true,
+        }
+      );
+      if (req.body.status === "accepted") {
+        await Company.findByIdAndUpdate(
+          RECIEVER_ID,
+          {
+            $push: {
+              notifications: {
+                title: `${requestedUser.firstName} ${" "} ${
+                  requestedUser.lastName
+                } has accepted your offer`,
+                jobID: JOB_ID,
+                description: `${requestedUser.firstName} ${" "} ${
+                  requestedUser.lastName
+                } has accepted your offer`,
               },
             },
           },
-        },
-      ]).exec(async (err, data) => {
-        if (err) {
-          res.status(404).send({ message: err.message });
-        } else {
-          let fill = data.find((fl) => JOB_ID === `${fl._id}`);
-          if (
-            fill &&
-            fill.company_requests &&
-            fill.company_requests.length > 0
-          ) {
-            await Job.findOneAndUpdate(
-              { _id: JOB_ID },
-              { $set: { "company_requests.$[el].status": req.body.status } },
-              {
-                arrayFilters: [{ "el.student": `${SENDER_ID}` }],
-                new: true,
-              }
-            );
-            if (req.body.status === "accepted") {
-              await Company.findByIdAndUpdate(
-                RECIEVER_ID,
-                {
-                  $push: {
-                    notifications: {
-                      title: `${requestedUser.firstName} ${" "} ${
-                        requestedUser.lastName
-                      } has accepted your offer`,
-                      jobID: JOB_ID,
-                      description: `${requestedUser.firstName} ${" "} ${
-                        requestedUser.lastName
-                      } has accepted your offer`,
-                    },
-                  },
-                },
-                { new: true }
-              );
-              const jobs = await Job.find().populate(populateQuery);
-              if (jobs) {
-                res.status(200).send({
-                  jobs: jobs,
-                  message: "Request has been accepted successfully",
-                });
-              }
-            } else {
-              await Company.findByIdAndUpdate(
-                RECIEVER_ID,
-                {
-                  $push: {
-                    notifications: {
-                      title: `${requestedUser.firstName} ${" "} ${
-                        requestedUser.lastName
-                      } has rejected your offer`,
-                      jobID: JOB_ID,
-                      description: `${requestedUser.firstName} ${" "} ${
-                        requestedUser.lastName
-                      } has rejected your offer`,
-                    },
-                  },
-                },
-                { new: true }
-              );
-              const jobs = await Job.find().populate(populateQuery);
-              if (jobs) {
-                res.status(200).send({
-                  jobs: jobs,
-                  message: "Request has been rejected successfully",
-                });
-              }
-            }
-          } else {
-            res.status(400).send({
-              jobs: [],
-              message: "Request has been not successfully",
-            });
-          }
+          { new: true }
+        );
+        const jobs = await Job.find().populate(populateQuery);
+        if (jobs) {
+          res.status(200).send({
+            jobs: jobs,
+            message: "Request has been accepted successfully",
+          });
         }
-      });
+      } else {
+        await Company.findByIdAndUpdate(
+          RECIEVER_ID,
+          {
+            $push: {
+              notifications: {
+                title: `${requestedUser.firstName} ${" "} ${
+                  requestedUser.lastName
+                } has rejected your offer`,
+                jobID: JOB_ID,
+                description: `${requestedUser.firstName} ${" "} ${
+                  requestedUser.lastName
+                } has rejected your offer`,
+              },
+            },
+          },
+          { new: true }
+        );
+        const jobs = await Job.find().populate(populateQuery);
+        if (jobs) {
+          res.status(200).send({
+            jobs: jobs,
+            message: "Request has been rejected successfully",
+          });
+        }
+      }
     } catch (error) {
       res.status(404).send({ message: error.message });
       next(error);
@@ -727,57 +697,75 @@ exports.CancelOfferDecisionByStudent = asyncHandler(async (req, res, next) => {
     }
     const JOB_ID = req.params.id;
     const SENDER_ID = requestedUser.student;
-
-    await Job.aggregate([
-      {
-        $project: {
-          student_requests: {
-            $filter: {
-              input: "$student_requests",
-              as: "item",
-              cond: {
-                $gte: ["$$item.status", "requested"],
-              },
-            },
-          },
+    await Job.findByIdAndUpdate(JOB_ID, {
+      $pull: {
+        student_requests: {
+          $and: [{ status: "requested", student: SENDER_ID }],
         },
       },
-    ]).exec(async (err, data) => {
-      if (err) {
-        res.status(404).send({ message: err.message });
-      } else {
-        let fill = data.find((fl) => JOB_ID === `${fl._id}`);
-        if (fill && fill.student_requests && fill.student_requests.length > 0) {
-          const newJobs = await Job.findOneAndUpdate(
-            { _id: JOB_ID },
-            { $pull: { "student_requests.status": `requested` } }
-            // {
-            //   arrayFilters: [{ "el.student": `${SENDER_ID}` }],
-            //   new: true,
-            // }
-          );
-          console.log(newJobs, "newJbs");
-          const jobs = await Job.find().populate(populateQuery);
-          if (jobs) {
-            res.status(200).send({
-              // jobs: jobs,
-              message: "Request has been deleted successfully",
-            });
-          }
-        } else {
-          res.status(400).send({
-            // jobs: [],
-            message: "Request has been deleted not successfully",
-          });
-        }
-      }
     });
+
+    const jobs = await Job.find().populate(populateQuery);
+    if (jobs) {
+      res.status(200).send({
+        // jobs: jobs,
+        message: "Request has been deleted successfully",
+      });
+    }
   } catch (error) {
     res.status(404).send({ message: error.message });
     next(error);
   }
 });
+// cancel offer decision by company
+exports.CancelOfferDecisionByCompany = asyncHandler(async (req, res, next) => {
+  try {
+    const populateQuery = [
+      {
+        path: "company",
+      },
+      {
+        path: "softSkills",
+      },
+      {
+        path: "hardSkills",
+      },
+    ];
+    const requestedUser = await User.findById(req.user.id);
+    if (!requestedUser.type) {
+      res.status(400).send({ message: "You are not authorized to get Job" });
+    }
+    const schema = Joi.object().keys({
+      id: Joi.string().required(),
+    });
+    let results = schema.validate(req.body);
+    if (results.error) {
+      return res
+        .status(400)
+        .send({ message: results.error.details[0].message });
+    }
+    const JOB_ID = req.body.id;
+    const SENDER_ID = req.params.id;
+    await Job.findByIdAndUpdate(JOB_ID, {
+      $pull: {
+        company_requests: {
+          $and: [{ status: "requested", student: SENDER_ID }],
+        },
+      },
+    });
 
+    const jobs = await Job.find().populate(populateQuery);
+    if (jobs) {
+      res.status(200).send({
+        // jobs: jobs,
+        message: "Request has been deleted successfully",
+      });
+    }
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+    next(error);
+  }
+});
 //get all offers requested by company and recieved by specific student
 exports.GetCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
   try {
@@ -830,50 +818,82 @@ exports.GetCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
     next(error);
   }
 });
-// GET applied Jobs by company
-exports.GetAppliedJobsByCompany = asyncHandler(async (req, res, next) => {
+// GET all student applied Jobs by company
+exports.GetAllStudentAppliedJobs = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
-        path: "company",
-      },
-      { path: "softSkills" },
-      { path: "hardSkills" },
-      {
-        path: "student",
+        path: "student_requests.student",
+        populate: [
+          {
+            path: "softSkills",
+          },
+          {
+            path: "hardSkills",
+          },
+          {
+            path: "user",
+          },
+        ],
       },
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
       res.status(400).send({ message: "You are not authorized to get Job" });
     }
-    await Job.find({ company: requestedUser.company })
-      .populate(populateQuery)
-      .exec(async (err, data) => {
-        if (err) {
-          res.status(404).send({ message: err.message });
-        } else {
-          let results = [];
-          data.map((dt) => {
-            if (dt.student_requests && dt.student_requests.length > 0) {
-              let check = dt.student_requests.some(
-                (ft) => ft.status === "requested"
-              );
-              if (check) {
-                results.push(dt);
-              }
-            }
-            return data;
-          });
-          if (results && results.length > 0) {
-            res
-              .status(200)
-              .send({ jobs: results, message: "Jobs fetched successfully" });
-          } else {
-            res.status(400).send({ jobs: [], message: "No data found" });
-          }
-        }
+    const JOB_ID = req.params.id;
+    let results = await Job.findOne({ _id: JOB_ID })
+      .select({
+        student_requests: { $elemMatch: { status: "requested" } },
+      })
+      .populate(populateQuery);
+    if (results) {
+      res.status(200).send({
+        jobs: results.student_requests,
+        message: "Jobs fetched successfully",
       });
+    }
+  } catch (error) {
+    res.status(200).send({ message: error });
+
+    next(error);
+  }
+});
+// GET all company applied Jobs by company
+exports.GetAllCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
+  try {
+    const populateQuery = [
+      {
+        path: "company_requests.student",
+        populate: [
+          {
+            path: "softSkills",
+          },
+          {
+            path: "hardSkills",
+          },
+          {
+            path: "user",
+          },
+        ],
+      },
+    ];
+    const requestedUser = await User.findById(req.user.id);
+    if (!requestedUser.type) {
+      res.status(400).send({ message: "You are not authorized to get Job" });
+    }
+    const JOB_ID = req.params.id;
+    let results = await Job.findOne({ _id: JOB_ID })
+      .select({
+        company_requests: { $elemMatch: { status: "requested" } },
+      })
+      .populate(populateQuery);
+    if (results) {
+      res.status(200).send({
+        jobs: results.company_requests,
+        message: "Jobs fetched successfully",
+      });
+    }
   } catch (error) {
     res.status(200).send({ message: error });
 
@@ -936,7 +956,7 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
         let fill = data.find((fl) => JOB_ID === `${fl._id}`);
         if (fill && fill.company_requests && fill.company_requests.length > 0) {
           let check = fill.company_requests.some(
-            (sr) => sr.status === status && `${sr.student}` === RECIEVER_ID
+            (sr) => sr.status === "requested" && `${sr.student}` === RECIEVER_ID
           );
           if (check === true) {
             res
@@ -969,7 +989,7 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
             if (jobs) {
               res.status(200).send({
                 jobs: jobs,
-                message: "equest is sent  successfully",
+                message: "Request is sent  successfully",
               });
             }
           }
@@ -1032,13 +1052,14 @@ exports.OffersRecievedDecisionByCompany = asyncHandler(
         res.status(400).send({ message: "You are not authorized to get Job" });
       }
       const { status } = req.body;
-      const JOB_ID = req.params.id;
+      const JOB_ID = req.body.id;
       const job = await Job.findById(JOB_ID);
       const SENDER_ID = job.company;
       const company = await Company.findById(SENDER_ID);
-      const RECIEVER_ID = requestedUser.company;
+      const RECIEVER_ID = req.params.id;
       const schema = Joi.object().keys({
         status: Joi.string().valid("accepted", "rejected"),
+        id: Joi.string().required(),
       });
       let results = schema.validate(req.body);
       if (results.error) {
@@ -1046,63 +1067,66 @@ exports.OffersRecievedDecisionByCompany = asyncHandler(
           .status(400)
           .send({ message: results.error.details[0].message });
       }
-      if (req.body.status === "accepted") {
-        await Job.aggregate([
+      if (status === "accepted") {
+        await Job.findOneAndUpdate(
+          { _id: JOB_ID },
+          { $set: { "student_requests.$[el].status": req.body.status } },
           {
-            $project: {
-              student_requests: {
-                $filter: {
-                  input: "$student_requests",
-                  as: "item",
-                  cond: {
-                    $gte: ["$$item.status", "requested"],
-                  },
-                },
+            arrayFilters: [{ "el.student": `${RECIEVER_ID}` }],
+            new: true,
+          }
+        );
+
+        await Student.findByIdAndUpdate(
+          RECIEVER_ID,
+          {
+            $push: {
+              notifications: {
+                title: `${company.name} has accepted your offer`,
+                jobID: JOB_ID,
+                description: `${company.name} has accepted your offer`,
               },
             },
           },
-        ]).exec(async (err, data) => {
-          if (err) {
-            res.status(404).send({ message: err.message });
-          } else {
-            let fill = data.find((fl) => JOB_ID === `${fl._id}`);
-            if (
-              fill &&
-              fill.student_requests &&
-              fill.student_requests.length > 0
-            ) {
-              await Job.findOneAndUpdate(
-                { _id: JOB_ID },
-                { $set: { "student_requests.$[el].status": req.body.status } },
-                {
-                  arrayFilters: [{ "el.student": `${RECIEVER_ID}` }],
-                  new: true,
-                }
-              );
-
-              await Student.findByIdAndUpdate(
-                RECIEVER_ID,
-                {
-                  $push: {
-                    notifications: {
-                      title: `${company.name} has accepted your offer`,
-                      jobID: JOB_ID,
-                      description: `${company.name} has accepted your offer`,
-                    },
-                  },
-                },
-                { new: true }
-              );
-              const jobs = await Job.find().populate(populateQuery);
-              if (jobs) {
-                res.status(200).send({
-                  jobs: jobs,
-                  message: "Request has been accepted successfully",
-                });
-              }
-            }
+          { new: true }
+        );
+        const jobs = await Job.find().populate(populateQuery);
+        if (jobs) {
+          res.status(200).send({
+            jobs: jobs,
+            message: "Request has been accepted successfully",
+          });
+        }
+      } else {
+        await Job.findOneAndUpdate(
+          { _id: JOB_ID },
+          { $set: { "student_requests.$[el].status": req.body.status } },
+          {
+            arrayFilters: [{ "el.student": `${RECIEVER_ID}` }],
+            new: true,
           }
-        });
+        );
+
+        await Student.findByIdAndUpdate(
+          RECIEVER_ID,
+          {
+            $push: {
+              notifications: {
+                title: `${company.name} has rejected your offer`,
+                jobID: JOB_ID,
+                description: `${company.name} has rejected your offer`,
+              },
+            },
+          },
+          { new: true }
+        );
+        const jobs = await Job.find().populate(populateQuery);
+        if (jobs) {
+          res.status(200).send({
+            jobs: jobs,
+            message: "Request has been rejected successfully",
+          });
+        }
       }
     } catch (error) {
       res.status(404).send({ message: error.message });

@@ -21,6 +21,7 @@ const {
   GetProfile,
   requestForgetPassword,
   forgetPassword,
+  getAllNotifications,
 } = require("../controllers/profile");
 
 // middleware functions //
@@ -37,6 +38,8 @@ router.post("/request-forget-password", requestForgetPassword);
 router.post("/reset-password", forgetPassword);
 // Get Single user  //
 router.get("/get-profile/:id", protect, GetProfile);
+router.get("/getAllNotifications", protect, getAllNotifications);
+
 // Edit Profile info //
 router.put("/editProfile", protect, editProfile);
 // Delete User Profile //

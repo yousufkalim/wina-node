@@ -163,7 +163,7 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
               "You are receiving this because you (or someone else) have requested to register your account on WINA.\n\n" +
               "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
               "http://" +
-              "localhost:3000" +
+              `${process.env.verifyEmail}` +
               "/verifyEmail/" +
               token +
               "\n\n" +
@@ -275,7 +275,7 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
 //Login User
 exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(req.body)
+  console.log(req.body);
   const schema = Joi.object().keys({
     email: Joi.string().max(40).required().email(),
     password: Joi.string().min(6).max(255).required(),
