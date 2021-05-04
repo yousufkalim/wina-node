@@ -665,7 +665,7 @@ exports.DeleteProfessionalInfo = asyncHandler(async (req, res, next) => {
 exports.GetSkills = asyncHandler(async (req, res, next) => {
   try {
     const { type } = req.body
-    const skills = await Skill.find({ skillType: type })
+    const skills = await Skill.find({ skillType: type, isDeleted: false })
     if (skills) {
       res
         .status(200)
