@@ -249,7 +249,6 @@ exports.edit = asyncHandler(async (req, res, next) => {
   let EDUCATION;
   let PROFESSION_INFO;
   let PROFESSIONAL_NETWORKS;
-  console.log(softSkills, "result");
 
   if (professional_networks) {
     PROFESSIONAL_NETWORKS = JSON.parse(professional_networks);
