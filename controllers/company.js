@@ -49,7 +49,9 @@ exports.register = asyncHandler(async (req, res, next) => {
     const results = schema.validate(req.body);
 
     if (results.error) {
-      return res.status(400).send(results.error.details[0].message);
+      return res
+        .status(400)
+        .send({ message: results.error.details[0].message });
     }
 
     const {
@@ -73,7 +75,9 @@ exports.register = asyncHandler(async (req, res, next) => {
     } = req.body;
     //// Check If Password and Confirm Password are same or not ////
     if (password !== confirm_password) {
-      res.status(403).send("Password and Confirm Password are not same");
+      res
+        .status(403)
+        .send({ message: "Password and Confirm Password are not same" });
     }
 
     //// Check If user exist with this Email or not ////
@@ -222,34 +226,40 @@ exports.deleteCompany = asyncHandler(async (req, res, next) => {
 // Request for coaching Appointment
 exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
   try {
-    const slotTimmings = req.body.time;
+    const slotTimmings = new Date(req.body.time);
     const companyId = req.user.company;
-
-    const newAppointment = new Appointment({
-      company: companyId,
-      timmings: slotTimmings,
+    let results = await Appointment.find({
+      $or: [{ timmings: slotTimmings }],
     });
-    newAppointment.save();
+    if (results && results.length) {
+      res.status(400).json({ message: "Appointment is already existed" });
+    } else {
+      const newAppointment = new Appointment({
+        company: companyId,
+        timmings: slotTimmings,
+      });
+      newAppointment.save();
 
-    await User.findByIdAndUpdate(req.user._id, {
-      $push: {
-        appointments: newAppointment._id,
-      },
-    });
-
-    const admin = await User.updateMany(
-      { role: "admin" },
-      {
-        $push: { appointments: newAppointment._id },
+      await User.findByIdAndUpdate(req.user._id, {
         $push: {
-          notifications: {
-            title: "Coaching Appointment for  Company",
-            description: "Company has requested for Coaching Appointment",
-          },
+          appointments: newAppointment._id,
         },
-      }
-    );
-    res.status(200).json({ message: "Success! Appoinment Created" });
+      });
+
+      const admin = await User.updateMany(
+        { role: "admin" },
+        {
+          $push: { appointments: newAppointment._id },
+          $push: {
+            notifications: {
+              title: "Coaching Appointment for  Company",
+              description: "Company has requested for Coaching Appointment",
+            },
+          },
+        }
+      );
+      res.status(200).json({ message: "Success! Appoinment Created" });
+    }
   } catch (err) {
     next(err);
   }

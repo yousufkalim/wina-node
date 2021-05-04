@@ -28,14 +28,8 @@ const AppointmentSchema = new mongoose.Schema({
     required: false,
   },
   timmings: {
-    time: {
-      type: String,
-      required: false,
-    },
-    day: {
-      type: String,
-      required: false,
-    },
+    type: Object,
+    required: false,
   },
 
   isDeleted: {

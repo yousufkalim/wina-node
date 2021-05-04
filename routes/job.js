@@ -24,6 +24,7 @@ const {
   CancelOfferDecisionByStudent,
   GetAllCompanyAppliedJobs,
   CancelOfferDecisionByCompany,
+  GetStudentAppliedSuccessJobs,
 } = require("../controllers/job");
 
 //middleware functions
@@ -55,6 +56,11 @@ router.get(
   "/GetStudentAppliedJobs",
   [protect, validateType("student")],
   GetStudentAppliedJobs
+);
+router.get(
+  "/GetStudentAppliedSuccessJobs",
+  [protect, validateType("student")],
+  GetStudentAppliedSuccessJobs
 );
 //get all offers rejected by student
 router.get(

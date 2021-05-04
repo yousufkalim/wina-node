@@ -225,6 +225,7 @@ const StudentSchema = new mongoose.Schema({
     {
       title: String,
       description: String,
+      color: { type: String, default: "#ccc" },
       statusNew: { type: Boolean, default: true },
       jobID: {
         type: String,

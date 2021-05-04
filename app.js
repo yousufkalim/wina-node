@@ -116,12 +116,12 @@ server.listen(PORT, () => {
 // Socket configuration //
 io.on("connection", (socket) => {
   console.log("Connected");
-  logInfo.info(
-    "Connection Established ",
-    socket.id,
-    " accepted at ",
-    new Date().toJSON()
-  );
+  // logInfo.info(
+  //   "Connection Established ",
+  //   socket.id,
+  //   " accepted at ",
+  //   new Date().toJSON()
+  // );
   exports.socket = { socket, io };
   var useris = socket.handshake.query.userConnectionId;
   socket.join(useris);

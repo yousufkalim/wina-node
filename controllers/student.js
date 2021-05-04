@@ -249,6 +249,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
   let EDUCATION;
   let PROFESSION_INFO;
   let PROFESSIONAL_NETWORKS;
+  console.log(softSkills, "result");
 
   if (professional_networks) {
     PROFESSIONAL_NETWORKS = JSON.parse(professional_networks);
@@ -360,7 +361,27 @@ exports.edit = asyncHandler(async (req, res, next) => {
     if (results.error) {
       return res.status(400).send(results.error.details[0].message);
     }
+    if (softSkills) {
+      console.log(softSkills, "result");
 
+      await Promise.all(
+        await softSkills.map(async (val) => {
+          const requestedMaterial = val.skillName;
+          console.log(requestedMaterial, "result");
+
+          if (requestedMaterial) {
+            const result = await Skill.find({ skillField: val.skillName });
+            console.log(result, "result");
+            // if (result.length == 0) {
+            //   const newMaterial = new Material({
+            //     name: requestedMaterial,
+            //   });
+            //   await newMaterial.save().then((val.material = newMaterial._id));
+            // }
+          }
+        })
+      );
+    }
     //Storing uploaded image/video name in "UploadedPicture" / "presentation_Video" //
     if (req.files) {
       if (req.files.video) {

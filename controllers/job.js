@@ -4,6 +4,7 @@ const User = require("../models/User");
 const Company = require("../models/Company");
 const Job = require("../models/Job");
 const Student = require("../models/Student");
+const socket = require("../app");
 
 //// Create Job ////
 exports.CreateJob = asyncHandler(async (req, res, next) => {
@@ -17,7 +18,7 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
     const companyID = requestedUser.company;
 
     const {
-      title,
+      // title,
       status,
       domain,
       position,
@@ -48,7 +49,7 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
     });
 
     const schema = Joi.object().keys({
-      title: Joi.string(),
+      // title: Joi.string(),
       status: Joi.string().valid("open", "filled"),
       domain: Joi.string(),
       photo: Joi.string(),
@@ -85,7 +86,7 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
 
     // Creating new student in Database //
     const newJob = new Job({
-      title: title,
+      // title: title,
       status: status,
       domain: domain,
       position: position,
@@ -103,7 +104,7 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
     await newJob.save();
 
     // Assigning new job ID to company //
-    const company = await Company.findByIdAndUpdate(companyID, {
+    await Company.findByIdAndUpdate(companyID, {
       $push: { job: newJob._id },
     });
 
@@ -140,7 +141,7 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
     });
 
     const schema = Joi.object().keys({
-      title: Joi.string(),
+      // title: Joi.string(),
       status: Joi.string().valid("open", "filled"),
       domain: Joi.string(),
       photo: Joi.string(),
@@ -197,7 +198,7 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
     }
 
     const {
-      title,
+      // title,
       domain,
       position,
       startDate,
@@ -213,7 +214,7 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
     const updatedJob = await Job.findByIdAndUpdate(
       req.params.id,
       {
-        title: title,
+        // title: title,
         domain: domain,
         position: position,
         startDate: startDate,
@@ -497,8 +498,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
             fill.student_requests.length > 0
           ) {
             let check = fill.student_requests.some(
-              (sr) =>
-                sr.status === "requested" && `${sr.student}` === `${SENDER_ID}`
+              (sr) => `${sr.student}` === `${SENDER_ID}`
             );
             if (check === true) {
               res
@@ -529,6 +529,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                 },
                 { new: true }
               );
+
               const jobs = await Job.find().populate(populateQuery);
               if (jobs) {
                 res.status(200).send({
@@ -637,6 +638,7 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(
           },
           { new: true }
         );
+
         const jobs = await Job.find().populate(populateQuery);
         if (jobs) {
           res.status(200).send({
@@ -795,7 +797,7 @@ exports.GetCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
               let check = dt.company_requests.some(
                 (ft) =>
                   `${ft.student}` === `${requestedUser.student}` &&
-                  ft.status === "requested"
+                  `${ft.status}` === "requested"
               );
               if (check) {
                 results.push(dt);
@@ -812,6 +814,58 @@ exports.GetCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
           }
         }
       });
+  } catch (error) {
+    res.status(200).send({ message: error });
+
+    next(error);
+  }
+});
+// GET all student applied Jobs by student
+exports.GetStudentAppliedSuccessJobs = asyncHandler(async (req, res, next) => {
+  try {
+    const populateQuery = [
+      {
+        path: "company",
+        path: "student_requests.student",
+        populate: [
+          {
+            path: "softSkills",
+          },
+          {
+            path: "hardSkills",
+          },
+          {
+            path: "user",
+          },
+        ],
+      },
+    ];
+    const requestedUser = await User.findById(req.user.id);
+    if (!requestedUser.type) {
+      res.status(400).send({ message: "You are not authorized to get Job" });
+    }
+    let results = await Job.find()
+      .select({
+        student_requests: {
+          $elemMatch: {
+            $and: [
+              { status: "accepted" },
+              {
+                student: requestedUser.student,
+              },
+            ],
+          },
+        },
+      })
+      .populate(populateQuery);
+
+    // .populate(populateQuery);
+    if (results) {
+      res.status(200).send({
+        jobs: results,
+        message: "Jobs fetched successfully",
+      });
+    }
   } catch (error) {
     res.status(200).send({ message: error });
 
@@ -844,7 +898,11 @@ exports.GetAllStudentAppliedJobs = asyncHandler(async (req, res, next) => {
     const JOB_ID = req.params.id;
     let results = await Job.findOne({ _id: JOB_ID })
       .select({
-        student_requests: { $elemMatch: { status: "requested" } },
+        student_requests: {
+          $elemMatch: {
+            $or: [{ status: "requested" }, { status: "accepted" }],
+          },
+        },
       })
       .populate(populateQuery);
     if (results) {
@@ -885,7 +943,11 @@ exports.GetAllCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
     const JOB_ID = req.params.id;
     let results = await Job.findOne({ _id: JOB_ID })
       .select({
-        company_requests: { $elemMatch: { status: "requested" } },
+        company_requests: {
+          $elemMatch: {
+            $or: [{ status: "requested" }, { status: "accepted" }],
+          },
+        },
       })
       .populate(populateQuery);
     if (results) {
@@ -1020,7 +1082,7 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
           if (jobs) {
             res.status(200).send({
               jobs: jobs,
-              message: "equest is sent  successfully",
+              message: "Request is sent  successfully",
             });
           }
         }
