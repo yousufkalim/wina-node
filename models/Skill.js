@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose")
 
 const SkillSchema = new mongoose.Schema({
   skillField: {
@@ -18,6 +18,6 @@ const SkillSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-});
+})
 
-module.exports = mongoose.model("Skill", SkillSchema);
+module.exports = mongoose.model("Skill", SkillSchema)

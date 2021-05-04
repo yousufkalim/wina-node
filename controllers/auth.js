@@ -275,7 +275,7 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
 //Login User
 exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(req.body);
+
   const schema = Joi.object().keys({
     email: Joi.string().max(40).required().email(),
     password: Joi.string().min(6).max(255).required(),
