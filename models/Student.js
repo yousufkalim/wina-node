@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose")
 
 const StudentSchema = new mongoose.Schema({
   general_Presentation: {
@@ -168,6 +168,7 @@ const StudentSchema = new mongoose.Schema({
       type: String,
       required: false,
     },
+
     position: {
       type: String,
       required: false,
@@ -237,6 +238,7 @@ const StudentSchema = new mongoose.Schema({
       },
     },
   ],
+
   isDeleted: {
     type: Boolean,
     default: false,
@@ -246,6 +248,6 @@ const StudentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-});
+})
 
-module.exports = mongoose.model("Student", StudentSchema);
+module.exports = mongoose.model("Student", StudentSchema)

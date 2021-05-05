@@ -3,6 +3,7 @@ const asyncHandler = require("../middlewares/async")
 const User = require("../models/User")
 const Student = require("../models/Student")
 const Company = require("../models/Company")
+const Skill = require("../models/Skill")
 
 const crypto = require("crypto")
 const nodemailer = require("nodemailer")
@@ -299,5 +300,28 @@ exports.updateNotifications = asyncHandler(async (req, res, next) => {
     res.status(200).json({ message: "Success!", notifications: tempNotify })
   } catch (err) {
     next(err)
+  }
+})
+
+// GetSoftSkills
+exports.GetSoftSkills = asyncHandler(async (req, res, next) => {
+  try {
+    const skills = await Skill.find({
+      $and: [
+        { skillType: { $eq: "Soft Skill" } },
+        {
+          isDeleted: { $eq: false },
+        },
+      ],
+    })
+
+    if (skills) {
+      res
+        .status(200)
+        .send({ skills: skills, message: "Skills has fetched successfully" })
+    }
+  } catch (error) {
+    res.status(200).send({ message: error.message })
+    next(error)
   }
 })
