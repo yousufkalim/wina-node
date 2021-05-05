@@ -665,13 +665,23 @@ exports.DeleteProfessionalInfo = asyncHandler(async (req, res, next) => {
 exports.GetSkills = asyncHandler(async (req, res, next) => {
   try {
     const { type } = req.body
-    const skills = await Skill.find({ skillType: type, isDeleted: false })
+
+    const skills = await Skill.find({
+      $and: [
+        { skillType: "Soft Skill" },
+        {
+          isDeleted: false,
+        },
+      ],
+    })
+
     if (skills) {
       res
         .status(200)
         .send({ skills: skills, message: "Skills has fetched successfully" })
     }
   } catch (error) {
-    next(err)
+    res.status(200).send({ message: error.message })
+    next(error)
   }
 })
