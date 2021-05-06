@@ -1213,7 +1213,9 @@ exports.deleteSchool = asyncHandler(async (req, res, next) => {
 
 exports.getAllAppointments = asyncHandler(async (req, res, next) => {
   try {
-    const appointments = await Appointment.find({ isDeleted: false });
+    const appointments = await Appointment.find({ isDeleted: false }).populate(
+      "company"
+    );
     if (!appointments) {
       res.status(200).json({ message: "There is no Appointment ATM" });
     } else {
@@ -1288,7 +1290,7 @@ exports.getAllCompanyAppointments = asyncHandler(async (req, res, next) => {
 });
 
 //Delete Appointment
-exports.deleteAppointment = asyncHandler(async (req, res, next) => {
+exports.editAppointment = asyncHandler(async (req, res, next) => {
   try {
     const appointmentId = req.params.id;
     const appointmnet = await Appointment.findByIdAndUpdate(
@@ -1308,7 +1310,7 @@ exports.deleteAppointment = asyncHandler(async (req, res, next) => {
 });
 
 //Edit Appointment
-exports.editAppointment = asyncHandler(async (req, res, next) => {
+exports.deleteAppointment = asyncHandler(async (req, res, next) => {
   try {
     const appointmentId = req.params.id;
     const appointmnet = await Appointment.findByIdAndUpdate(
