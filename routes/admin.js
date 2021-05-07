@@ -38,6 +38,8 @@ const {
   validateVideo,
   validateJobImages,
   createConsultantProfile,
+  consultantProfileTeacher,
+  consultantProfileStudent,
   registerSchool,
   editSchool,
   deleteSchool,
@@ -103,6 +105,16 @@ router.post(
   "/create-consultant-profile",
   [protect, authorize("admin")],
   createConsultantProfile
+);
+router.get(
+  "/consultant-profile-teacher",
+  [protect, authorize("admin")],
+  consultantProfileTeacher
+);
+router.get(
+  "/consultant-profile-student",
+  [protect, authorize("admin")],
+  consultantProfileStudent
 );
 
 // School //

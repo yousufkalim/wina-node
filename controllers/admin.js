@@ -1100,7 +1100,30 @@ exports.createConsultantProfile = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
-
+exports.consultantProfileTeacher = asyncHandler(async (req, res, next) => {
+  try {
+    const data = await CompanyConsultant.find({ isDeleted: false })
+      .populate("user")
+      .sort({
+        _id: -1,
+      });
+    res.status(200).json({ consultantTeacher: data });
+  } catch (err) {
+    next(err);
+  }
+});
+exports.consultantProfileStudent = asyncHandler(async (req, res, next) => {
+  try {
+    const data = await StudentConsultant.find({ isDeleted: false })
+      .populate("user")
+      .sort({
+        _id: -1,
+      });
+    res.status(200).json({ consultantStudent: data });
+  } catch (err) {
+    next(err);
+  }
+});
 // SCHOOLS
 exports.registerSchool = asyncHandler(async (req, res, next) => {
   try {
