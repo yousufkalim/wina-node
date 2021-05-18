@@ -58,7 +58,7 @@ const { protect, authorize } = require("../middlewares/auth");
 
 //Skills
 router.get("/skill-list", protect, skillList);
-router.post("/create-skill", [protect, authorize("admin")], createSkill);
+router.post("/create-skill", createSkill);
 router.put("/edit-skill/:id", [protect, authorize("admin")], editSkill);
 router.put("/delete-skill/:id", [protect, authorize("admin")], deleteSkill);
 

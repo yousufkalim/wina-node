@@ -1140,12 +1140,8 @@ exports.registerSchool = asyncHandler(async (req, res, next) => {
     if (results.error) {
       return res.status(400).send(results.error.details[0].message);
     }
-    const {
-      secteur_d_etablissement,
-      code_postal_uai,
-      coordonnees,
-      uo_lib,
-    } = req.body;
+    const { secteur_d_etablissement, code_postal_uai, coordonnees, uo_lib } =
+      req.body;
 
     const newSchool = new School({
       fields: {
@@ -1183,12 +1179,8 @@ exports.editSchool = asyncHandler(async (req, res, next) => {
     if (results.error) {
       return res.status(400).send(results.error.details[0].message);
     }
-    const {
-      secteur_d_etablissement,
-      code_postal_uai,
-      coordonnees,
-      uo_lib,
-    } = req.body;
+    const { secteur_d_etablissement, code_postal_uai, coordonnees, uo_lib } =
+      req.body;
     const updatedSchool = await School.findByIdAndUpdate(
       schoolId,
       {
