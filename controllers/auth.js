@@ -330,6 +330,14 @@ const sendTokenResponse = async (user, statusCode, res) => {
     { path: "company" },
     {
       path: "student",
+      populate: [
+        {
+          path: "softSkills",
+        },
+        {
+          path: "hardSkills",
+        },
+      ],
     },
   ];
   const token = user.getSignedJwtToken();

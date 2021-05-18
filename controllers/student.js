@@ -1,32 +1,32 @@
-const Joi = require("joi")
-const asyncHandler = require("../middlewares/async")
-const User = require("../models/User")
-const Student = require("../models/Student")
-const Appointment = require("../models/Appointment")
-const matchingAlgo = require("../services/searchJobs")
-const Skill = require("../models/Skill")
+const Joi = require("joi");
+const asyncHandler = require("../middlewares/async");
+const User = require("../models/User");
+const Student = require("../models/Student");
+const Appointment = require("../models/Appointment");
+const matchingAlgo = require("../services/searchJobs");
+const Skill = require("../models/Skill");
 
-var matchingCriteria = new matchingAlgo.MatchingCriteria()
-var dealBreaker = new matchingAlgo.DealBreaker()
+var matchingCriteria = new matchingAlgo.MatchingCriteria();
+var dealBreaker = new matchingAlgo.DealBreaker();
 //// Register User Profile ////
 
 exports.register = asyncHandler(async (req, res, next) => {
   try {
-    const requestedUser = await User.findById(req.user.id)
+    const requestedUser = await User.findById(req.user.id);
     if (
       requestedUser.student ||
       requestedUser.company ||
       requestedUser.studentConsultant ||
       requestedUser.companyConsultant
     ) {
-      const error = new Error("Access Denied!")
-      error.status = 400
-      throw error
+      const error = new Error("Access Denied!");
+      error.status = 400;
+      throw error;
     }
-    const userType = req.user.type
-    let UploadedPicture = ""
-    let video = ""
-    let uploadedResume = ""
+    const userType = req.user.type;
+    let UploadedPicture = "";
+    let video = "";
+    let uploadedResume = "";
 
     // Validating body //
     const professional_network = Joi.object().keys({
@@ -34,7 +34,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       Behance: Joi.string().uri(),
       Dribble: Joi.string().uri(),
       Github: Joi.string().uri(),
-    })
+    });
 
     const education_info = Joi.object().keys({
       school: Joi.string(),
@@ -53,7 +53,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       ),
       end_Date: Joi.string(),
       description: Joi.string().max(600),
-    })
+    });
 
     const professional_profileInfo = Joi.object().keys({
       position: Joi.string().max(250),
@@ -63,7 +63,7 @@ exports.register = asyncHandler(async (req, res, next) => {
         end_date: Joi.string(),
       }),
       description: Joi.string().max(1000),
-    })
+    });
 
     const schema = Joi.object().keys({
       general_Presentation: Joi.string().max(2000),
@@ -81,6 +81,7 @@ exports.register = asyncHandler(async (req, res, next) => {
         startDate: Joi.string(),
         duration: Joi.string(),
         alternationRhythm: Joi.string(),
+        dateOfBirth: Joi.string(),
         levelOfEducation: Joi.string().valid(
           "1:Brevet",
           "2:CAP",
@@ -95,7 +96,7 @@ exports.register = asyncHandler(async (req, res, next) => {
           "11:Doctorat"
         ),
       }),
-      dateOfBirth: Joi.string(),
+
       languages: Joi.array().items({
         name: Joi.string(),
         skill: Joi.string().valid(
@@ -105,11 +106,11 @@ exports.register = asyncHandler(async (req, res, next) => {
           "native"
         ),
       }),
-    })
+    });
 
-    const results = schema.validate(req.body)
+    const results = schema.validate(req.body);
     if (results.error) {
-      return res.status(400).send(results.error.details[0].message)
+      return res.status(400).send(results.error.details[0].message);
     }
 
     //Storing uploaded image/video name in "UploadedPicture" / "presentation_Video" //
@@ -119,14 +120,14 @@ exports.register = asyncHandler(async (req, res, next) => {
           if (!(req.files.video[0].size <= 209715200)) {
             const error = new Error(
               "Cannot upload file size greater than 200MB"
-            )
-            error.status = 400
-            throw error
+            );
+            error.status = 400;
+            throw error;
           } else {
             video = {
               video: req.files.video[0].filename,
               status: "To be Validated",
-            }
+            };
           }
         }
       }
@@ -139,13 +140,13 @@ exports.register = asyncHandler(async (req, res, next) => {
           UploadedPicture = {
             image: req.files.image[0].filename,
             status: "To be Validated",
-          }
+          };
         } else {
           const error = new Error(
             "Please select an image of File type JPEG/JPG/PNG"
-          )
-          error.status = 400
-          throw error
+          );
+          error.status = 400;
+          throw error;
         }
       }
       if (req.files.resume) {
@@ -156,18 +157,20 @@ exports.register = asyncHandler(async (req, res, next) => {
             "resume/vnd.openxmlformats-officedocument.wordprocessingml.document"
         ) {
           if (!(req.files.resume[0].size <= 10485760)) {
-            const error = new Error("Cannot upload file size greater than 10MB")
-            error.status = 400
-            throw error
+            const error = new Error(
+              "Cannot upload file size greater than 10MB"
+            );
+            error.status = 400;
+            throw error;
           } else {
-            uploadedResume = req.files.resume[0].filename
+            uploadedResume = req.files.resume[0].filename;
           }
         } else {
           const error = new Error(
             "Your resume file should be of File type PDF/DOC/DOCX"
-          )
-          error.status = 400
-          throw error
+          );
+          error.status = 400;
+          throw error;
         }
       }
     }
@@ -181,9 +184,9 @@ exports.register = asyncHandler(async (req, res, next) => {
       hardSkills,
       resume,
       positionSought,
-      dateOfBirth,
+
       languages,
-    } = req.body
+    } = req.body;
 
     // Creating new student in Database //
     const newStudent = await new Student({
@@ -196,37 +199,37 @@ exports.register = asyncHandler(async (req, res, next) => {
       softSkills: softSkills,
       hard_Skills: hardSkills,
       positionSought: positionSought,
-      dateOfBirth: dateOfBirth,
+
       languages: languages,
       resume: uploadedResume,
       user: req.user.id,
-    })
+    });
 
-    await newStudent.save()
+    await newStudent.save();
 
     // Assigning new student ID to Loggined In User //
     const user = await User.findByIdAndUpdate(req.user.id, {
       student: newStudent._id,
-    })
+    });
 
     res
       .status(200)
-      .json({ message: "Success!", student: newStudent, user: user })
+      .json({ message: "Success!", student: newStudent, user: user });
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    res.status(400).json({ message: err.message });
   }
-})
+});
 
 // GET single Student Profile
 exports.GetStudentProfile = asyncHandler(async (req, res, next) => {
   try {
-    const studentID = req.params.id
-    const student = await Student.findById(studentID).populate("student")
-    res.status(200).json({ user: student })
+    const studentID = req.params.id;
+    const student = await Student.findById(studentID).populate("student");
+    res.status(200).json({ user: student });
   } catch (err) {
-    next(err)
+    next(err);
   }
-})
+});
 
 //// Edit Student info ////
 exports.edit = asyncHandler(async (req, res, next) => {
@@ -238,29 +241,29 @@ exports.edit = asyncHandler(async (req, res, next) => {
     softSkills,
     hardSkills,
     positionSought,
-    dateOfBirth,
+
     languages,
-  } = req.body
-  let UploadedPicture = ""
-  let video = ""
-  let uploadedResume = ""
-  let EDUCATION
-  let PROFESSION_INFO
-  let PROFESSIONAL_NETWORKS
+  } = req.body;
+  let UploadedPicture = "";
+  let video = "";
+  let uploadedResume = "";
+  let EDUCATION;
+  let PROFESSION_INFO;
+  let PROFESSIONAL_NETWORKS;
 
   if (professional_networks) {
-    PROFESSIONAL_NETWORKS = JSON.parse(professional_networks)
-    req.body.professional_networks = PROFESSIONAL_NETWORKS
+    PROFESSIONAL_NETWORKS = JSON.parse(professional_networks);
+    req.body.professional_networks = PROFESSIONAL_NETWORKS;
   }
   if (education) {
-    EDUCATION = JSON.parse(education)
-    req.body.education = EDUCATION
+    EDUCATION = JSON.parse(education);
+    req.body.education = EDUCATION;
   }
   if (professional_profile) {
-    PROFESSION_INFO = JSON.parse(professional_profile)
-    req.body.professional_profile = PROFESSION_INFO
+    PROFESSION_INFO = JSON.parse(professional_profile);
+    req.body.professional_profile = PROFESSION_INFO;
   }
-  const user = await User.findById(req.user.id)
+  const user = await User.findById(req.user.id);
   try {
     // Validating body //
     const professional_network = Joi.object().keys({
@@ -268,7 +271,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
       Behance: Joi.string().uri().optional().allow(""),
       Dribble: Joi.string().uri().optional().allow(""),
       Github: Joi.string().uri().optional().allow(""),
-    })
+    });
 
     const education_info = Joi.object().keys({
       school: Joi.string(),
@@ -290,7 +293,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
       end_Date: Joi.string(),
       start_Date: Joi.string(),
       description: Joi.string().max(600),
-    })
+    });
 
     const professional_profileInfo = Joi.object().keys({
       position: Joi.string().max(250),
@@ -305,7 +308,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
         end_date: Joi.string(),
       }),
       description: Joi.string().max(1000),
-    })
+    });
 
     const schema = Joi.object().keys({
       general_Presentation: Joi.string().max(2000).optional().allow(""),
@@ -319,6 +322,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
       education: Joi.array().items(education_info),
       professional_profile: Joi.array().items(professional_profileInfo),
       resume: Joi.string(),
+
       softSkills: Joi.array(),
       hardSkills: Joi.array(),
       positionSought: Joi.object().keys({
@@ -327,6 +331,8 @@ exports.edit = asyncHandler(async (req, res, next) => {
         startDate: Joi.string(),
         duration: Joi.string(),
         alternationRhythm: Joi.string(),
+        description: Joi.string(),
+        dateOfBirth: Joi.string(),
         levelOfEducation: Joi.string().valid(
           "1:Brevet",
           "2:CAP",
@@ -341,7 +347,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
           "11:Doctorat"
         ),
       }),
-      dateOfBirth: Joi.string(),
+
       languages: Joi.array().items({
         name: Joi.string(),
         skill: Joi.string().valid(
@@ -351,22 +357,24 @@ exports.edit = asyncHandler(async (req, res, next) => {
           "native"
         ),
       }),
-    })
+    });
     // Pasrsing
 
-    const results = schema.validate(req.body)
+    const results = schema.validate(req.body);
     if (results.error) {
-      return res.status(400).send({ message: results.error.details[0].message })
+      return res
+        .status(400)
+        .send({ message: results.error.details[0].message });
     }
     if (softSkills) {
       await Promise.all(
         await softSkills.map(async (val) => {
-          const requestedMaterial = val.skillName
-          console.log(requestedMaterial, "result")
+          const requestedMaterial = val.skillName;
+          console.log(requestedMaterial, "result");
 
           if (requestedMaterial) {
-            const result = await Skill.find({ skillField: val.skillName })
-            console.log(result, "result")
+            const result = await Skill.find({ skillField: val.skillName });
+            console.log(result, "result");
             // if (result.length == 0) {
             //   const newMaterial = new Material({
             //     name: requestedMaterial,
@@ -375,7 +383,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
             // }
           }
         })
-      )
+      );
     }
     //Storing uploaded image/video name in "UploadedPicture" / "presentation_Video" //
     if (req.files) {
@@ -384,14 +392,14 @@ exports.edit = asyncHandler(async (req, res, next) => {
           if (!(req.files.video[0].size <= 209715200)) {
             const error = new Error(
               "Cannot upload file size greater than 200MB"
-            )
-            error.status = 400
-            throw error
+            );
+            error.status = 400;
+            throw error;
           } else {
             video = {
               video: req.files.video[0].filename,
               status: "To be Validated",
-            }
+            };
           }
         }
       }
@@ -404,13 +412,13 @@ exports.edit = asyncHandler(async (req, res, next) => {
           UploadedPicture = {
             image: req.files.image[0].filename,
             status: "To be Validated",
-          }
+          };
         } else {
           const error = new Error(
             "Please select an image of File type JPEG/JPG/PNG"
-          )
-          error.status = 400
-          throw error
+          );
+          error.status = 400;
+          throw error;
         }
       }
 
@@ -422,29 +430,31 @@ exports.edit = asyncHandler(async (req, res, next) => {
             "resume/vnd.openxmlformats-officedocument.wordprocessingml.document"
         ) {
           if (!(req.files.resume[0].size <= 10485760)) {
-            const error = new Error("Cannot upload file size greater than 10MB")
-            error.status = 400
-            throw error
+            const error = new Error(
+              "Cannot upload file size greater than 10MB"
+            );
+            error.status = 400;
+            throw error;
           } else {
-            uploadedResume = req.files.resume[0].filename
+            uploadedResume = req.files.resume[0].filename;
           }
         } else {
           const error = new Error(
             "Your resume file should be of File type PDF/DOC/DOCX"
-          )
-          error.status = 400
-          throw error
+          );
+          error.status = 400;
+          throw error;
         }
       }
     }
 
-    const studentID = user.student
+    const studentID = user.student;
     // console.log(EDUCATION, "EDUCATION");
 
     // let parsed_professional_network = JSON.parse(professional_networks);
-    let userobj
+    let userobj;
     if (studentID) {
-      let tempUser = await Student.findById(studentID)
+      let tempUser = await Student.findById(studentID);
       userobj = await Student.findByIdAndUpdate(
         studentID,
         {
@@ -467,12 +477,12 @@ exports.edit = asyncHandler(async (req, res, next) => {
           positionSought: positionSought
             ? positionSought
             : tempUser.positionSought,
-          dateOfBirth: dateOfBirth ? dateOfBirth : tempUser.dateOfBirth,
+
           resume: uploadedResume,
           languages: languages ? languages : tempUser.languages,
         },
         { new: true }
-      )
+      );
     } else {
       // Creating new student in Database //
       userobj = new Student({
@@ -485,69 +495,69 @@ exports.edit = asyncHandler(async (req, res, next) => {
         softSkills: softSkills,
         hard_Skills: hardSkills,
         positionSought: positionSought,
-        dateOfBirth: dateOfBirth,
+
         languages: languages,
         resume: uploadedResume,
         user: user._id,
-      })
+      });
 
-      await userobj.save()
+      await userobj.save();
 
       // Assigning new student ID to Loggined In User //
       await user.updateOne({
         student: userobj._id,
-      })
+      });
     }
 
     const updateUser = await User.findByIdAndUpdate(req.user.id, {
       student: userobj._id,
-    }).populate("student")
+    }).populate("student");
 
     res
       .status(200)
-      .json({ message: "Profile Updated Successfully!", user: updateUser })
+      .json({ message: "Profile Updated Successfully!", user: updateUser });
   } catch (err) {
-    res.status(400).json({ message: err.message })
-    next(err)
+    res.status(400).json({ message: err.message });
+    next(err);
   }
-})
+});
 
 // GET single Student Profile
 exports.DeleteProfile = asyncHandler(async (req, res, next) => {
   try {
-    const userID = req.user.id
-    const requestedUser = await User.findById(userID)
+    const userID = req.user.id;
+    const requestedUser = await User.findById(userID);
     await Student.findByIdAndUpdate(
       requestedUser.student,
       {
         isDeleted: true,
       },
       { new: true }
-    )
+    );
 
-    res.status(200).json({ message: "Student has been deleted Successfully!" })
+    res.status(200).json({ message: "Student has been deleted Successfully!" });
   } catch (err) {
-    next(err)
+    next(err);
   }
-})
+});
 
 // Appointment for coaching //
 exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
   try {
-    const slotTimmings = req.body.time
-    const studentID = req.user.student
+    const slotTimmings = req.body.time;
+    const studentID = req.user.student;
 
     const newAppointment = new Appointment({
       student: studentID,
       timmings: slotTimmings,
-    })
-    newAppointment.save()
+    });
+    newAppointment.save();
 
     await User.findByIdAndUpdate(req.user._id, {
       $push: {
         appointments: newAppointment._id,
       },
-    })
+    });
 
     const admin = await User.updateMany(
       { role: "admin" },
@@ -560,13 +570,13 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
           },
         },
       }
-    )
+    );
 
-    res.status(200).json({ message: "Success! Appoinment Created" })
+    res.status(200).json({ message: "Success! Appoinment Created" });
   } catch (err) {
-    next(err)
+    next(err);
   }
-})
+});
 
 exports.searchForJob = asyncHandler(async (req, res, next) => {
   try {
@@ -582,39 +592,53 @@ exports.searchForJob = asyncHandler(async (req, res, next) => {
     // matchingCriteria.frequencyOfApprenticeship(req, res, next);
     // matchingCriteria.ageRange(req, res, next);
     // matchingCriteria.search(req, res, next);
-    matchingCriteria.display(req, res, next)
+    matchingCriteria.display(req, res, next);
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    res.status(400).json({ message: err.message });
 
-    next(err)
+    next(err);
   }
-})
+});
 
 // GET single Student Profile
 
 exports.GetUser = asyncHandler(async (req, res, next) => {
   try {
-    const { type } = req.body
-    const userID = req.user.id
+    const populateQuery = [
+      { path: "company" },
+      {
+        path: "student",
+        populate: [
+          {
+            path: "softSkills",
+          },
+          {
+            path: "hardSkills",
+          },
+        ],
+      },
+    ];
+    const { type } = req.body;
+    const userID = req.user.id;
     const requestedUser = await User.findOne({
       _id: userID,
       type: type,
-    }).populate(type)
+    }).populate(populateQuery);
 
     res.status(200).json({
       message: "User has been fetched Successfully!",
       user: requestedUser,
-    })
+    });
   } catch (err) {
-    next(err)
+    next(err);
   }
-})
+});
 // Delete school of Student Profile
 exports.DeleteSchool = asyncHandler(async (req, res, next) => {
   try {
-    const schoolID = req.params.id
-    const user = await User.findById(req.user.id)
-    let student = await Student.findById(user.student)
+    const schoolID = req.params.id;
+    const user = await User.findById(req.user.id);
+    let student = await Student.findById(user.student);
 
     await Student.findByIdAndUpdate(
       student._id,
@@ -622,24 +646,24 @@ exports.DeleteSchool = asyncHandler(async (req, res, next) => {
         $pull: { education: { _id: schoolID } },
       },
       { new: true }
-    )
+    );
     const updated_user = await User.findByIdAndUpdate(req.user.id, {
       student: student._id,
-    }).populate("student")
+    }).populate("student");
     res.status(200).json({
       message: "School has been deleted Successfully!",
       user: updated_user,
-    })
+    });
   } catch (err) {
-    next(err)
+    next(err);
   }
-})
+});
 // Delete ProfessionalInfo  of Student Profile
 exports.DeleteProfessionalInfo = asyncHandler(async (req, res, next) => {
   try {
-    const schoolID = req.params.id
-    const user = await User.findById(req.user.id)
-    let student = await Student.findById(user.student)
+    const schoolID = req.params.id;
+    const user = await User.findById(req.user.id);
+    let student = await Student.findById(user.student);
 
     await Student.findByIdAndUpdate(
       student._id,
@@ -647,41 +671,84 @@ exports.DeleteProfessionalInfo = asyncHandler(async (req, res, next) => {
         $pull: { professional_profile: { _id: schoolID } },
       },
       { new: true }
-    )
+    );
     const updated_user = await User.findByIdAndUpdate(req.user.id, {
       student: student._id,
-    }).populate("student")
+    }).populate("student");
     res.status(200).json({
       message: "professional info has been deleted Successfully!",
       user: updated_user,
-    })
+    });
   } catch (err) {
-    next(err)
+    next(err);
   }
-})
+});
 
 // get soft skills
 
 exports.GetSkills = asyncHandler(async (req, res, next) => {
   try {
-    const { type } = req.body
-
-    const skills = await Skill.find({
-      $and: [
-        { skillType: "Soft Skill" },
-        {
-          isDeleted: false,
-        },
-      ],
-    })
-
-    if (skills) {
+    const { type } = req.body;
+    if (type === "Soft Skill") {
+      const skills = await Skill.find({
+        $and: [
+          { skillType: "Soft Skill" },
+          {
+            isDeleted: false,
+          },
+        ],
+      });
       res
         .status(200)
-        .send({ skills: skills, message: "Skills has fetched successfully" })
+        .send({ skills: skills, message: "Skills has fetched successfully" });
+    } else {
+      const skills = await Skill.find({
+        $and: [
+          { skillType: "Hard Skill" },
+          {
+            isDeleted: false,
+          },
+        ],
+      });
+      res
+        .status(200)
+        .send({ skills: skills, message: "Skills has fetched successfully" });
     }
   } catch (error) {
-    res.status(200).send({ message: error.message })
-    next(error)
+    res.status(200).send({ message: error.message });
+    next(error);
   }
-})
+});
+
+// validate appointment
+// Appointment for coaching //
+exports.validateAppointment = asyncHandler(async (req, res, next) => {
+  try {
+    const slotTimmings = req.body.status;
+    const jobID = req.params.id;
+
+    console.log(slotTimmings, "slotTimmings");
+    const studentID = req.user.student;
+    if (slotTimmings === "Disapproved") {
+      await Appointment.findOneAndUpdate(
+        { $and: [{ student: `${studentID}` }, { jobID: `${jobID}` }] },
+        { $set: { status: "Approved" } },
+        {
+          new: true,
+        }
+      );
+      res.status(200).json({ message: "Success! Appoinment Disapproved" });
+    } else {
+      await Appointment.findOneAndUpdate(
+        { $and: [{ student: `${studentID}` }, { jobID: `${jobID}` }] },
+        { $set: { status: "Approved" } },
+        {
+          new: true,
+        }
+      );
+      res.status(200).json({ message: "Success! Appoinment Approved" });
+    }
+  } catch (err) {
+    next(err);
+  }
+});

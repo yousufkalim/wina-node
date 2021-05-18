@@ -167,7 +167,7 @@ class MatchingCriteria extends DealBreaker {
     let jobNameArray = []
 
     jobs.map((job) => {
-      const jobTitle = job.position.toUpperCase()
+      const jobTitle = job.title.toUpperCase()
       const result = studentPosition.localeCompare(jobTitle)
       if (result === 0) {
         score = 1
@@ -295,7 +295,7 @@ class MatchingCriteria extends DealBreaker {
 
   ageRange = async (user, jobs) => {
     const student = await Student.findById(user.student)
-    const studentDOB = moment(student.dateOfBirth, "DD-MM-YYYY")
+    const studentDOB = moment(student.positionSought.dateOfBirth, "DD-MM-YYYY")
     const currentDate = moment(new Date())
     const studentAge = Math.abs(studentDOB.diff(currentDate, "years"))
 

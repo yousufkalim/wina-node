@@ -201,12 +201,17 @@ const StudentSchema = new mongoose.Schema({
         "11:Doctorat",
       ],
     },
+    description: {
+      type: String,
+      required: false,
+    },
+    dateOfBirth: {
+      type: String,
+      required: false,
+    },
   },
 
-  dateOfBirth: {
-    type: String,
-    required: false,
-  },
+ 
 
   softSkills: [
     {

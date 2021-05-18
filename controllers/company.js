@@ -228,19 +228,24 @@ exports.deleteCompany = asyncHandler(async (req, res, next) => {
 // Request for coaching Appointment
 exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
   try {
-    const slotTimmings = new Date(req.body.time);
+    const slotTimmings = req.body.time;
     const StudentID = req.params.id;
+    const jobID = req.body.id;
+    let userID = await Student.findById(StudentID);
+
     const companyId = req.user.company;
 
     let results = await Appointment.find({
-      $or: [{ timmings: slotTimmings }],
+      $and: [{ student: StudentID }, { jobID: jobID }],
     });
     if (results && results.length) {
       res.status(400).json({ message: "Appointment is already existed" });
     } else {
       const newAppointment = new Appointment({
         company: companyId,
+        student: StudentID,
         timmings: slotTimmings,
+        jobID: jobID,
       });
       newAppointment.save();
 
@@ -262,7 +267,7 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
         }
       );
       const student = await User.findByIdAndUpdate(
-        { _id: `${StudentID}` },
+        { _id: `${userID.user}` },
         {
           $push: {
             appointments: newAppointment._id,
