@@ -6,6 +6,11 @@ const AppointmentSchema = new mongoose.Schema({
     ref: "Student",
     required: false,
   },
+  jobID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Job",
+    required: false,
+  },
   company: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Company",
@@ -27,10 +32,10 @@ const AppointmentSchema = new mongoose.Schema({
     default: "Pending",
     required: false,
   },
-  timmings: {
+  timmings: [{
     type: Object,
     required: false,
-  },
+  }],
 
   isDeleted: {
     type: Boolean,

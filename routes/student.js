@@ -18,6 +18,7 @@ const {
   DeleteSchool,
   DeleteProfessionalInfo,
   GetSkills,
+  validateAppointment
 } = require("../controllers/student");
 //middleware functions
 
@@ -51,6 +52,12 @@ router.post(
   "/book-appointment",
   [protect, validateType("student")],
   bookCoachingAppointment
+);
+// Book Coaching Appointment //
+router.post(
+  "/validateAppointment/:id",
+  [protect, validateType("student")],
+  validateAppointment
 );
 
 // Search for Jobs //

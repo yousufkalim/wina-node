@@ -21,6 +21,11 @@ const JobSchema = new mongoose.Schema({
         ref: "Student",
         required: false,
       },
+      jobID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Job",
+        required: false,
+      },
 
       status: {
         type: String,
@@ -36,7 +41,11 @@ const JobSchema = new mongoose.Schema({
         ref: "Student",
         required: false,
       },
-
+      jobID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Job",
+        required: false,
+      },
       status: {
         type: String,
         enum: ["requested", "rejected", "accepted"],

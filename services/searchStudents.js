@@ -163,7 +163,7 @@ class MatchingCriteria extends DealBreaker {
   };
 
   jobName = async (job, students) => {
-    const jobPosition = job.position.toUpperCase();
+    const jobPosition = job.title.toUpperCase();
 
     let score = 0;
     let jobNameArray = [];
@@ -295,7 +295,7 @@ class MatchingCriteria extends DealBreaker {
     let score = 0;
 
     students.map((student) => {
-      const studentDOB = moment(student.dateOfBirth, "DD-MM-YYYY");
+      const studentDOB = moment(student.positionSought.dateOfBirth, "DD-MM-YYYY");
       const currentDate = moment(new Date());
       const studentAge = Math.abs(studentDOB.diff(currentDate, "years"));
 
