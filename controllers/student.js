@@ -726,13 +726,11 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
   try {
     const slotTimmings = req.body.status;
     const jobID = req.params.id;
-
-    console.log(slotTimmings, "slotTimmings");
     const studentID = req.user.student;
-    if (slotTimmings === "Disapproved") {
+    if (slotTimmings === "I am not available at the proposed time") {
       await Appointment.findOneAndUpdate(
         { $and: [{ student: `${studentID}` }, { jobID: `${jobID}` }] },
-        { $set: { status: "Approved" } },
+        { $set: { status: "Disapproved" } },
         {
           new: true,
         }
@@ -741,7 +739,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
     } else {
       await Appointment.findOneAndUpdate(
         { $and: [{ student: `${studentID}` }, { jobID: `${jobID}` }] },
-        { $set: { status: "Approved" } },
+        { $set: { status: "Approved", timmings: slotTimmings } },
         {
           new: true,
         }
