@@ -11,7 +11,6 @@ const CompanyConsultant = require("../models/CompanyConsultant");
 const School = require("../models/School");
 const Appointment = require("../models/Appointment");
 const { socket, io } = require("../app");
-
 // Get List of Skills
 exports.skillList = asyncHandler(async (req, res, next) => {
   try {
@@ -1611,4 +1610,12 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+exports.addMsg = asyncHandler(async (req, res, next) => {
+  // const { name } = req.body;
+  // socket.broadcast.emit(`recieveNotification`, {
+  //   title: "Appointment Cancelled",
+  //   message: "Your Appointment has been cancelled by the Admin",
+  // });
+  // res.status(200).json({ name: name });
 });

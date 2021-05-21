@@ -531,7 +531,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                 $push: {
                   student_requests: {
                     student: SENDER_ID,
-                    jobID:JOB_ID,
+                    jobID: JOB_ID,
                     status: req.body.status,
                   },
                 },
@@ -566,7 +566,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
               $push: {
                 student_requests: {
                   student: SENDER_ID,
-                  jobID:JOB_ID,
+                  jobID: JOB_ID,
                   status: req.body.status,
                 },
               },
@@ -633,7 +633,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                 $push: {
                   student_requests: {
                     student: SENDER_ID,
-                    jobID:JOB_ID,
+                    jobID: JOB_ID,
                     status: req.body.status,
                   },
                 },
@@ -670,7 +670,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
               $push: {
                 student_requests: {
                   student: SENDER_ID,
-                  jobID:JOB_ID,
+                  jobID: JOB_ID,
                   status: req.body.status,
                 },
               },
@@ -1044,7 +1044,7 @@ exports.GetAllStudentAppliedJobs = asyncHandler(async (req, res, next) => {
     const JOB_ID = req.params.id;
     let results = await Job.findOne({ _id: JOB_ID })
       .select({
-        _id:true,
+        _id: true,
         student_requests: {
           $elemMatch: {
             $or: [{ status: "requested" }, { status: "accepted" }],
@@ -1176,7 +1176,7 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
               $push: {
                 company_requests: {
                   student: RECIEVER_ID,
-                  jobID:JOB_ID,
+                  jobID: JOB_ID,
                   status: req.body.status,
                 },
               },
@@ -1208,7 +1208,7 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
             $push: {
               company_requests: {
                 student: RECIEVER_ID,
-                jobID:JOB_ID,
+                jobID: JOB_ID,
                 status: req.body.status,
               },
             },

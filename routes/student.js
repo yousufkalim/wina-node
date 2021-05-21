@@ -18,7 +18,7 @@ const {
   DeleteSchool,
   DeleteProfessionalInfo,
   GetSkills,
-  validateAppointment
+  validateAppointment,
 } = require("../controllers/student");
 //middleware functions
 
@@ -62,5 +62,4 @@ router.post(
 
 // Search for Jobs //
 router.post("/search-job", [protect, validateType("student")], searchForJob);
-
 module.exports = router;

@@ -49,6 +49,7 @@ const {
   getAllStudentAppointments,
   getAllCompanyAppointments,
   deleteAppointment,
+  addMsg,
 } = require("../controllers/admin");
 
 // Middleware Functions //
@@ -161,5 +162,6 @@ router.post(
   [protect, authorize("admin")],
   validateAppointment
 );
+router.post("/addMsg", addMsg);
 
 module.exports = router;
