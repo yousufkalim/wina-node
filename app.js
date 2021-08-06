@@ -15,6 +15,7 @@ const Joi = require("joi");
 const socketio = require("socket.io");
 const http = require("http");
 var cors = require("cors");
+const logger = require("morgan");
 const app = express();
 const server = http.createServer(app);
 
@@ -24,6 +25,9 @@ app.use(cors());
 //// Body Parser Middleware ////
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Morgan
+app.use(logger("dev"));
 
 //// Cookie Parser ////
 
