@@ -6,9 +6,8 @@ const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Student = require("../models/Student");
-
+const {Texts}=require('../utils/texts')
 //REGISTER USER API
-
 exports.registerUser = asyncHandler(async (req, res, next) => {
   try {
     // Validation for req.body //
@@ -99,7 +98,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
     }
   } catch (err) {
     res.status(400).json({ message: err.message });
-    next(err);
+  
   }
 });
 
@@ -158,16 +157,16 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
           var mailOptions = {
             to: user.email,
             from: process.env.MailingId,
-            subject: "Verfication Email Request for WINA",
+            subject: Texts.Verification_email_TITLE,
             text:
-              "You are receiving this because you (or someone else) have requested to register your account on WINA.\n\n" +
-              "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
-              "http://" +
+            Texts.Verification_email_BODY1 +"\n\n"+
+            Texts.Verification_email_BODY2+" :\n\n"+
+            Texts.Verification_email_URL+"\n\n"+
+            "URL:"+"\n\n"+
               `${process.env.verifyEmail}` +
               "/verifyEmail/" +
-              token +
-              "\n\n" +
-              "If you did not request this, please ignore this email.\n",
+              token 
+             
           };
 
           transporter.sendMail(mailOptions, (error, info) => {
@@ -176,13 +175,13 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
             }
             res
               .status(200)
-              .json({ message: "Verification Email has been sent" });
+              .json({ message: Texts.Verification_email_has_been_sent });
           });
         },
       ],
       function (err) {
         if (err) return next(err);
-        res.status(200).send("Verfication Email has been sent Successfully");
+        res.status(200).send({message:Texts.Verification_email_has_been_sent});
       }
     );
   } catch (error) {
@@ -283,7 +282,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   const results = schema.validate(req.body);
   if (results.error) {
-    return res.status(400).send(results.error.details[0].message);
+    return res.status(400).send({message:results.error.details[0].message});
   }
 
   //validating email and password

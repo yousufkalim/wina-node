@@ -49,7 +49,7 @@ router.post("/resumeUpload", upload, async (req, res, next) => {
         await Student.findByIdAndUpdate(req.body.id, {
           resume: uploadedResume,
         })
-        res.status(200).send({ message: "File upload successfully" })
+        res.status(200).send({ message: " Le fichier a été ajouté avec succès" })
       }
     } else {
       res.status(400).send({

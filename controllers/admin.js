@@ -142,17 +142,17 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       company: Joi.string(),
       ageRange: Joi.number().valid("18-20", "21-24", "25+"),
       levelOfEducation: Joi.string().valid(
-        "1:Brevet",
-        "2:CAP",
-        "3:BEP",
-        "4:MC",
-        "5:BacGénéral",
-        "6:BacProfessionel",
-        "7:BTS",
-        "8:DUT",
+        "Brevet",
+        "CAP",
+        "BEP",
+        "MC",
+        "BacGénéral",
+        "BacProfessionel",
+        "BTS",
+        "DUT",
         "9:Licence",
-        "10:Master",
-        "11:Doctorat"
+        "Master",
+        "Doctorat"
       ),
     });
     const results = schema.validate(req.body);

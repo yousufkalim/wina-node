@@ -65,22 +65,22 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       hardSkills: Joi.array(),
       ageRange: Joi.number().valid("18-20", "21-24", "25+"),
       levelOfEducation: Joi.string().valid(
-        "1:Brevet",
-        "2:CAP",
-        "3:BEP",
-        "4:MC",
-        "5:BacGénéral",
-        "6:BacProfessionel",
-        "7:BTS",
-        "8:DUT",
+        "Brevet",
+        "CAP",
+        "BEP",
+        "MC",
+        "BacGénéral",
+        "BacProfessionel",
+        "BTS",
+        "DUT",
         "9:Licence",
-        "10:Master",
-        "11:Doctorat"
+        "Master",
+        "Doctorat"
       ),
     });
     const results = schema.validate(req.body);
     if (results.error) {
-      return res.status(400).send(results.error.details[0].message);
+      return res.status(400).send({ message: results.error.details[0].message });
     }
     let UploadedPicture = {
       image: photo,
@@ -121,7 +121,7 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
     res.status(400).json({
       message: err.message,
     });
-    next(err);
+
   }
 });
 
@@ -130,9 +130,8 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
   try {
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.company) {
-      const error = new Error("You are not authorized to create Job");
-      error.status = 400;
-      throw error;
+
+      return res.status(400).send({ message: "You are not authorized to create Job" });
     }
     const companyID = requestedUser.company;
     //validations
@@ -160,48 +159,24 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
       hardSkills: Joi.array(),
       ageRange: Joi.number().valid("18-20", "21-24", "25+"),
       levelOfEducation: Joi.string().valid(
-        "1:Brevet",
-        "2:CAP",
-        "3:BEP",
-        "4:MC",
-        "5:BacGénéral",
-        "6:BacProfessionel",
-        "7:BTS",
-        "8:DUT",
+        "Brevet",
+        "CAP",
+        "BEP",
+        "MC",
+        "BacGénéral",
+        "BacProfessionel",
+        "BTS",
+        "DUT",
         "9:Licence",
-        "10:Master",
-        "11:Doctorat"
+        "Master",
+        "Doctorat"
       ),
     });
     const results = schema.validate(req.body);
     if (results.error) {
-      return res.status(400).send(results.error.details[0].message);
+      return res.status(400).send({ message: results.error.details[0].message });
     }
-    let UploadedPicture = "";
-    if (req.file) {
-      if (
-        req.file.mimetype == "image/jpeg" ||
-        req.file.mimetype == "image/jpg" ||
-        req.file.mimetype == "image/png"
-      ) {
-        if (!(req.file.size <= 10485760)) {
-          const error = new Error("Cannot upload file size greater than 10MB");
-          error.status = 400;
-          throw error;
-        } else {
-          UploadedPicture = {
-            image: req.file.filename,
-            status: "To be Validated",
-          };
-        }
-      } else {
-        const error = new Error(
-          "Please select an image of File type JPEG/JPG/PNG"
-        );
-        error.status = 400;
-        throw error;
-      }
-    }
+
 
     const {
       title,
@@ -216,8 +191,22 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
       levelOfEducation,
       ageRange,
       description,
+      photo
     } = req.body;
+    let UploadedPicture;
 
+    const prevJob = await Job.findById(req.params.id)
+    if (!photo && prevJob) {
+      UploadedPicture = {
+        image: prevJob.photo.image,
+        status: "Validated",
+      };
+    } else {
+      UploadedPicture = {
+        image: photo,
+        status: "Validated",
+      };
+    }
     const updatedJob = await Job.findByIdAndUpdate(
       req.params.id,
       {
@@ -229,7 +218,7 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
         duration: duration,
         location: location,
         alternationRhythm: alternationRhythm,
-        photo: UploadedPicture || "",
+        photo: UploadedPicture,
         softSkills: softSkills,
         hardSkills: hardSkills,
         levelOfEducation: levelOfEducation,
@@ -544,9 +533,8 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                     notifications: {
                       title: `student is applied on your job`,
                       jobID: JOB_ID,
-                      description: `${requestedUser.firstName} ${" "} ${
-                        requestedUser.lastName
-                      } is applied on your job`,
+                      description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
+                        } is applied on your job`,
                     },
                   },
                 },
@@ -579,9 +567,8 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                   notifications: {
                     title: `student is applied on your job`,
                     jobID: JOB_ID,
-                    description: `${requestedUser.firstName} ${" "} ${
-                      requestedUser.lastName
-                    } is applied on your job`,
+                    description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
+                      } is applied on your job`,
                   },
                 },
               },
@@ -644,13 +631,11 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                 {
                   $push: {
                     notifications: {
-                      title: `${requestedUser.firstName} ${" "} ${
-                        requestedUser.lastName
-                      } has rejected  your job`,
+                      title: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
+                        } has rejected  your job`,
                       jobID: JOB_ID,
-                      description: `${requestedUser.firstName} ${" "} ${
-                        requestedUser.lastName
-                      } has rejected your job`,
+                      description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
+                        } has rejected your job`,
                     },
                   },
                 },
@@ -681,13 +666,11 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
               {
                 $push: {
                   notifications: {
-                    title: `${requestedUser.firstName} ${" "} ${
-                      requestedUser.lastName
-                    } has rejected  your job`,
+                    title: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
+                      } has rejected  your job`,
                     jobID: JOB_ID,
-                    description: `${requestedUser.firstName} ${" "} ${
-                      requestedUser.lastName
-                    } has rejected your job`,
+                    description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
+                      } has rejected your job`,
                   },
                 },
               },
@@ -757,13 +740,11 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(
           {
             $push: {
               notifications: {
-                title: `${requestedUser.firstName} ${" "} ${
-                  requestedUser.lastName
-                } has accepted your offer`,
+                title: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
+                  } has accepted your offer`,
                 jobID: JOB_ID,
-                description: `${requestedUser.firstName} ${" "} ${
-                  requestedUser.lastName
-                } has accepted your offer`,
+                description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
+                  } has accepted your offer`,
               },
             },
           },
@@ -783,13 +764,11 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(
           {
             $push: {
               notifications: {
-                title: `${requestedUser.firstName} ${" "} ${
-                  requestedUser.lastName
-                } has rejected your offer`,
+                title: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
+                  } has rejected your offer`,
                 jobID: JOB_ID,
-                description: `${requestedUser.firstName} ${" "} ${
-                  requestedUser.lastName
-                } has rejected your offer`,
+                description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
+                  } has rejected your offer`,
               },
             },
           },
