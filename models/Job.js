@@ -110,7 +110,7 @@ const JobSchema = new mongoose.Schema({
         "BacProfessionel",
         "BTS",
         "DUT",
-        "9:Licence",
+        "Licence",
         "Master",
         "Doctorat"
     ],

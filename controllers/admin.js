@@ -150,7 +150,7 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
         "BacProfessionel",
         "BTS",
         "DUT",
-        "9:Licence",
+        "Licence",
         "Master",
         "Doctorat"
       ),
