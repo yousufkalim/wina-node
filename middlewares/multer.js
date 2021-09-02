@@ -30,4 +30,5 @@ exports.upload = multer({ storage: storage }).fields([
     name: "resume",
     maxCount: 1,
   },
+  
 ]);

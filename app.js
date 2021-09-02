@@ -120,6 +120,11 @@ server.listen(PORT, () => {
 // Socket configuration //
 io.on("connection", (socket) => {
   console.log("Connected");
+
+  socket.on("sendnotification", (data) => {
+    //console.log(data, "data dash");
+    socket.broadcast.emit("sendnotification", data);
+  });
   // logInfo.info(
   //   "Connection Established ",
   //   socket.id,

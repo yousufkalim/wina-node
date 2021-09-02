@@ -28,7 +28,7 @@ class DealBreaker {
       return filteredStudents;
       // res.status(200).json({ Jobs: filteredJobs });
     } catch (err) {
-      next(err);
+      res.status(200).json({ message: err.message });
     }
   };
 }
@@ -462,7 +462,7 @@ class MatchingCriteria extends DealBreaker {
         res.status(200).json({ students: output });
       }
     } catch (err) {
-      next(err);
+      res.status(200).json({ message: err.message });
     }
   };
 }

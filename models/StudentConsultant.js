@@ -24,7 +24,7 @@ const StudentConsultantSchema = new mongoose.Schema({
     image: {
       type: String,
       required: false,
-      default: "default.jpg",
+      default: "default.png",
     },
     status: {
       type: String,

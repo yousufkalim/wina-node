@@ -11,7 +11,6 @@ const CompanyConsultant = require("../models/CompanyConsultant");
 const School = require("../models/School");
 const Appointment = require("../models/Appointment");
 const { socket, io } = require("../app");
-
 // Get List of Skills
 exports.skillList = asyncHandler(async (req, res, next) => {
   try {
@@ -143,17 +142,17 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       company: Joi.string(),
       ageRange: Joi.number().valid("18-20", "21-24", "25+"),
       levelOfEducation: Joi.string().valid(
-        "1:Brevet",
-        "2:CAP",
-        "3:BEP",
-        "4:MC",
-        "5:BacGénéral",
-        "6:BacProfessionel",
-        "7:BTS",
-        "8:DUT",
-        "9:Licence",
-        "10:Master",
-        "11:Doctorat"
+        "Brevet",
+        "CAP",
+        "BEP",
+        "MC",
+        "BacGénéral",
+        "BacProfessionel",
+        "BTS",
+        "DUT",
+        "Licence",
+        "Master",
+        "Doctorat"
       ),
     });
     const results = schema.validate(req.body);
@@ -1611,4 +1610,12 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+exports.addMsg = asyncHandler(async (req, res, next) => {
+  // const { name } = req.body;
+  // socket.broadcast.emit(`recieveNotification`, {
+  //   title: "Appointment Cancelled",
+  //   message: "Your Appointment has been cancelled by the Admin",
+  // });
+  // res.status(200).json({ name: name });
 });
