@@ -5,6 +5,7 @@ const Student = require("../models/Student");
 const Appointment = require("../models/Appointment");
 const matchingAlgo = require("../services/searchJobs");
 const Skill = require("../models/Skill");
+const { Texts } = require('../utils/texts')
 
 var matchingCriteria = new matchingAlgo.MatchingCriteria();
 var dealBreaker = new matchingAlgo.DealBreaker();
@@ -118,11 +119,8 @@ exports.register = asyncHandler(async (req, res, next) => {
       if (req.files.video) {
         if (req.files.video[0].mimetype == "video/mp4") {
           if (!(req.files.video[0].size <= 209715200)) {
-            const error = new Error(
-              "Cannot upload file size greater than 200MB"
-            );
-            error.status = 400;
-            throw error;
+           
+            res.status(400).send({message:Texts.Max_size_can_be_200MB})
           } else {
             video = {
               video: req.files.video[0].filename,
@@ -142,11 +140,9 @@ exports.register = asyncHandler(async (req, res, next) => {
             status: "To be Validated",
           };
         } else {
-          const error = new Error(
-            "Please select an image of File type JPEG/JPG/PNG"
-          );
-          error.status = 400;
-          throw error;
+      
+          res.status(400).send({message:Texts.Please_select_an_image_of_File_type_jpg})
+
         }
       }
       if (req.files.resume) {
@@ -157,20 +153,15 @@ exports.register = asyncHandler(async (req, res, next) => {
             "resume/vnd.openxmlformats-officedocument.wordprocessingml.document"
         ) {
           if (!(req.files.resume[0].size <= 10485760)) {
-            const error = new Error(
-              "Cannot upload file size greater than 10MB"
-            );
-            error.status = 400;
-            throw error;
+            res.status(400).send({message:Texts.Max_size_can_be_10MB})
+
           } else {
             uploadedResume = req.files.resume[0].filename;
           }
         } else {
-          const error = new Error(
-            "Your resume file should be of File type PDF/DOC/DOCX"
-          );
-          error.status = 400;
-          throw error;
+      
+          res.status(400).send({message:Texts.Please_select_an_resume_of_File_type_PDF})
+
         }
       }
     }
@@ -214,7 +205,7 @@ exports.register = asyncHandler(async (req, res, next) => {
 
     res
       .status(200)
-      .json({ message: "Success!", student: newStudent, user: user });
+      .json({ message: Texts.success, student: newStudent, user: user });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -390,11 +381,8 @@ exports.edit = asyncHandler(async (req, res, next) => {
       if (req.files.video) {
         if (req.files.video[0].mimetype == "video/mp4") {
           if (!(req.files.video[0].size <= 209715200)) {
-            const error = new Error(
-              "Cannot upload file size greater than 200MB"
-            );
-            error.status = 400;
-            throw error;
+            res.status(400).send({message:Texts.Max_size_can_be_200MB})
+
           } else {
             video = {
               video: req.files.video[0].filename,
@@ -414,11 +402,8 @@ exports.edit = asyncHandler(async (req, res, next) => {
             status: "To be Validated",
           };
         } else {
-          const error = new Error(
-            "Please select an image of File type JPEG/JPG/PNG"
-          );
-          error.status = 400;
-          throw error;
+          res.status(400).send({message:Texts.Please_select_an_image_of_File_type_jpg})
+
         }
       }
 
@@ -430,20 +415,14 @@ exports.edit = asyncHandler(async (req, res, next) => {
             "resume/vnd.openxmlformats-officedocument.wordprocessingml.document"
         ) {
           if (!(req.files.resume[0].size <= 10485760)) {
-            const error = new Error(
-              "Cannot upload file size greater than 10MB"
-            );
-            error.status = 400;
-            throw error;
+            res.status(400).send({message:Texts.Max_size_can_be_10MB})
+
           } else {
             uploadedResume = req.files.resume[0].filename;
           }
         } else {
-          const error = new Error(
-            "Your resume file should be of File type PDF/DOC/DOCX"
-          );
-          error.status = 400;
-          throw error;
+          res.status(400).send({message:Texts.Please_select_an_resume_of_File_type_PDF})
+
         }
       }
     }
@@ -515,7 +494,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
 
     res
       .status(200)
-      .json({ message: "Profile Updated Successfully!", user: updateUser });
+      .json({ message: Texts.userUpdated, user: updateUser });
   } catch (err) {
     res.status(400).json({ message: err.message });
     next(err);
@@ -535,7 +514,7 @@ exports.DeleteProfile = asyncHandler(async (req, res, next) => {
       { new: true }
     );
 
-    res.status(200).json({ message: "Student has been deleted Successfully!" });
+    res.status(200).json({ message: Texts.userDeleted });
   } catch (err) {
     next(err);
   }
@@ -565,14 +544,14 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
         $push: { appointments: newAppointment._id },
         $push: {
           notifications: {
-            title: "Coaching Appointment for  Student",
-            description: "Student has requested for Coaching Appointment",
+            title: Texts.Coaching_Appointment_for_Student,
+            description: Texts.Student_has_requested_for_Coaching_Appointment,
           },
         },
       }
     );
 
-    res.status(200).json({ message: "Success! Appoinment Created" });
+    res.status(200).json({ message: Texts.success });
   } catch (err) {
     next(err);
   }
@@ -626,7 +605,7 @@ exports.GetUser = asyncHandler(async (req, res, next) => {
     }).populate(populateQuery);
 
     res.status(200).json({
-      message: "User has been fetched Successfully!",
+      message: Texts.userData,
       user: requestedUser,
     });
   } catch (err) {
@@ -651,7 +630,7 @@ exports.DeleteSchool = asyncHandler(async (req, res, next) => {
       student: student._id,
     }).populate("student");
     res.status(200).json({
-      message: "School has been deleted Successfully!",
+      message: Texts.schoolDeleted,
       user: updated_user,
     });
   } catch (err) {
@@ -676,7 +655,7 @@ exports.DeleteProfessionalInfo = asyncHandler(async (req, res, next) => {
       student: student._id,
     }).populate("student");
     res.status(200).json({
-      message: "professional info has been deleted Successfully!",
+      message: Texts.professional_info_deleted,
       user: updated_user,
     });
   } catch (err) {
@@ -735,7 +714,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           new: true,
         }
       );
-      res.status(200).json({ message: "Success! Appoinment Disapproved" });
+      res.status(200).json({ message: Texts.success + Texts.Appoinment_Disapproved });
     } else {
       await Appointment.findOneAndUpdate(
         { $and: [{ student: `${studentID}` }, { jobID: `${jobID}` }] },
@@ -744,7 +723,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           new: true,
         }
       );
-      res.status(200).json({ message: "Success! Appoinment Approved" });
+      res.status(200).json({ message: Texts.success + Texts.Appoinment_Approved });
     }
   } catch (err) {
     next(err);

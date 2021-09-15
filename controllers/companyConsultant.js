@@ -2,6 +2,7 @@ const Joi = require("joi");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const CompanyConsultant = require("../models/CompanyConsultant");
+const { Texts } = require("../utils/texts");
 
 //// Register User Profile ////
 
@@ -40,7 +41,7 @@ exports.editInfo = asyncHandler(async (req, res, next) => {
       }
     );
     res.status(200).json({
-      message: "Success! Updated",
+      message: Texts.success,
       CompanyConsultant: companyConsultant,
     });
   } catch (err) {

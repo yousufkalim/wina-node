@@ -3,6 +3,7 @@ const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Student = require("../models/Student");
+const { Texts } = require('../utils/texts')
 
 const Appointment = require("../models/Appointment");
 const matchingAlgo = require("../services/searchStudents");
@@ -79,7 +80,7 @@ exports.register = asyncHandler(async (req, res, next) => {
     if (password !== confirm_password) {
       res
         .status(403)
-        .send({ message: "Password and Confirm Password are not same" });
+        .send({ message: Texts.Password_must_match });
     }
 
     //// Check If user exist with this Email or not ////
@@ -87,7 +88,7 @@ exports.register = asyncHandler(async (req, res, next) => {
     if (result) {
       res
         .status(404)
-        .send({ message: "User already registered with this Email Address" });
+        .send({ message: Texts.emailExists });
     } else {
       // Saving User in DataBase
 
@@ -122,7 +123,7 @@ exports.register = asyncHandler(async (req, res, next) => {
 
       res.status(200).json({
         user: updatedUser,
-        message: "User is registered successfully",
+        message:  Texts.userCreated,
       });
     }
   } catch (err) {
@@ -194,7 +195,7 @@ exports.editCompany = asyncHandler(async (req, res, next) => {
     );
     res
       .status(200)
-      .json({ message: "Company Updated Successfully!", company: company });
+      .json({ message: Texts.companyUpdated, company: company });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -219,7 +220,7 @@ exports.deleteCompany = asyncHandler(async (req, res, next) => {
       );
     });
 
-    res.status(200).json({ message: "Company has been deleted Successfully!" });
+    res.status(200).json({ message: Texts.companyDeleted });
   } catch (err) {
     res.status(400).message({ message: err.message });
   }
@@ -239,7 +240,7 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
       $and: [{ student: StudentID }, { jobID: jobID }],
     });
     if (results && results.length) {
-      res.status(400).json({ message: "Appointment is already existed" });
+      res.status(400).json({ message: Texts.Appointment_is_already_existed });
     } else {
       const newAppointment = new Appointment({
         company: companyId,
@@ -260,8 +261,8 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
           $push: { appointments: newAppointment._id },
           $push: {
             notifications: {
-              title: "Coaching Appointment for  Company",
-              description: "Company has requested for Coaching Appointment",
+              title: Texts.Coaching_Appointment_for_Company,
+              description: Texts.Company_has_requested_for_Coaching_Appointment,
             },
           },
         }
@@ -272,16 +273,16 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
           $push: {
             appointments: newAppointment._id,
             notifications: {
-              title: "Company has book  Appointments",
+              title: Texts.Company_has_book_Appointments,
               description:
-                "Company has book  Appointments,please validate one of it",
+               Texts.Company_has_book_Appointments +Texts.please_validate_one_of_it,
             },
           },
         },
         { new: true }
       );
 
-      res.status(200).json({ message: "Success! Appoinment Created" });
+      res.status(200).json({ message: Texts.success + Appoinment_Created});
     }
   } catch (err) {
     next(err);
