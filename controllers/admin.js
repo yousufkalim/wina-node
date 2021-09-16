@@ -11,6 +11,7 @@ const CompanyConsultant = require("../models/CompanyConsultant");
 const School = require("../models/School");
 const Appointment = require("../models/Appointment");
 const { socket, io } = require("../app");
+const { Texts } = require("../utils/texts");
 // Get List of Skills
 exports.skillList = asyncHandler(async (req, res, next) => {
   try {
@@ -45,7 +46,7 @@ exports.createSkill = asyncHandler(async (req, res, next) => {
     const skills = await Skill.find();
     res
       .status(200)
-      .json({ message: "Skill Created Successfully", skills: skills });
+      .json({ message: Texts.Skill_Created_Successfully, skills: skills });
   } catch (err) {
     next(err);
   }
@@ -75,7 +76,7 @@ exports.editSkill = asyncHandler(async (req, res, next) => {
         new: true,
       }
     );
-    res.status(200).json({ message: "Skill Updated Successfully" });
+    res.status(200).json({ message: Texts.Skill_Updated_Successfully });
   } catch (err) {
     next(err);
   }
@@ -95,7 +96,7 @@ exports.deleteSkill = asyncHandler(async (req, res, next) => {
         new: true,
       }
     );
-    res.status(200).json({ message: "Skill Deleted Successfully" });
+    res.status(200).json({ message: Texts.Skill_Deleted_Successfully });
   } catch (err) {
     next(err);
   }
@@ -167,9 +168,7 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
         req.file.mimetype == "image/png"
       ) {
         if (!(req.file.size <= 10485760)) {
-          const error = new Error("Cannot upload file size greater than 10MB");
-          error.status = 400;
-          throw error;
+      return  res.status(400).send({message:Texts.Max_size_can_be_10MB})
         } else {
           UploadedPicture = {
             image: req.file.filename,
@@ -177,11 +176,8 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
           };
         }
       } else {
-        const error = new Error(
-          "Please select an image of File type JPEG/JPG/PNG"
-        );
-        error.status = 400;
-        throw error;
+        return  res.status(400).send({message:Texts.Please_select_an_image_of_File_type_jpg})
+
       }
     }
 
@@ -225,7 +221,7 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
     });
 
     res.status(200).json({
-      message: "Success! Job created.",
+      message: Texts.success + Texts.jobCreated,
       job: newJob,
       user: requestedUser,
     });
@@ -288,9 +284,8 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
         req.file.mimetype == "image/png"
       ) {
         if (!(req.file.size <= 10485760)) {
-          const error = new Error("Cannot upload file size greater than 10MB");
-          error.status = 400;
-          throw error;
+         return res.status(400).send({message:Texts.Max_size_can_be_10MB})
+
         } else {
           UploadedPicture = {
             image: req.file.filename,
@@ -298,11 +293,8 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
           };
         }
       } else {
-        const error = new Error(
-          "Please select an image of File type JPEG/JPG/PNG"
-        );
-        error.status = 400;
-        throw error;
+return        res.status(400).send({message:Texts.Please_select_an_image_of_File_type_jpg})
+
       }
     }
 
@@ -342,7 +334,7 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
     );
     res
       .status(200)
-      .json({ message: "Success! Job Updated by ADMIN", Job: updatedJob });
+      .json({ message: Texts.success, Job: updatedJob });
   } catch (err) {
     next(err);
   }
@@ -364,7 +356,7 @@ exports.DeleteJob = asyncHandler(async (req, res, next) => {
     });
     res
       .status(200)
-      .json({ message: "Job has been deleted successfully by ADMIN" });
+      .json({ message: Texts.success });
   } catch (err) {
     next(err);
   }
@@ -458,7 +450,7 @@ exports.registerCompany = asyncHandler(async (req, res, next) => {
       company: newCompany._id,
     });
     res.status(200).json({
-      message: "Success! Company has been registered by ADMIN.",
+      message: Texts.success,
       Company: newCompany,
       user: user,
     });
@@ -530,7 +522,7 @@ exports.editCompany = asyncHandler(async (req, res, next) => {
       { new: true }
     );
     res.status(200).json({
-      message: "Company Updated Successfully by Admin!",
+      message: Texts.success,
       company: company,
     });
   } catch (err) {
@@ -558,7 +550,7 @@ exports.deleteCompany = asyncHandler(async (req, res, next) => {
       );
     });
 
-    res.status(200).json({ message: "Company has been deleted Successfully!" });
+    res.status(200).json({ message: Texts.Company_has_been_deleted_Successfully });
   } catch (err) {
     res.status(400).message({ message: err.message });
   }
@@ -618,13 +610,13 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
 
     //// Check If Password and Confirm Password are same or not ////
     if (password !== confirm_password) {
-      res.status(403).send("Password and Confirm Password are not same");
+      res.status(403).send({message:Texts.Password_must_match});
     }
 
     //// Check If user exist with this Email or not ////
     const result = await User.findOne({ email: email });
     if (result) {
-      res.status(404).send("User already registered with this Email Address");
+      res.status(404).send({message:Texts.emailExists });
     } else {
       // Saving User in DataBase
       const user = await User.create({
@@ -640,7 +632,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
 
       res
         .status(200)
-        .json({ message: "User created successfully", user: user });
+        .json({ message: Texts.userCreated , user: user });
     }
   } catch (err) {
     next(err);
@@ -694,7 +686,7 @@ exports.editProfile = asyncHandler(async (req, res, next) => {
     );
     res
       .status(200)
-      .json({ message: "Profile updated successfully by ADMIN!", user: user });
+      .json({ message: Texts.userUpdated, user: user });
   } catch (err) {
     res.status(400).res.json({ message: err.message });
   }
@@ -808,8 +800,8 @@ exports.validateImages = asyncHandler(async (req, res, next) => {
       var mailOptions = {
         to: user.email,
         from: process.env.MailingId,
-        subject: "Success! Validation Successful",
-        text: "Your Profile picture has been Validated successfully!",
+        subject: Texts.success,
+        text: Texts.Your_Profile_picture_has_been_Validated_successfully,
       };
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
@@ -836,8 +828,8 @@ exports.validateImages = asyncHandler(async (req, res, next) => {
       var mailOptions = {
         to: user.email,
         from: process.env.MailingId,
-        subject: "Validation failed",
-        text: "Failure! Inappropriate profile picture.",
+        subject: Texts.Validation_failed,
+        text: Texts.invalid_profile_picture,
       };
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
@@ -845,7 +837,7 @@ exports.validateImages = asyncHandler(async (req, res, next) => {
         }
       });
 
-      res.status(200).json({ message: "Picture has been deleted" });
+      res.status(200).json({ message: Texts.Picture_has_been_deleted });
     }
   } catch (err) {
     next(err);
@@ -880,8 +872,8 @@ exports.validateVideo = asyncHandler(async (req, res, next) => {
       var mailOptions = {
         to: user.email,
         from: process.env.MailingId,
-        subject: "Success! Validation Successful",
-        text: "Your Presentational video has been Validated successfully!",
+        subject: Texts.success,
+        text: Texts.Your_Presentational_video_has_been_Validated_successfully,
       };
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
@@ -908,15 +900,15 @@ exports.validateVideo = asyncHandler(async (req, res, next) => {
       var mailOptions = {
         to: user.email,
         from: process.env.MailingId,
-        subject: "Validation failed",
-        text: "Failure! Inappropriate presentational video.",
+        subject: Texts.Validation_failed,
+        text: Texts.invalid_video,
       };
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           return res.status(400).json({ message: error.message });
         }
       });
-      res.status(200).json({ message: "Video has been deleted" });
+      res.status(200).json({ message: Texts.Video_has_been_deleted });
     }
   } catch (err) {
     next(err);
@@ -953,15 +945,15 @@ exports.validateJobImages = asyncHandler(async (req, res, next) => {
       var mailOptions = {
         to: user.email,
         from: process.env.MailingId,
-        subject: "Success! Validation Successful",
-        text: "Your job picture has been Validated successfully!",
+        subject: Texts.success,
+        text: Texts.Your_job_picture_has_been_Validated_successfully,
       };
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           return res.status(400).json({ message: error.message });
         }
       });
-      res.status(200).json({ message: "Picture validated" });
+      res.status(200).json({ message: Texts.Picture_validated });
     } else if (decision == "refuse") {
       const job = await Job.findByIdAndUpdate(jobID, {
         $unset: { photo: 1 },
@@ -981,8 +973,8 @@ exports.validateJobImages = asyncHandler(async (req, res, next) => {
       var mailOptions = {
         to: user.email,
         from: process.env.MailingId,
-        subject: "Validation failed",
-        text: "Failure! Inappropriate job picture.",
+        subject: Texts.Validation_failed,
+        text: Texts.invalid_job_picture,
       };
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
@@ -990,7 +982,7 @@ exports.validateJobImages = asyncHandler(async (req, res, next) => {
         }
       });
 
-      res.status(200).json({ message: "Image has been deleted" });
+      res.status(200).json({ message: Texts.Picture_has_been_deleted });
     }
   } catch (err) {
     next(err);
@@ -1044,13 +1036,13 @@ exports.createConsultantProfile = asyncHandler(async (req, res, next) => {
 
     //// Check If Password and Confirm Password are same or not ////
     if (password !== confirm_password) {
-      res.status(403).send("Password and Confirm Password are not same");
+   return   res.status(403).send({message:Texts.Password_must_match});
     }
 
     //// Check If user exist with this Email or not ////
     const result = await User.findOne({ email: email });
     if (result) {
-      res.status(404).send("User already registered with this Email Address");
+    return  res.status(404).send({message:Texts.userAlreadyExists});
     } else {
       // Saving User in DataBase
       const user = await User({
@@ -1154,7 +1146,7 @@ exports.registerSchool = asyncHandler(async (req, res, next) => {
     await newSchool.save();
     res
       .status(200)
-      .json({ message: "School Created Successfully", school: newSchool });
+      .json({ message: Texts.School_Created_Successfully, school: newSchool });
   } catch (err) {
     next(err);
   }
@@ -1195,7 +1187,7 @@ exports.editSchool = asyncHandler(async (req, res, next) => {
 
     res
       .status(200)
-      .json({ message: "School updated Successfully", school: updatedSchool });
+      .json({ message: Texts.School_updated_Successfully, school: updatedSchool });
   } catch (err) {
     next(err);
   }
@@ -1216,7 +1208,7 @@ exports.deleteSchool = asyncHandler(async (req, res, next) => {
 
     res
       .status(200)
-      .json({ message: "School deleted Successfully", school: updatedSchool });
+      .json({ message: Texts.Skill_Deleted_Successfully, school: updatedSchool });
   } catch (err) {
     next(err);
   }
@@ -1233,7 +1225,7 @@ exports.getAllAppointments = asyncHandler(async (req, res, next) => {
     if (!appointments) {
       res.status(200).json({ message: "There is no Appointment ATM" });
     } else {
-      res.status(200).json({ message: "Success!", Appointments: appointments });
+      res.status(200).json({ message: Texts.success, Appointments: appointments });
     }
   } catch (err) {
     next(err);
@@ -1248,7 +1240,7 @@ exports.getAllPendingAppointments = asyncHandler(async (req, res, next) => {
     if (!appointments) {
       res.status(200).json({ message: "There is no Appointment ATM" });
     } else {
-      res.status(200).json({ message: "Success!", Appointments: appointments });
+      res.status(200).json({ message: Texts.success, Appointments: appointments });
     }
   } catch (err) {
     next(err);
@@ -1272,7 +1264,7 @@ exports.getAllStudentAppointments = asyncHandler(async (req, res, next) => {
     } else {
       res
         .status(200)
-        .json({ message: "Success!", Appointments: filteredArray });
+        .json({ message: Texts.success, Appointments: filteredArray });
     }
   } catch (err) {
     next(err);
@@ -1296,7 +1288,7 @@ exports.getAllCompanyAppointments = asyncHandler(async (req, res, next) => {
     } else {
       res
         .status(200)
-        .json({ message: "Success!", Appointments: filteredArray });
+        .json({ message: Texts.success, Appointments: filteredArray });
     }
   } catch (err) {
     next(err);
@@ -1370,8 +1362,8 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           {
             $push: {
               notifications: {
-                title: "Success! Appointment Approved",
-                description: "Your Appointment has been approved successfully",
+                title: Texts.success +Texts.Appointment_Approved,
+                description: Texts.Your_Appointment_has_been_approved_successfully,
               },
             },
           },
@@ -1380,23 +1372,25 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
 
         // Sending Notification //
         socket.broadcast.emit(`recieveNotification${student.user}`, {
-          title: "Success! Appointment Approved",
-          message: "Your Appointment has been approved successfully",
+          title: Texts.success +Texts.Appointment_Approved,
+          message: Texts.Your_Appointment_has_been_approved_successfully,
         });
 
         const consultantUser = await User.findByIdAndUpdate(consultant.user, {
           $push: {
             notifications: {
-              title: "Appointment Scheduled",
-              description: "Admin has assigned you an appointment",
+              title: Texts.Appointment_Scheduled,
+              title: Texts.success +Texts.Appointment_Scheduled,
+              description: Texts.Admin_has_assigned_you_an_appointment,
             },
           },
         });
 
         // Sending Notification //
         socket.broadcast.emit(`recieveNotification${consultant.user}`, {
-          title: "Appointment Scheduled",
-          message: "Admin has assigned you an appointment",
+          title: Texts.success +Texts.Appointment_Scheduled,
+
+          message: Texts.Admin_has_assigned_you_an_appointment,
         });
 
         // Sending success mail
@@ -1415,8 +1409,8 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
         var mailOptions = {
           to: user.email,
           from: process.env.MailingId,
-          subject: "Success! Validation Successful",
-          text: "Your request for Coaching Appointment has been Approved!",
+          subject: Texts.success,
+          text: Texts.Your_request_for_Coaching_Appointment_has_been_Approved,
         };
         transporter.sendMail(mailOptions, (error, info) => {
           if (error) {
@@ -1424,7 +1418,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           }
         });
 
-        res.status(200).json({ message: "Appointment approved successfully!" });
+        res.status(200).json({ message: Texts.Your_Appointment_has_been_approved_successfully });
       } else if (decision == "Disapprove") {
         const appointment = await Appointment.findByIdAndUpdate(
           appointmentId,
@@ -1439,8 +1433,8 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           {
             $push: {
               notifications: {
-                title: "Appointment Cancelled",
-                description: "Your Appointment has been cancelled by the Admin",
+                title: Texts.Appointment_Cancelled,
+                description: Texts.Your_Appointment_has_been_cancelled_by_the_Admin,
               },
             },
           },
@@ -1449,8 +1443,8 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
 
         // Sending Notification //
         socket.broadcast.emit(`recieveNotification${student.user}`, {
-          title: "Appointment Cancelled",
-          message: "Your Appointment has been cancelled by the Admin",
+          title: Texts.Appointment_Cancelled,
+          message: Texts.Your_Appointment_has_been_cancelled_by_the_Admin,
         });
 
         let transporter = nodemailer.createTransport({
@@ -1469,7 +1463,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           to: studentUser.email,
           from: process.env.MailingId,
           subject: "Validation Failed",
-          text: "Your request for Coaching Appointment has been cancelled!",
+          text: Texts.Your_request_for_Coaching_Appointment_has_been_cancelled,
         };
         transporter.sendMail(mailOptions, (error, info) => {
           if (error) {
@@ -1496,8 +1490,8 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           {
             $push: {
               notifications: {
-                title: "Success! Appointment Approved",
-                description: "Your Appointment has been approved successfully",
+                title: Texts.success + Texts.Appointment_Approved,
+                description: Texts.Your_Appointment_has_been_approved_successfully,
               },
             },
           },
@@ -1508,24 +1502,24 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
         socket.broadcast.emit(
           `recieveNotification${company.contactPerson.person}`,
           {
-            title: "Success! Appointment Approved",
-            message: "Your Appointment has been approved successfully",
+            title: Texts.success + Texts.Appointment_Approved,
+            description: Texts.Your_Appointment_has_been_approved_successfully,
           }
         );
 
         const consultantUser = await User.findByIdAndUpdate(consultant.user, {
           $push: {
             notifications: {
-              title: "Appointment Scheduled",
-              description: "Admin has assigned you an appointment",
+              title: Texts.Appointment_Scheduled,
+              description: Texts.Admin_has_assigned_you_an_appointment,
             },
           },
         });
 
         // Sending Notification //
         socket.broadcast.emit(`recieveNotification${consultant.user}`, {
-          title: "Appointment Scheduled",
-          message: "Admin has assigned you an appointment",
+          title: Texts.Appointment_Scheduled,
+          message: Texts.Admin_has_assigned_you_an_appointment,
         });
 
         let transporter = nodemailer.createTransport({
@@ -1543,8 +1537,8 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
         var mailOptions = {
           to: user.email,
           from: process.env.MailingId,
-          subject: "Success! Validation Successful",
-          text: "Your request for Coaching Appointment has been Approved!",
+          subject:Texts.success,
+          text: Texts.Your_request_for_Coaching_Appointment_has_been_Approved,
         };
         transporter.sendMail(mailOptions, (error, info) => {
           if (error) {
@@ -1552,7 +1546,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           }
         });
 
-        res.status(200).json({ message: "Appointment approved successfully!" });
+        res.status(200).json({ message: Texts.Appointment_Approved });
       } else if (decision == "Disapprove") {
         const appointment = await Appointment.findByIdAndUpdate(
           appointmentId,
@@ -1567,8 +1561,8 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           {
             $push: {
               notifications: {
-                title: "Appointment Cancelled",
-                description: "Your Appointment has been cancelled by the Admin",
+                title: Texts.Appointment_Cancelled,
+                description: Texts.Your_Appointment_has_been_cancelled_by_the_Admin,
               },
             },
           },
@@ -1577,8 +1571,8 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
 
         // Sending Notification //
         socket.broadcast.emit(`recieveNotification${company.user}`, {
-          title: "Appointment Cancelled",
-          message: "Your Appointment has been cancelled by the Admin",
+          title: Texts.Appointment_Cancelled,
+          message: Texts.Your_Appointment_has_been_cancelled_by_the_Admin,
         });
 
         let transporter = nodemailer.createTransport({
@@ -1596,15 +1590,15 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
         var mailOptions = {
           to: user.email,
           from: process.env.MailingId,
-          subject: "Success! Validation Successful",
-          text: "Your request for Coaching Appointment has been cancelled!",
+          subject:Texts.success,
+          text: Texts.Your_request_for_Coaching_Appointment_has_been_cancelled,
         };
         transporter.sendMail(mailOptions, (error, info) => {
           if (error) {
             return res.status(400).json({ message: error.message });
           }
         });
-        res.status(200).json({ message: "Appointment cancelled!" });
+        res.status(200).json({ message: Texts.Appointment_Cancelled });
       }
     }
   } catch (err) {

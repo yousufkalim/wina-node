@@ -6,7 +6,7 @@ const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Student = require("../models/Student");
-const {Texts}=require('../utils/texts')
+const { Texts } = require('../utils/texts')
 //REGISTER USER API
 exports.registerUser = asyncHandler(async (req, res, next) => {
   try {
@@ -54,7 +54,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
 
     //// Check If Password and Confirm Password are same or not ////
     if (password !== confirm_password) {
-      res.status(403).send("Password and Confirm Password are not same");
+      res.status(403).send(Texts.Password_must_match);
     }
 
     //// Check If user exist with this Email or not ////
@@ -62,7 +62,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
     if (result) {
       res
         .status(404)
-        .send({ message: "User already registered with this Email Address" });
+        .send({ message: Texts.emailExists });
     } else {
       // Saving User in DataBase
       const user = await User.create({
@@ -94,11 +94,11 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
       }
       res
         .status(200)
-        .json({ user: updateUser, message: "User is registered successfully" });
+        .json({ user: updateUser, message: Texts.userCreated });
     }
   } catch (err) {
     res.status(400).json({ message: err.message });
-  
+
   }
 });
 
@@ -122,7 +122,7 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
             function (err, user) {
               if (!user) {
                 return res.status(403).send({
-                  message: "No account with that email address exists",
+                  message: Texts.emailExists,
                 });
               }
               User.findOneAndUpdate(
@@ -159,14 +159,14 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
             from: process.env.MailingId,
             subject: Texts.Verification_email_TITLE,
             text:
-            Texts.Verification_email_BODY1 +"\n\n"+
-            Texts.Verification_email_BODY2+" :\n\n"+
-            Texts.Verification_email_URL+"\n\n"+
-            "URL:"+"\n\n"+
+              Texts.Verification_email_BODY1 + "\n\n" +
+              Texts.Verification_email_BODY2 + " :\n\n" +
+
+              "URL:" + "\n\n" +
               `${process.env.verifyEmail}` +
               "/verifyEmail/" +
-              token 
-             
+              token + "\n\n" +
+              Texts.Verification_email_URL + "\n\n"
           };
 
           transporter.sendMail(mailOptions, (error, info) => {
@@ -181,7 +181,7 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
       ],
       function (err) {
         if (err) return next(err);
-        res.status(200).send({message:Texts.Verification_email_has_been_sent});
+        res.status(200).send({ message: Texts.Verification_email_has_been_sent });
       }
     );
   } catch (error) {
@@ -206,7 +206,7 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
             async function (err, user) {
               if (!user) {
                 return res.status(403).json({
-                  message: " token is invalid or has expired",
+                  message: Texts.invalidToken,
                 });
               } else {
                 var user = await User.findOneAndUpdate(
@@ -235,19 +235,16 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
                 var mailOptions = {
                   to: user.email,
                   from: process.env.MailingId,
-                  subject: "Success Message",
+                  subject: Texts.emailVerificationSent,
                   text:
-                    "Hello,\n\n" +
-                    "You have successfully verified " +
-                    user.email +
-                    " \n",
+                    Texts.You_have_successfully_verified,
                 };
                 transporter.sendMail(mailOptions, (error, info) => {
                   if (error) {
                     return res.status(400).json({ message: error.message });
                   }
                   res.status(200).json({
-                    message: "Success! You have successfully registed on WINA",
+                    message: Texts.success + Texts.You_have_successfully_registered_on_WINA,
                   });
                   done(err);
                 });
@@ -282,14 +279,19 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   const results = schema.validate(req.body);
   if (results.error) {
-    return res.status(400).send({message:results.error.details[0].message});
+    return res.status(400).send({ message: results.error.details[0].message });
   }
 
   //validating email and password
-  if (!email || !password) {
+  if (!email) {
     return res
       .status(400)
-      .send({ message: "Please provide email and password" });
+      .send({ message: Texts.emailRequired });
+  }
+  if (!password) {
+    return res
+      .status(400)
+      .send({ message: Texts.passwordRequired });
   }
 
   // check if user exists //
@@ -297,7 +299,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   if (!user) {
     return res
       .status(400)
-      .send({ message: "You are not registered, Please Sign up!" });
+      .send({ message: Texts.Register_your_account });
   }
 
   // check if user exists //
@@ -308,14 +310,14 @@ exports.login = asyncHandler(async (req, res, next) => {
   if (!result) {
     return res
       .status(400)
-      .send({ message: "You haven't verify your email address yet" });
+      .send({ message: Texts.unverifiedEmail});
   }
   // Check if password matches
 
   const isMatch = await user.matchPassword(password);
 
   if (!isMatch) {
-    return res.status(400).send({ message: "Password is Invalid" });
+    return res.status(400).send({ message: Texts.passwordInvalid });
   }
 
   sendTokenResponse(user, 200, res);
@@ -357,10 +359,10 @@ const sendTokenResponse = async (user, statusCode, res) => {
     res.status(statusCode).cookie("token", token, options).json({
       token: token,
       user: student,
-      message: "User Login Successfully",
+      message:Texts.loginSuccess,
     });
   } else {
-    res.send({ message: "Something went wrong" });
+    res.send({ message: Texts.error });
   }
 };
 
@@ -369,6 +371,6 @@ exports.logout = asyncHandler(async (req, res, next) => {
   req.session.destroy(() => {
     req.logOut();
     res.clearCookie("token");
-    res.status(200).send("Logged out successfully");
+    res.status(200).send(Texts.Logout_was_successful);
   });
 });
