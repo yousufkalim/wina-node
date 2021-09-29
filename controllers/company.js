@@ -3,7 +3,7 @@ const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Student = require("../models/Student");
-const { Texts } = require('../utils/texts')
+const { Texts } = require("../utils/texts");
 
 const Appointment = require("../models/Appointment");
 const matchingAlgo = require("../services/searchStudents");
@@ -78,17 +78,13 @@ exports.register = asyncHandler(async (req, res, next) => {
     } = req.body;
     //// Check If Password and Confirm Password are same or not ////
     if (password !== confirm_password) {
-      res
-        .status(403)
-        .send({ message: Texts.Password_must_match });
+      res.status(403).send({ message: Texts.Password_must_match });
     }
 
     //// Check If user exist with this Email or not ////
     const result = await User.findOne({ email: email });
     if (result) {
-      res
-        .status(404)
-        .send({ message: Texts.emailExists });
+      res.status(404).send({ message: Texts.emailExists });
     } else {
       // Saving User in DataBase
 
@@ -123,12 +119,11 @@ exports.register = asyncHandler(async (req, res, next) => {
 
       res.status(200).json({
         user: updatedUser,
-        message:  Texts.userCreated,
+        message: Texts.userCreated,
       });
     }
   } catch (err) {
     res.status(400).json({ message: err.message });
-  
   }
 });
 // Edit Company
@@ -193,9 +188,7 @@ exports.editCompany = asyncHandler(async (req, res, next) => {
       },
       { new: true }
     );
-    res
-      .status(200)
-      .json({ message: Texts.companyUpdated, company: company });
+    res.status(200).json({ message: Texts.companyUpdated, company: company });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -275,14 +268,17 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
             notifications: {
               title: Texts.Company_has_book_Appointments,
               description:
-               Texts.Company_has_book_Appointments +Texts.please_validate_one_of_it,
+                Texts.Company_has_book_Appointments +
+                Texts.please_validate_one_of_it,
             },
           },
         },
         { new: true }
       );
 
-      res.status(200).json({ message: Texts.success + Appoinment_Created});
+      res
+        .status(200)
+        .json({ message: Texts.success + Texts.Appoinment_Created });
     }
   } catch (err) {
     next(err);
