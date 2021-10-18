@@ -6,13 +6,13 @@ const Job = require("../models/Job");
 const Student = require("../models/Student");
 const socket = require("../app");
 const { Texts } = require("../utils/texts");
+const Appointment = require("../models/Appointment");
 
 //// Create Job ////
 exports.CreateJob = asyncHandler(async (req, res, next) => {
   try {
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.company) {
-   
       res.status(400).json({
         message: Texts.notAuthorized,
       });
@@ -82,7 +82,9 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
     });
     const results = schema.validate(req.body);
     if (results.error) {
-      return res.status(400).send({ message: results.error.details[0].message });
+      return res
+        .status(400)
+        .send({ message: results.error.details[0].message });
     }
     let UploadedPicture = {
       image: photo,
@@ -123,7 +125,6 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
     res.status(400).json({
       message: err.message,
     });
-
   }
 });
 
@@ -132,8 +133,7 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
   try {
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.company) {
-
-      return res.status(400).send({ message: Texts.notAuthorized});
+      return res.status(400).send({ message: Texts.notAuthorized });
     }
     const companyID = requestedUser.company;
     //validations
@@ -176,9 +176,10 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
     });
     const results = schema.validate(req.body);
     if (results.error) {
-      return res.status(400).send({ message: results.error.details[0].message });
+      return res
+        .status(400)
+        .send({ message: results.error.details[0].message });
     }
-
 
     const {
       title,
@@ -193,11 +194,11 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
       levelOfEducation,
       ageRange,
       description,
-      photo
+      photo,
     } = req.body;
     let UploadedPicture;
 
-    const prevJob = await Job.findById(req.params.id)
+    const prevJob = await Job.findById(req.params.id);
     if (!photo && prevJob) {
       UploadedPicture = {
         image: prevJob.photo.image,
@@ -230,7 +231,9 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
         new: true,
       }
     );
-    res.status(200).json({ message: Texts.success + Texts.jobUpdated, Job: updatedJob });
+    res
+      .status(200)
+      .json({ message: Texts.success + Texts.jobUpdated, Job: updatedJob });
   } catch (err) {
     res.status(400).json({ message: err.message });
 
@@ -257,7 +260,7 @@ exports.DeleteJob = asyncHandler(async (req, res, next) => {
             $pull: { job: jobID },
           });
         });
-        res.status(200).json({ message:Texts.jobDeleted });
+        res.status(200).json({ message: Texts.jobDeleted });
       } else {
         res.status(400).json({ message: Texts.notAuthorized });
       }
@@ -285,7 +288,7 @@ exports.GetJob = asyncHandler(async (req, res, next) => {
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
-      res.status(400).send({ message:Texts.notAuthorized });
+      res.status(400).send({ message: Texts.notAuthorized });
     }
     const jobID = req.params.id;
     const job = await Job.findById(jobID).populate(populateQuery);
@@ -469,7 +472,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
-      res.status(400).send({ message: Texts.notAuthorized});
+      res.status(400).send({ message: Texts.notAuthorized });
     }
     const { status } = req.body;
     const JOB_ID = req.params.id;
@@ -535,8 +538,9 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                     notifications: {
                       title: Texts.student_is_applied_on_your_job,
                       jobID: JOB_ID,
-                      description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
-                        } ${Texts.student_is_applied_on_your_job}`,
+                      description: `${requestedUser.firstName} ${" "} ${
+                        requestedUser.lastName
+                      } ${Texts.student_is_applied_on_your_job}`,
                     },
                   },
                 },
@@ -569,8 +573,9 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                   notifications: {
                     title: Texts.student_is_applied_on_your_job,
                     jobID: JOB_ID,
-                    description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
-                      } ${Texts.student_is_applied_on_your_job}`,
+                    description: `${requestedUser.firstName} ${" "} ${
+                      requestedUser.lastName
+                    } ${Texts.student_is_applied_on_your_job}`,
                   },
                 },
               },
@@ -578,9 +583,10 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
             );
             const jobs = await Job.find().populate(populateQuery);
             if (jobs) {
-              res
-                .status(200)
-                .send({ jobs: jobs, message: Texts.Applied_on_job_successfully });
+              res.status(200).send({
+                jobs: jobs,
+                message: Texts.Applied_on_job_successfully,
+              });
             }
           }
         }
@@ -614,9 +620,9 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
               (sr) => `${sr.student}` === `${SENDER_ID}`
             );
             if (check === true) {
-              res
-                .status(404)
-                .send({ message: Texts.You_have_already_rejected_this_request });
+              res.status(404).send({
+                message: Texts.You_have_already_rejected_this_request,
+              });
             } else {
               await Job.findByIdAndUpdate(JOB_ID, {
                 $push: {
@@ -633,11 +639,13 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                 {
                   $push: {
                     notifications: {
-                      title: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
-                        } ${Texts.has_rejected_your_job}`,
+                      title: `${requestedUser.firstName} ${" "} ${
+                        requestedUser.lastName
+                      } ${Texts.has_rejected_your_job}`,
                       jobID: JOB_ID,
-                      description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
-                        } ${Texts.has_rejected_your_job}`,
+                      description: `${requestedUser.firstName} ${" "} ${
+                        requestedUser.lastName
+                      } ${Texts.has_rejected_your_job}`,
                     },
                   },
                 },
@@ -668,11 +676,13 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
               {
                 $push: {
                   notifications: {
-                    title: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
-                      } ${Texts.has_rejected_your_job}`,
+                    title: `${requestedUser.firstName} ${" "} ${
+                      requestedUser.lastName
+                    } ${Texts.has_rejected_your_job}`,
                     jobID: JOB_ID,
-                    description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
-                      } ${Texts.has_rejected_your_job}`,
+                    description: `${requestedUser.firstName} ${" "} ${
+                      requestedUser.lastName
+                    } ${Texts.has_rejected_your_job}`,
                   },
                 },
               },
@@ -742,11 +752,13 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(
           {
             $push: {
               notifications: {
-                title: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
-                  } ${Texts.has_accepted_your_offer}`,
+                title: `${requestedUser.firstName} ${" "} ${
+                  requestedUser.lastName
+                } ${Texts.has_accepted_your_offer}`,
                 jobID: JOB_ID,
-                description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
-                  } ${Texts.has_accepted_your_offer}`,
+                description: `${requestedUser.firstName} ${" "} ${
+                  requestedUser.lastName
+                } ${Texts.has_accepted_your_offer}`,
               },
             },
           },
@@ -766,11 +778,13 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(
           {
             $push: {
               notifications: {
-                title: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
-                  } ${Texts.has_rejected_your_offer}`,
+                title: `${requestedUser.firstName} ${" "} ${
+                  requestedUser.lastName
+                } ${Texts.has_rejected_your_offer}`,
                 jobID: JOB_ID,
-                description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName
-                  } ${Texts.has_rejected_your_offer}`,
+                description: `${requestedUser.firstName} ${" "} ${
+                  requestedUser.lastName
+                } ${Texts.has_rejected_your_offer}`,
               },
             },
           },
@@ -1124,7 +1138,14 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
         .status(400)
         .send({ message: results.error.details[0].message });
     }
-
+    let temp = await Appointment.find({
+      $and: [{ student: RECIEVER_ID }, { jobID: JOB_ID }],
+    });
+    if (temp && temp.length) {
+      return res
+        .status(400)
+        .json({ message: Texts.Appointment_is_already_existed });
+    }
     await Job.aggregate([
       {
         $project: {
@@ -1286,7 +1307,7 @@ exports.OffersRecievedDecisionByCompany = asyncHandler(
         if (jobs) {
           res.status(200).send({
             jobs: jobs,
-            message: Texts.Request_has_been_accepted_successfully
+            message: Texts.Request_has_been_accepted_successfully,
           });
         }
       } else {
