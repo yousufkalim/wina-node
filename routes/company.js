@@ -2,7 +2,6 @@ const express = require("express");
 const multer = require("multer");
 const router = express.Router();
 
-
 const { upload } = require("../middlewares/multer");
 
 // Controller Functions //

@@ -10,13 +10,13 @@ class DealBreaker {
   startingDate = async (job, next) => {
     try {
       var filteredStudents = [];
-      const jobStartingDate = moment(job.startDate, "DD-MM-YYYY");
+      const jobStartingDate = moment(job.startDate, "YYYY-MM-DD");
 
       const students = await Student.find({ isDeleted: false });
       students.map((item) => {
         const studentStartingDate = moment(
           item.positionSought.startDate,
-          "DD-MM-YYYY"
+          "YYYY-MM-DD"
         );
         const result = Math.abs(
           jobStartingDate.diff(studentStartingDate, "months")
@@ -184,7 +184,7 @@ class MatchingCriteria extends DealBreaker {
 
   // Starting Date //
   startDate = async (job, students) => {
-    const jobStartingDate = moment(job.startDate, "DD-MM-YYYY");
+    const jobStartingDate = moment(job.startDate, "YYYY-MM-DD");
 
     var startDateArray = [];
     let score = 0;
@@ -192,7 +192,7 @@ class MatchingCriteria extends DealBreaker {
     students.map((student) => {
       const studentDate = moment(
         student.positionSought.startDate,
-        "DD-MM-YYYY"
+        "YYYY-MM-DD"
       );
       const result = Math.abs(jobStartingDate.diff(studentDate, "weeks"));
       if (result <= 1) {
@@ -234,28 +234,18 @@ class MatchingCriteria extends DealBreaker {
   };
 
   levelOfEducation = async (job, students) => {
-    const jobEducation = job.levelOfEducation.split(":");
+    const jobEducation = job.levelOfEducation.toUpperCase();
     var levelOfEducationArray = [];
     let score = 0;
     students.map((student) => {
-      const studentLevelOfEducation = student.positionSought.levelOfEducation.split(
-        ":"
-      );
-
-      const result = jobEducation[0] - studentLevelOfEducation[0];
-      if (result == 0) {
+      const studentLevelOfEducation =
+        student.positionSought.levelOfEducation.toUpperCase();
+      const result = jobEducation.localeCompare(studentLevelOfEducation);
+      if (result === 0) {
         score = 1;
-      } else if (result != jobEducation[0]) {
-        if (result + 1 == jobEducation[0] || result - 1 == jobEducation[0]) {
-          score = 0.7;
-        }
-        if (result + 2 == jobEducation[0] || result - 2 == jobEducation[0]) {
-          score = 0.3;
-        } else {
-          score = 0;
-        }
+      } else {
+        score = 0;
       }
-
       score = score * 4;
       return levelOfEducationArray.push({ id: student.id, score: score });
     });
@@ -269,7 +259,8 @@ class MatchingCriteria extends DealBreaker {
     let score = 0;
 
     students.map((student) => {
-      const studentAlternationRhythm = student.positionSought.alternationRhythm.toUpperCase();
+      const studentAlternationRhythm =
+        student.positionSought.alternationRhythm.toUpperCase();
       const result = jobAlternationRhythm.localeCompare(
         studentAlternationRhythm
       );
@@ -295,7 +286,10 @@ class MatchingCriteria extends DealBreaker {
     let score = 0;
 
     students.map((student) => {
-      const studentDOB = moment(student.positionSought.dateOfBirth, "DD-MM-YYYY");
+      const studentDOB = moment(
+        student.positionSought.dateOfBirth,
+        "YYYY-MM-DD"
+      );
       const currentDate = moment(new Date());
       const studentAge = Math.abs(studentDOB.diff(currentDate, "years"));
 
@@ -342,10 +336,8 @@ class MatchingCriteria extends DealBreaker {
         students
       );
       const levelOfEducationResult = await this.levelOfEducation(job, students);
-      const frequencyOfApprenticeshipResult = await this.frequencyOfApprenticeship(
-        job,
-        students
-      );
+      const frequencyOfApprenticeshipResult =
+        await this.frequencyOfApprenticeship(job, students);
       const ageRangeResult = await this.ageRange(job, students);
 
       // console.log(locationResult, "location");
@@ -415,10 +407,11 @@ class MatchingCriteria extends DealBreaker {
         totalScore += levelOfEducationResult[levelOfEducationIndex].score / 100;
 
         // Frequency of Apprenticeship Filter //
-        let frequencyOfApprenticeshipIndex = frequencyOfApprenticeshipResult.findIndex(
-          (frequencyOfApprenticeship) =>
-            frequencyOfApprenticeship.id === student.id
-        );
+        let frequencyOfApprenticeshipIndex =
+          frequencyOfApprenticeshipResult.findIndex(
+            (frequencyOfApprenticeship) =>
+              frequencyOfApprenticeship.id === student.id
+          );
         totalScore +=
           frequencyOfApprenticeshipResult[frequencyOfApprenticeshipIndex]
             .score / 100;

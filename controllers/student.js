@@ -5,7 +5,7 @@ const Student = require("../models/Student");
 const Appointment = require("../models/Appointment");
 const matchingAlgo = require("../services/searchJobs");
 const Skill = require("../models/Skill");
-const { Texts } = require('../utils/texts')
+const { Texts } = require("../utils/texts");
 
 var matchingCriteria = new matchingAlgo.MatchingCriteria();
 var dealBreaker = new matchingAlgo.DealBreaker();
@@ -85,16 +85,16 @@ exports.register = asyncHandler(async (req, res, next) => {
         dateOfBirth: Joi.string(),
         levelOfEducation: Joi.string().valid(
           "Brevet",
-        "CAP",
-        "BEP",
-        "MC",
-        "BacGénéral",
-        "BacProfessionel",
-        "BTS",
-        "DUT",
-        "Licence",
-        "Master",
-        "Doctorat"
+          "CAP",
+          "BEP",
+          "MC",
+          "BacGénéral",
+          "BacProfessionel",
+          "BTS",
+          "DUT",
+          "Licence",
+          "Master",
+          "Doctorat"
         ),
       }),
 
@@ -119,8 +119,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       if (req.files.video) {
         if (req.files.video[0].mimetype == "video/mp4") {
           if (!(req.files.video[0].size <= 209715200)) {
-           
-            res.status(400).send({message:Texts.Max_size_can_be_200MB})
+            res.status(400).send({ message: Texts.Max_size_can_be_200MB });
           } else {
             video = {
               video: req.files.video[0].filename,
@@ -140,9 +139,9 @@ exports.register = asyncHandler(async (req, res, next) => {
             status: "To be Validated",
           };
         } else {
-      
-          res.status(400).send({message:Texts.Please_select_an_image_of_File_type_jpg})
-
+          res
+            .status(400)
+            .send({ message: Texts.Please_select_an_image_of_File_type_jpg });
         }
       }
       if (req.files.resume) {
@@ -153,15 +152,14 @@ exports.register = asyncHandler(async (req, res, next) => {
             "resume/vnd.openxmlformats-officedocument.wordprocessingml.document"
         ) {
           if (!(req.files.resume[0].size <= 10485760)) {
-            res.status(400).send({message:Texts.Max_size_can_be_10MB})
-
+            res.status(400).send({ message: Texts.Max_size_can_be_10MB });
           } else {
             uploadedResume = req.files.resume[0].filename;
           }
         } else {
-      
-          res.status(400).send({message:Texts.Please_select_an_resume_of_File_type_PDF})
-
+          res
+            .status(400)
+            .send({ message: Texts.Please_select_an_resume_of_File_type_PDF });
         }
       }
     }
@@ -326,16 +324,16 @@ exports.edit = asyncHandler(async (req, res, next) => {
         dateOfBirth: Joi.string(),
         levelOfEducation: Joi.string().valid(
           "Brevet",
-        "CAP",
-        "BEP",
-        "MC",
-        "BacGénéral",
-        "BacProfessionel",
-        "BTS",
-        "DUT",
-        "Licence",
-        "Master",
-        "Doctorat"
+          "CAP",
+          "BEP",
+          "MC",
+          "BacGénéral",
+          "BacProfessionel",
+          "BTS",
+          "DUT",
+          "Licence",
+          "Master",
+          "Doctorat"
         ),
       }),
 
@@ -381,8 +379,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
       if (req.files.video) {
         if (req.files.video[0].mimetype == "video/mp4") {
           if (!(req.files.video[0].size <= 209715200)) {
-            res.status(400).send({message:Texts.Max_size_can_be_200MB})
-
+            res.status(400).send({ message: Texts.Max_size_can_be_200MB });
           } else {
             video = {
               video: req.files.video[0].filename,
@@ -402,8 +399,9 @@ exports.edit = asyncHandler(async (req, res, next) => {
             status: "To be Validated",
           };
         } else {
-          res.status(400).send({message:Texts.Please_select_an_image_of_File_type_jpg})
-
+          res
+            .status(400)
+            .send({ message: Texts.Please_select_an_image_of_File_type_jpg });
         }
       }
 
@@ -415,14 +413,14 @@ exports.edit = asyncHandler(async (req, res, next) => {
             "resume/vnd.openxmlformats-officedocument.wordprocessingml.document"
         ) {
           if (!(req.files.resume[0].size <= 10485760)) {
-            res.status(400).send({message:Texts.Max_size_can_be_10MB})
-
+            res.status(400).send({ message: Texts.Max_size_can_be_10MB });
           } else {
             uploadedResume = req.files.resume[0].filename;
           }
         } else {
-          res.status(400).send({message:Texts.Please_select_an_resume_of_File_type_PDF})
-
+          res
+            .status(400)
+            .send({ message: Texts.Please_select_an_resume_of_File_type_PDF });
         }
       }
     }
@@ -492,9 +490,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
       student: userobj._id,
     }).populate("student");
 
-    res
-      .status(200)
-      .json({ message: Texts.userUpdated, user: updateUser });
+    res.status(200).json({ message: Texts.userUpdated, user: updateUser });
   } catch (err) {
     res.status(400).json({ message: err.message });
     next(err);
@@ -714,7 +710,9 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           new: true,
         }
       );
-      res.status(200).json({ message: Texts.success + Texts.Appoinment_Disapproved });
+      res
+        .status(200)
+        .json({ message: Texts.success + Texts.Appoinment_Disapproved });
     } else {
       await Appointment.findOneAndUpdate(
         { $and: [{ student: `${studentID}` }, { jobID: `${jobID}` }] },
@@ -723,7 +721,9 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           new: true,
         }
       );
-      res.status(200).json({ message: Texts.success + Texts.Appoinment_Approved });
+      res
+        .status(200)
+        .json({ message: Texts.success + Texts.Appoinment_Approved });
     }
   } catch (err) {
     next(err);

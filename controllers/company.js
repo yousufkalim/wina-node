@@ -301,6 +301,7 @@ exports.searchForStudents = asyncHandler(async (req, res, next) => {
     // matchingCriteria.search(req, res, next);
     matchingCriteria.display(req, res, next);
   } catch (err) {
+    console.log("Error---->", err.message);
     next(err);
   }
 });
