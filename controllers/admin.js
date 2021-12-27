@@ -3,6 +3,9 @@ const nodemailer = require("nodemailer");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Skill = require("../models/Skill");
+const Domain = require("../models/Domain");
+var xlsx = require("xlsx");
+
 const Job = require("../models/Job");
 const Company = require("../models/Company");
 const Student = require("../models/Student");
@@ -46,7 +49,7 @@ exports.createSkill = asyncHandler(async (req, res, next) => {
     const skills = await Skill.find();
     res
       .status(200)
-      .json({ message: Texts.Skill_Created_Successfully, skills: skills });
+      .json({ message: Texts.Skill_created_successfully, skills: skills });
   } catch (err) {
     next(err);
   }
@@ -89,6 +92,86 @@ exports.deleteSkill = asyncHandler(async (req, res, next) => {
 
     const skill = await Skill.findByIdAndUpdate(
       skillID,
+      {
+        isDeleted: true,
+      },
+      {
+        new: true,
+      }
+    );
+    res.status(200).json({ message: Texts.Skill_Deleted_Successfully });
+  } catch (err) {
+    next(err);
+  }
+});
+// Get List of Domains
+exports.domainList = asyncHandler(async (req, res, next) => {
+  try {
+    const domains = await Domain.find({ isDeleted: false }).sort({
+      createdAt: -1,
+    });
+    res.status(200).json({ domains: domains });
+  } catch (err) {
+    next(err);
+  }
+});
+// CREATE Domain
+exports.createDomain = asyncHandler(async (req, res, next) => {
+  try {
+    const schema = Joi.object().keys({
+      title: Joi.string(),
+    });
+
+    const results = schema.validate(req.body);
+    if (results.error) {
+      return res.status(400).send(results.error.details[0].message);
+    }
+    let domain = await Domain.findOne({ title: req.body.title });
+    if (domain) {
+      return res.status(400).send({ message: Texts.DomainAlreadyExists });
+    }
+    await Domain.create(req.body);
+    const domains = await Domain.find();
+    res
+      .status(200)
+      .json({ message: Texts.Domain_created_successfully, domains: domains });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+});
+
+// EDIT Domain
+exports.editDomain = asyncHandler(async (req, res, next) => {
+  try {
+    const domainId = req.params.id;
+    const schema = Joi.object().keys({
+      title: Joi.string(),
+    });
+
+    const results = schema.validate(req.body);
+    if (results.error) {
+      return res.status(400).send(results.error.details[0].message);
+    }
+    await Domain.findByIdAndUpdate(domainId, req.body, {
+      new: true,
+    });
+    const domains = await Domain.find();
+
+    res
+      .status(200)
+      .json({ domains, message: Texts.Domain_Updated_Successfully });
+  } catch (err) {
+    next(err);
+  }
+});
+
+//DELETE Domain
+exports.deleteDomain = asyncHandler(async (req, res, next) => {
+  try {
+    const domainId = req.params.id;
+
+    const skill = await Domain.findByIdAndUpdate(
+      domainId,
       {
         isDeleted: true,
       },
@@ -168,7 +251,7 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
         req.file.mimetype == "image/png"
       ) {
         if (!(req.file.size <= 10485760)) {
-      return  res.status(400).send({message:Texts.Max_size_can_be_10MB})
+          return res.status(400).send({ message: Texts.Max_size_can_be_10MB });
         } else {
           UploadedPicture = {
             image: req.file.filename,
@@ -176,8 +259,9 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
           };
         }
       } else {
-        return  res.status(400).send({message:Texts.Please_select_an_image_of_File_type_jpg})
-
+        return res
+          .status(400)
+          .send({ message: Texts.Please_select_an_image_of_File_type_jpg });
       }
     }
 
@@ -284,8 +368,7 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
         req.file.mimetype == "image/png"
       ) {
         if (!(req.file.size <= 10485760)) {
-         return res.status(400).send({message:Texts.Max_size_can_be_10MB})
-
+          return res.status(400).send({ message: Texts.Max_size_can_be_10MB });
         } else {
           UploadedPicture = {
             image: req.file.filename,
@@ -293,8 +376,9 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
           };
         }
       } else {
-return        res.status(400).send({message:Texts.Please_select_an_image_of_File_type_jpg})
-
+        return res
+          .status(400)
+          .send({ message: Texts.Please_select_an_image_of_File_type_jpg });
       }
     }
 
@@ -332,9 +416,7 @@ return        res.status(400).send({message:Texts.Please_select_an_image_of_File
         new: true,
       }
     );
-    res
-      .status(200)
-      .json({ message: Texts.success, Job: updatedJob });
+    res.status(200).json({ message: Texts.success, Job: updatedJob });
   } catch (err) {
     next(err);
   }
@@ -354,9 +436,7 @@ exports.DeleteJob = asyncHandler(async (req, res, next) => {
         $pull: { job: jobID },
       });
     });
-    res
-      .status(200)
-      .json({ message: Texts.success });
+    res.status(200).json({ message: Texts.success });
   } catch (err) {
     next(err);
   }
@@ -550,7 +630,9 @@ exports.deleteCompany = asyncHandler(async (req, res, next) => {
       );
     });
 
-    res.status(200).json({ message: Texts.Company_has_been_deleted_Successfully });
+    res
+      .status(200)
+      .json({ message: Texts.Company_has_been_deleted_Successfully });
   } catch (err) {
     res.status(400).message({ message: err.message });
   }
@@ -610,13 +692,13 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
 
     //// Check If Password and Confirm Password are same or not ////
     if (password !== confirm_password) {
-      res.status(403).send({message:Texts.Password_must_match});
+      res.status(403).send({ message: Texts.Password_must_match });
     }
 
     //// Check If user exist with this Email or not ////
     const result = await User.findOne({ email: email });
     if (result) {
-      res.status(404).send({message:Texts.emailExists });
+      res.status(404).send({ message: Texts.emailExists });
     } else {
       // Saving User in DataBase
       const user = await User.create({
@@ -630,9 +712,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
         phone,
       });
 
-      res
-        .status(200)
-        .json({ message: Texts.userCreated , user: user });
+      res.status(200).json({ message: Texts.userCreated, user: user });
     }
   } catch (err) {
     next(err);
@@ -684,9 +764,7 @@ exports.editProfile = asyncHandler(async (req, res, next) => {
       },
       { new: true }
     );
-    res
-      .status(200)
-      .json({ message: Texts.userUpdated, user: user });
+    res.status(200).json({ message: Texts.userUpdated, user: user });
   } catch (err) {
     res.status(400).res.json({ message: err.message });
   }
@@ -1036,13 +1114,13 @@ exports.createConsultantProfile = asyncHandler(async (req, res, next) => {
 
     //// Check If Password and Confirm Password are same or not ////
     if (password !== confirm_password) {
-   return   res.status(403).send({message:Texts.Password_must_match});
+      return res.status(403).send({ message: Texts.Password_must_match });
     }
 
     //// Check If user exist with this Email or not ////
     const result = await User.findOne({ email: email });
     if (result) {
-    return  res.status(404).send({message:Texts.userAlreadyExists});
+      return res.status(404).send({ message: Texts.userAlreadyExists });
     } else {
       // Saving User in DataBase
       const user = await User({
@@ -1185,9 +1263,10 @@ exports.editSchool = asyncHandler(async (req, res, next) => {
       { new: true }
     );
 
-    res
-      .status(200)
-      .json({ message: Texts.School_updated_Successfully, school: updatedSchool });
+    res.status(200).json({
+      message: Texts.School_updated_Successfully,
+      school: updatedSchool,
+    });
   } catch (err) {
     next(err);
   }
@@ -1206,9 +1285,10 @@ exports.deleteSchool = asyncHandler(async (req, res, next) => {
       { new: true }
     );
 
-    res
-      .status(200)
-      .json({ message: Texts.Skill_Deleted_Successfully, school: updatedSchool });
+    res.status(200).json({
+      message: Texts.Skill_Deleted_Successfully,
+      school: updatedSchool,
+    });
   } catch (err) {
     next(err);
   }
@@ -1225,7 +1305,9 @@ exports.getAllAppointments = asyncHandler(async (req, res, next) => {
     if (!appointments) {
       res.status(200).json({ message: "There is no Appointment ATM" });
     } else {
-      res.status(200).json({ message: Texts.success, Appointments: appointments });
+      res
+        .status(200)
+        .json({ message: Texts.success, Appointments: appointments });
     }
   } catch (err) {
     next(err);
@@ -1240,7 +1322,9 @@ exports.getAllPendingAppointments = asyncHandler(async (req, res, next) => {
     if (!appointments) {
       res.status(200).json({ message: "There is no Appointment ATM" });
     } else {
-      res.status(200).json({ message: Texts.success, Appointments: appointments });
+      res
+        .status(200)
+        .json({ message: Texts.success, Appointments: appointments });
     }
   } catch (err) {
     next(err);
@@ -1362,8 +1446,9 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           {
             $push: {
               notifications: {
-                title: Texts.success +Texts.Appointment_Approved,
-                description: Texts.Your_Appointment_has_been_approved_successfully,
+                title: Texts.success + Texts.Appointment_Approved,
+                description:
+                  Texts.Your_Appointment_has_been_approved_successfully,
               },
             },
           },
@@ -1372,7 +1457,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
 
         // Sending Notification //
         socket.broadcast.emit(`recieveNotification${student.user}`, {
-          title: Texts.success +Texts.Appointment_Approved,
+          title: Texts.success + Texts.Appointment_Approved,
           message: Texts.Your_Appointment_has_been_approved_successfully,
         });
 
@@ -1380,7 +1465,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           $push: {
             notifications: {
               title: Texts.Appointment_Scheduled,
-              title: Texts.success +Texts.Appointment_Scheduled,
+              title: Texts.success + Texts.Appointment_Scheduled,
               description: Texts.Admin_has_assigned_you_an_appointment,
             },
           },
@@ -1388,7 +1473,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
 
         // Sending Notification //
         socket.broadcast.emit(`recieveNotification${consultant.user}`, {
-          title: Texts.success +Texts.Appointment_Scheduled,
+          title: Texts.success + Texts.Appointment_Scheduled,
 
           message: Texts.Admin_has_assigned_you_an_appointment,
         });
@@ -1418,7 +1503,9 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           }
         });
 
-        res.status(200).json({ message: Texts.Your_Appointment_has_been_approved_successfully });
+        res.status(200).json({
+          message: Texts.Your_Appointment_has_been_approved_successfully,
+        });
       } else if (decision == "Disapprove") {
         const appointment = await Appointment.findByIdAndUpdate(
           appointmentId,
@@ -1434,7 +1521,8 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
             $push: {
               notifications: {
                 title: Texts.Appointment_Cancelled,
-                description: Texts.Your_Appointment_has_been_cancelled_by_the_Admin,
+                description:
+                  Texts.Your_Appointment_has_been_cancelled_by_the_Admin,
               },
             },
           },
@@ -1491,7 +1579,8 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
             $push: {
               notifications: {
                 title: Texts.success + Texts.Appointment_Approved,
-                description: Texts.Your_Appointment_has_been_approved_successfully,
+                description:
+                  Texts.Your_Appointment_has_been_approved_successfully,
               },
             },
           },
@@ -1537,7 +1626,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
         var mailOptions = {
           to: user.email,
           from: process.env.MailingId,
-          subject:Texts.success,
+          subject: Texts.success,
           text: Texts.Your_request_for_Coaching_Appointment_has_been_Approved,
         };
         transporter.sendMail(mailOptions, (error, info) => {
@@ -1562,7 +1651,8 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
             $push: {
               notifications: {
                 title: Texts.Appointment_Cancelled,
-                description: Texts.Your_Appointment_has_been_cancelled_by_the_Admin,
+                description:
+                  Texts.Your_Appointment_has_been_cancelled_by_the_Admin,
               },
             },
           },
@@ -1590,7 +1680,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
         var mailOptions = {
           to: user.email,
           from: process.env.MailingId,
-          subject:Texts.success,
+          subject: Texts.success,
           text: Texts.Your_request_for_Coaching_Appointment_has_been_cancelled,
         };
         transporter.sendMail(mailOptions, (error, info) => {

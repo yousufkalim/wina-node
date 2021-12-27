@@ -20,6 +20,12 @@ const {
   createSkill,
   editSkill,
   deleteSkill,
+  //domain
+  createDomain,
+  domainList,
+  editDomain,
+  deleteDomain,
+  // ******
   jobList,
   CreateJob,
   EditJob,
@@ -62,6 +68,12 @@ router.get("/skill-list", protect, skillList);
 router.post("/create-skill", createSkill);
 router.put("/edit-skill/:id", [protect, authorize("admin")], editSkill);
 router.put("/delete-skill/:id", [protect, authorize("admin")], deleteSkill);
+
+//Domain
+router.get("/domain-list", domainList);
+router.post("/create-domain", createDomain);
+router.put("/edit-domain/:id", [protect, authorize("admin")], editDomain);
+router.put("/delete-domain/:id", [protect, authorize("admin")], deleteDomain);
 
 //Jobs
 router.get("/job-list", [protect, authorize("admin")], upload, jobList);

@@ -78,6 +78,10 @@ const Texts = {
   Skill_created_successfully: "Compétence créée avec succès",
   Skill_Updated_Successfully: "Compétence mise à jour avec succès",
   Skill_Deleted_Successfully: "Compétence supprimée avec succès",
+  Domain_created_successfully: "Domaine créée avec succès",
+  DomainAlreadyExists: "Domaine existe déjà",
+  Domain_Updated_Successfully: "Domaine mise à jour avec succès",
+
   Company_has_been_deleted_Successfully:
     "La société a été supprimée avec succès",
   Your_Profile_picture_has_been_Validated_successfully:
