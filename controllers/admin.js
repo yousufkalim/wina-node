@@ -5,7 +5,7 @@ const User = require("../models/User");
 const Skill = require("../models/Skill");
 const Domain = require("../models/Domain");
 var xlsx = require("xlsx");
-
+// var excelFile = require("/public/skills.xlsx");
 const Job = require("../models/Job");
 const Company = require("../models/Company");
 const Student = require("../models/Student");
@@ -1695,11 +1695,86 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
-exports.addMsg = asyncHandler(async (req, res, next) => {
-  // const { name } = req.body;
-  // socket.broadcast.emit(`recieveNotification`, {
-  //   title: "Appointment Cancelled",
-  //   message: "Your Appointment has been cancelled by the Admin",
-  // });
-  // res.status(200).json({ name: name });
+exports.addJob = asyncHandler(async (req, res, next) => {
+  try {
+    const workbook = xlsx.readFile(
+      "/Users/falconitconsulting/Desktop/Projects/Wina/public/jobs.xlsx"
+    );
+    const sheets = workbook.SheetNames;
+    var xlData = workbook.Sheets[sheets[0]];
+    let jsonData = xlsx.utils.sheet_to_json(xlData);
+
+    if (jsonData && jsonData.length > 0) {
+      //for skills array
+
+      jsonData.map(async (data) => {
+        let company = await Company.create({ name: data["Company"] });
+
+        const createSkills = () => {
+          let softSkills = [];
+          let hardSkills = [];
+          return new Promise(async (resolve, reject) => {
+            try {
+              if (data["Soft Skill"]) {
+                let skills = data["Soft Skill"].split("\r\n");
+                const lastIndex = skills.length - 1;
+                skills.map(async (skill, index) => {
+                  if (skill !== "" || skill !== "- ") {
+                    let array = [];
+                    let soft_skill = await Skill.create({
+                      skillField: skill,
+                      skillType: "Soft Skill",
+                    });
+                    softSkills.push(soft_skill._id);
+
+                    if (index === lastIndex) {
+                      resolve({ softSkills, hardSkills });
+                    }
+                  }
+                });
+              } else if (data["Hard Skill"]) {
+                let skills = data["Hard Skill"].split(" ");
+
+                const lastIndex = skills.length - 1;
+                skills.map(async (skill, index) => {
+                  if (skill !== "") {
+                    let array = [];
+                    let hard_skill = await Skill.create({
+                      skillField: skill,
+                      skillType: "Hard Skill",
+                    });
+                    hardSkills.push(hard_skill._id);
+
+                    if (index === lastIndex) {
+                      resolve({ softSkills, hardSkills });
+                    }
+                  }
+                });
+              }
+            } catch (err) {
+              reject(err);
+            }
+          });
+        };
+
+        createSkills().then(async (res) => {
+          await Job.create({
+            domain: data["Domain Name"],
+            title: data["Job Name"],
+            position: data["Poste"],
+            company: company._id,
+            description: data["Description"],
+            startDate: data["Publish Date"],
+            softSkills: res.softSkills,
+            hardSkills: res.hardSkills,
+            location: { city: data["City"], zip: data["Postal Code"] },
+          });
+        });
+      });
+    }
+    let jobs = await Job.find();
+    res.json({ message: "success", jobs });
+  } catch (error) {
+    res.json({ message: error.message });
+  }
 });

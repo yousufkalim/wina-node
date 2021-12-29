@@ -55,7 +55,7 @@ const {
   getAllStudentAppointments,
   getAllCompanyAppointments,
   deleteAppointment,
-  addMsg,
+  addJob,
 } = require("../controllers/admin");
 
 // Middleware Functions //
@@ -76,7 +76,7 @@ router.put("/edit-domain/:id", [protect, authorize("admin")], editDomain);
 router.put("/delete-domain/:id", [protect, authorize("admin")], deleteDomain);
 
 //Jobs
-router.get("/job-list", [protect, authorize("admin")], upload, jobList);
+router.get("/job-list", jobList);
 router.post("/create-job", [protect, authorize("admin")], upload, CreateJob);
 router.put("/edit-job/:id", [protect, authorize("admin")], upload, EditJob);
 router.put("/delete-job/:id", [protect, authorize("admin")], DeleteJob);
@@ -174,6 +174,6 @@ router.post(
   [protect, authorize("admin")],
   validateAppointment
 );
-router.post("/addMsg", addMsg);
+router.post("/addJob", addJob);
 
 module.exports = router;
