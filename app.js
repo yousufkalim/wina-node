@@ -18,14 +18,24 @@ var cors = require("cors");
 const logger = require("morgan");
 const app = express();
 const server = http.createServer(app);
-
+var xlsx = require("xlsx");
 const notificationService = require("./socket.io/notifications");
 app.use(cors());
 
 //// Body Parser Middleware ////
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.get("/", (req, res) => {
+  console.log("Reading the spreadsheet..");
+  const workbook = xlsx.readFile("./public/skills.xlsx");
+  const sheets = workbook.SheetNames;
+  var xlData = workbook.Sheets[sheets[0]];
+  let jsonData = xlsx.utils.sheet_to_json(xlData);
 
+  console.log("Raeding second sheet...", sheets);
+
+  res.json({ message: "success", jsonData });
+});
 // Morgan
 app.use(logger("dev"));
 
