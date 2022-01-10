@@ -23,7 +23,6 @@ exports.register = asyncHandler(async (req, res, next) => {
       latitude: Joi.number().required(),
       longitude: Joi.number().required(),
     });
-
     const schema = Joi.object().keys({
       name: Joi.string().max(250).required(),
       address: address_object.required(),
@@ -33,12 +32,11 @@ exports.register = asyncHandler(async (req, res, next) => {
       groupName: Joi.string().required().optional().allow(""),
       linkedIn: Joi.string().required().optional().allow(""),
       type: Joi.string().required().optional().allow(""),
-
       contactPerson: Joi.object().keys({
-        firstName: Joi.string().max(250).required(),
-        lastName: Joi.string().max(250).required(),
-        email: Joi.string().email().required(),
-        positionHeld: Joi.string().required(),
+      firstName: Joi.string().max(250).required(),
+      lastName: Joi.string().max(250).required(),
+      email: Joi.string().email().required(),
+      positionHeld: Joi.string().required(),
         phone: Joi.string()
           .max(10)
           .pattern(/^[0-9]+$/)
@@ -50,7 +48,7 @@ exports.register = asyncHandler(async (req, res, next) => {
     });
     // Storing Error Responses in Result //
     const results = schema.validate(req.body);
-
+      
     if (results.error) {
       return res
         .status(400)
@@ -212,7 +210,6 @@ exports.deleteCompany = asyncHandler(async (req, res, next) => {
         { multi: true }
       );
     });
-
     res.status(200).json({ message: Texts.companyDeleted });
   } catch (err) {
     res.status(400).message({ message: err.message });
