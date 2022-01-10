@@ -18,7 +18,6 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       });
     }
     const companyID = requestedUser.company;
-
     const {
       title,
       status,
@@ -36,8 +35,6 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       description,
     } = req.body;
     if (typeof softSkills === typeof "") {
-      // console.log(req.files, "req.file");
-
       req.body.location = JSON.parse(location);
       req.body.softSkills = JSON.parse(softSkills);
       req.body.hardSkills = JSON.parse(hardSkills);
@@ -50,13 +47,11 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       latitude: Joi.number().required(),
       longitude: Joi.number().required(),
     });
-
     const schema = Joi.object().keys({
       title: Joi.string(),
       status: Joi.string().valid("open", "filled"),
       domain: Joi.string(),
       description: Joi.string(),
-
       photo: Joi.string(),
       position: Joi.string(),
       startDate: Joi.string(),
@@ -90,7 +85,6 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       image: photo,
       status: "Validated",
     };
-
     // Creating new student in Database //
     const newJob = new Job({
       title: title,
@@ -110,12 +104,10 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       company: companyID,
     });
     await newJob.save();
-
     // Assigning new job ID to company //
     await Company.findByIdAndUpdate(companyID, {
       $push: { job: newJob._id },
     });
-
     res.status(200).json({
       message: Texts.success + Texts.jobCreated,
       job: newJob,
@@ -127,7 +119,6 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
     });
   }
 });
-
 //// Edit Job ////
 exports.EditJob = asyncHandler(async (req, res, next) => {
   try {
@@ -150,7 +141,6 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
       status: Joi.string().valid("open", "filled"),
       domain: Joi.string(),
       description: Joi.string().max(250),
-
       photo: Joi.string(),
       position: Joi.string(),
       startDate: Joi.string(),
@@ -180,7 +170,6 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
         .status(400)
         .send({ message: results.error.details[0].message });
     }
-
     const {
       title,
       domain,
@@ -197,7 +186,6 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
       photo,
     } = req.body;
     let UploadedPicture;
-
     const prevJob = await Job.findById(req.params.id);
     if (!photo && prevJob) {
       UploadedPicture = {
@@ -236,7 +224,6 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
       .json({ message: Texts.success + Texts.jobUpdated, Job: updatedJob });
   } catch (err) {
     res.status(400).json({ message: err.message });
-
     next(err);
   }
 });
@@ -249,7 +236,6 @@ exports.DeleteJob = asyncHandler(async (req, res, next) => {
     const user = await User.findById(userID);
     const companyID = user.company;
     const company = await Company.findById(companyID);
-
     if (company.job) {
       const result = company.job.includes(jobID);
       if (result) {
@@ -287,6 +273,7 @@ exports.GetJob = asyncHandler(async (req, res, next) => {
       },
     ];
     const requestedUser = await User.findById(req.user.id);
+
     if (!requestedUser.type) {
       res.status(400).send({ message: Texts.notAuthorized });
     }
@@ -297,7 +284,6 @@ exports.GetJob = asyncHandler(async (req, res, next) => {
     }
   } catch (error) {
     res.status(200).send({ message: error });
-
     next(err);
   }
 });
@@ -305,6 +291,7 @@ exports.GetJob = asyncHandler(async (req, res, next) => {
 // GET all Jobs
 exports.GetJobs = asyncHandler(async (req, res, next) => {
   try {
+    
     const populateQuery = [
       {
         path: "company",
@@ -318,16 +305,15 @@ exports.GetJobs = asyncHandler(async (req, res, next) => {
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
-      res.status(400).send({ message: Texts.notAuthorized });
+     return res.status(400).send({ message: Texts.notAuthorized });
     }
-    const jobs = await Job.find({ company: requestedUser.company }).populate(
-      populateQuery
-    );
-
-    if (jobs) {
-      res
-        .status(200)
-        .send({ jobs: jobs, message: "Jobs fetched successfully" });
+    else{
+      const jobs = await Job.find({ company: requestedUser.company }).populate(
+        populateQuery
+      );
+      if (jobs) {
+        return res.status(200).send({ jobs: jobs, message: "Jobs fetched successfully" });
+      }
     }
   } catch (error) {
     res.status(200).send({ message: error });
@@ -375,7 +361,6 @@ exports.GetStudentAppliedJobs = asyncHandler(async (req, res, next) => {
           res.status(404).send({ message: err.message });
         } else {
           let results = [];
-
           data.map((dt) => {
             if (dt.student_requests && dt.student_requests.length > 0) {
               let check = dt.student_requests.some(
@@ -400,7 +385,6 @@ exports.GetStudentAppliedJobs = asyncHandler(async (req, res, next) => {
       });
   } catch (error) {
     res.status(200).send({ message: error });
-
     next(error);
   }
 });
@@ -1126,7 +1110,6 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
     const JOB_ID = offerID;
     const SENDER_ID = requestedUser.company;
     const company = await Company.findById(SENDER_ID);
-
     const RECIEVER_ID = req.params.id;
     const schema = Joi.object().keys({
       status: Joi.string().valid("requested", "rejected"),

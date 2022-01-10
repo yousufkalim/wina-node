@@ -11,7 +11,6 @@ class DealBreaker {
     try {
       var filteredStudents = [];
       const jobStartingDate = moment(job.startDate, "YYYY-MM-DD");
-
       const students = await Student.find({ isDeleted: false });
       students.map((item) => {
         const studentStartingDate = moment(
@@ -32,11 +31,9 @@ class DealBreaker {
     }
   };
 }
-
 class MatchingCriteria extends DealBreaker {
   // Location //
   //This function takes in latitude and longitude of two location and returns the distance between them as the crow flies (in km)
-
   location = async (job, students) => {
     function calcDistance(lat1, lon1, lat2, lon2) {
       var R = 6371; // km
@@ -84,11 +81,9 @@ class MatchingCriteria extends DealBreaker {
 
   softSkills = async (job, students) => {
     const jobSoftSkills = job.softSkills;
-
     const softSkillsArray = [];
     var n = 0;
     var score = 0;
-
     const result = students.filter((student) => {
       n = 0;
       jobSoftSkills.map((item) => {
@@ -111,15 +106,13 @@ class MatchingCriteria extends DealBreaker {
       return softSkillsArray.push({ id: student.id, score: score });
     });
     return softSkillsArray;
-  };
-
+  };  
   hardSkills = async (job, students) => {
     const jobHardSkills = job.hardSkills;
 
     const hardSkillsArray = [];
     var n = 0;
     var score = 0;
-
     const result = students.filter((student) => {
       n = 0;
       jobHardSkills.map((item) => {
@@ -146,10 +139,8 @@ class MatchingCriteria extends DealBreaker {
 
   field = async (job, students) => {
     const jobField = job.domain;
-
     let score = 0;
     let fieldArray = [];
-
     students.map((student) => {
       if (student.positionSought.domain === jobField) {
         score = 1;

@@ -188,7 +188,6 @@ exports.register = asyncHandler(async (req, res, next) => {
       softSkills: softSkills,
       hard_Skills: hardSkills,
       positionSought: positionSought,
-
       languages: languages,
       resume: uploadedResume,
       user: req.user.id,
@@ -311,7 +310,6 @@ exports.edit = asyncHandler(async (req, res, next) => {
       education: Joi.array().items(education_info),
       professional_profile: Joi.array().items(professional_profileInfo),
       resume: Joi.string(),
-
       softSkills: Joi.array(),
       hardSkills: Joi.array(),
       positionSought: Joi.object().keys({
@@ -336,7 +334,6 @@ exports.edit = asyncHandler(async (req, res, next) => {
           "Doctorat"
         ),
       }),
-
       languages: Joi.array().items({
         name: Joi.string(),
         skill: Joi.string().valid(
@@ -348,7 +345,6 @@ exports.edit = asyncHandler(async (req, res, next) => {
       }),
     });
     // Pasrsing
-
     const results = schema.validate(req.body);
     if (results.error) {
       return res
@@ -424,7 +420,6 @@ exports.edit = asyncHandler(async (req, res, next) => {
         }
       }
     }
-
     const studentID = user.student;
     // console.log(EDUCATION, "EDUCATION");
 
@@ -454,7 +449,6 @@ exports.edit = asyncHandler(async (req, res, next) => {
           positionSought: positionSought
             ? positionSought
             : tempUser.positionSought,
-
           resume: uploadedResume,
           languages: languages ? languages : tempUser.languages,
         },
@@ -472,14 +466,12 @@ exports.edit = asyncHandler(async (req, res, next) => {
         softSkills: softSkills,
         hard_Skills: hardSkills,
         positionSought: positionSought,
-
         languages: languages,
         resume: uploadedResume,
         user: user._id,
       });
 
       await userobj.save();
-
       // Assigning new student ID to Loggined In User //
       await user.updateOne({
         student: userobj._id,
@@ -489,7 +481,6 @@ exports.edit = asyncHandler(async (req, res, next) => {
     const updateUser = await User.findByIdAndUpdate(req.user.id, {
       student: userobj._id,
     }).populate("student");
-
     res.status(200).json({ message: Texts.userUpdated, user: updateUser });
   } catch (err) {
     res.status(400).json({ message: err.message });

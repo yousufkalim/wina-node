@@ -39,7 +39,6 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
     if (results.error) {
       return res.status(400).send(results.error.details[0].message);
     }
-
     const {
       firstName,
       lastName,
