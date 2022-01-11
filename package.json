@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "deploy": "git pull origin main && npm install && pm2 restart 9"
+    "deploy": "sudo chmod 644 .git/index && git pull origin main && npm install && sudo pm2 restart 16 && sudo pm2 logs 16"
   },
   "author": "Hanan Ahmad",
   "license": "ISC",
