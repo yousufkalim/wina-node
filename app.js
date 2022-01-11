@@ -122,7 +122,7 @@ app.use((error, req, res, next) => {
 //// Setting Port for Server ////
 
 //// Setting Port for Server ////
-const PORT = 9190 || process.env.PORT;
+const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server listening to port ${PORT}`);
 });
