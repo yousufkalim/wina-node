@@ -273,7 +273,6 @@ exports.GetJob = asyncHandler(async (req, res, next) => {
       },
     ];
     const requestedUser = await User.findById(req.user.id);
-
     if (!requestedUser.type) {
       res.status(400).send({ message: Texts.notAuthorized });
     }
@@ -283,7 +282,7 @@ exports.GetJob = asyncHandler(async (req, res, next) => {
       res.status(200).send({ job: job, message: "Job fetched successfully" });
     }
   } catch (error) {
-    res.status(200).send({ message: error });
+    res.status(200).send({ message: error.message });
     next(err);
   }
 });
@@ -983,7 +982,7 @@ exports.GetStudentAppliedSuccessJobs = asyncHandler(async (req, res, next) => {
         },
       })
       .populate(populateQuery);
-
+      console.log(results,"re")
     // .populate(populateQuery);
     if (results) {
       res.status(200).send({

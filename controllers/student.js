@@ -654,7 +654,9 @@ exports.DeleteProfessionalInfo = asyncHandler(async (req, res, next) => {
 
 exports.GetSkills = asyncHandler(async (req, res, next) => {
   try {
-    const { type } = req.body;
+    const { type,query} = req.body;
+    // var query="négociat"
+    console.log(query,"Query")
     if (type === "Soft Skill") {
       const skills = await Skill.find({
         $and: [
@@ -662,8 +664,10 @@ exports.GetSkills = asyncHandler(async (req, res, next) => {
           {
             isDeleted: false,
           },
+          { skillField: { $regex: query, $options: "$i" }}
         ],
-      });
+      }).limit(10);
+      console.log(skills,"SKILLS")
       res
         .status(200)
         .send({ skills: skills, message: "Skills has fetched successfully" });
@@ -674,8 +678,9 @@ exports.GetSkills = asyncHandler(async (req, res, next) => {
           {
             isDeleted: false,
           },
+          { skillField: { $regex: query, $options: "$i" }}
         ],
-      });
+      }).limit(10);
       res
         .status(200)
         .send({ skills: skills, message: "Skills has fetched successfully" });

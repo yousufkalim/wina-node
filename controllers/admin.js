@@ -3,6 +3,8 @@ const nodemailer = require("nodemailer");
 const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Skill = require("../models/Skill");
+const xlsxFile = require("read-excel-file/node");
+const fs = require("fs");
 const Domain = require("../models/Domain");
 var xlsx = require("xlsx");
 // var excelFile = require("/public/skills.xlsx");
@@ -1778,3 +1780,63 @@ exports.addJob = asyncHandler(async (req, res, next) => {
     res.json({ message: error.message });
   }
 });
+
+
+
+exports.postHardSkills = async (req, res) => {
+  try {
+    const data = [];
+    var array = [];
+    if(req.file){
+      console.log('file',req.file.path)
+    }
+    // Reading All rows from Excel file and pushing in data array
+    await xlsxFile(req.file.path).then( (rows) => {  
+      rows.forEach(async(item) => {
+        array=item[0].split("\n");
+        data.push({
+          isDeleted:'false',
+          skillField:array[0],
+          skillType:'Hard Skill'
+        });
+       var skix=await Skill.insertMany(data);
+      });
+      res.status(200).send({ msg: "Ok"});
+    });
+
+     // inserting all data in database
+
+    // deleting Excel File after saving data to database
+    
+  } catch (error) {
+    console.log("Error ----> ", error);
+    res.status(500).send("Something Failed");
+  }
+};
+
+
+exports.postSoftSkills = async (req, res) => {
+  try {
+    const data = [];
+    var array = [];
+    // Reading All rows from Excel file and pushing in data array
+    await xlsxFile(req.file.path).then(  (rows) => {  
+      rows.forEach(async(item) => { 
+        array=item[0].split("\r");
+        data.push({
+          isDeleted:'false',
+          skillField:array[0],
+          skillType:'Soft Skill'
+        });
+        console.log(data,"DATA")
+        var skix=await Skill.insertMany(data);
+        console.log(skix)
+      });
+      res.status(200).send({ msg: "Ok"});
+    });
+    
+  } catch (error) {
+    console.log("Error ----> ", error);
+    res.status(500).send("Something Failed");
+  }
+};

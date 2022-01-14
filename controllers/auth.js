@@ -192,6 +192,7 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
 
 exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
   try {
+    console.log("REQ",req.params)
     async.waterfall(
       [
         function (done) {
@@ -218,7 +219,6 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
                     },
                   }
                 );
-
                 let transporter = nodemailer.createTransport({
                   host: "smtp.gmail.com",
                   port: 587,
@@ -238,6 +238,7 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
                   text:
                     Texts.You_have_successfully_verified,
                 };
+                console.log
                 transporter.sendMail(mailOptions, (error, info) => {
                   if (error) {
                     return res.status(400).json({ message: error.message });
@@ -245,7 +246,7 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
                   res.status(200).json({
                     message: Texts.success + Texts.You_have_successfully_registered_on_WINA,
                   });
-                  done(err);
+                  done(error);
                 });
               }
             }
@@ -269,8 +270,8 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
 
 //Login User
 exports.login = asyncHandler(async (req, res, next) => {
+  console.log(req.body,"REQ")
   const { email, password } = req.body;
-
   const schema = Joi.object().keys({
     email: Joi.string().max(40).required().email(),
     password: Joi.string().min(6).max(255).required(),
