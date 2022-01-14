@@ -145,7 +145,7 @@ exports.requestForgetPassword = asyncHandler(async (req, res, next) => {
 //Forget Password update//
 exports.forgetPassword = asyncHandler(async (req, res, next) => {
   try {
-    // console.log(req.body);
+     console.log(req.body,"REQ");
     const user = await User.findOne({
       resetPasswordToken: req.query.passwordToken,
       restPasswordExpires: {
