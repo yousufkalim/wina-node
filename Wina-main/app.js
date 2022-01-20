@@ -218,9 +218,8 @@ io.on("connection", (socket) => {
 //       passReqToCallback: true,
 //     },
 //     async function (request, accessToken, refreshToken, profile, done) {
-//       await User.findOne({ email: profile.email }, function (err, user) {
-//         return done(err, user);
-//       });
+//       const email = profile.email;
+//       return done(email);
 //     }
 //   )
 // );
@@ -239,5 +238,17 @@ io.on("connection", (socket) => {
 // );
 
 // app.get("/auth/google/success", async (req, res) => {
-//   res.json({ success: true, user: req.user });
+//   const user = await User.findOne({ email: req.email });
+//   if (user)
+//     return res.send({
+//       success: true,
+//       message: "user exists in db",
+//       user: user,
+//     });
+//   else
+//     return res.send({
+//       success: true,
+//       message: "User dont exist in db need to signup",
+//       user: req.email,
+//     });
 // });

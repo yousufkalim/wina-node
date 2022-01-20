@@ -656,8 +656,8 @@ exports.DeleteProfessionalInfo = asyncHandler(async (req, res, next) => {
 
 exports.GetSkills = asyncHandler(async (req, res, next) => {
   try {
-    const { type } = req.body;
-    // var query="négociat"
+    const { type, query } = req.body;
+    //var query="négociat"
     //console.log(query, "Query");
     if (type === "Soft Skill") {
       const skills = await Skill.find({

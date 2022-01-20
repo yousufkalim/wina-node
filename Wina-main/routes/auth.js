@@ -1,6 +1,10 @@
 const express = require("express");
 const multer = require("multer");
 const router = express.Router();
+const passport = require("passport");
+const FacebookStrategy = require("passport-facebook").Strategy;
+var GoogleStrategy = require("passport-google-oauth2").Strategy;
+const User = require("../models/User");
 
 // MULTER Configuaration //
 const storage = multer.diskStorage({
