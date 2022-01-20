@@ -27,7 +27,7 @@ class DealBreaker {
       return filteredStudents;
       // res.status(200).json({ Jobs: filteredJobs });
     } catch (err) {
-      res.status(200).json({ message: err.message });
+      return res.status(200).json({ message: err.message });
     }
   };
 }
@@ -106,7 +106,7 @@ class MatchingCriteria extends DealBreaker {
       return softSkillsArray.push({ id: student.id, score: score });
     });
     return softSkillsArray;
-  };  
+  };
   hardSkills = async (job, students) => {
     const jobHardSkills = job.hardSkills;
 
@@ -424,7 +424,7 @@ class MatchingCriteria extends DealBreaker {
 
       return newArray;
     } catch (err) {
-      res.status(404).send({ message: err.message });
+      return res.status(404).send({ message: err.message });
       next(err.message);
     }
   };
@@ -433,8 +433,8 @@ class MatchingCriteria extends DealBreaker {
     try {
       let output = [];
       const sortedArray = await this.search(req, res, next);
-
       if (sortedArray !== undefined) {
+        console.log(sortedArray, "Arr");
         await Promise.all(
           sortedArray.map(async (student) => {
             const result = await Student.findByIdAndUpdate(student.studentId, {
@@ -443,10 +443,11 @@ class MatchingCriteria extends DealBreaker {
             output.push(result);
           })
         );
-        res.status(200).json({ students: output });
+        return res.status(200).json({ students: output });
       }
     } catch (err) {
-      res.status(200).json({ message: err.message });
+      //return res.status(200).json({ message: err.message });
+      console.log("err", err.message);
     }
   };
 }

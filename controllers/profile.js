@@ -15,9 +15,9 @@ exports.GetProfile = asyncHandler(async (req, res, next) => {
   try {
     const userID = req.params.id;
     const user = await User.findById(userID).populate("student");
-    res.status(200).json({ user: user });
+    return res.status(200).json({ user: user });
   } catch (err) {
-    res.status(400).res.json({ message: err.message });
+    return res.status(400).res.json({ message: err.message });
   }
 });
 
@@ -55,11 +55,11 @@ exports.editProfile = asyncHandler(async (req, res, next) => {
       },
       { new: true }
     );
-    res
+    return res
       .status(200)
       .json({ message: Texts.Profile_updated_successfully, user: user });
   } catch (err) {
-    res.status(400).res.json({ message: err.message });
+    return res.status(400).res.json({ message: err.message });
   }
 });
 
@@ -83,9 +83,11 @@ exports.DeleteProfile = asyncHandler(async (req, res, next) => {
         { new: true }
       );
     });
-    res.status(200).json({ message: Texts.User_has_been_deleted_Successfully });
+    return res
+      .status(200)
+      .json({ message: Texts.User_has_been_deleted_Successfully });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    return res.status(400).json({ message: err.message });
   }
 });
 
@@ -95,7 +97,9 @@ exports.requestForgetPassword = asyncHandler(async (req, res, next) => {
     const email = req.body.email;
     const user = await User.findOne({ email: email });
     if (!user) {
-      res.status(400).json({ message: Texts.No_user_found_with_this_email });
+      return res
+        .status(400)
+        .json({ message: Texts.No_user_found_with_this_email });
     } else {
       const buf = await crypto.randomBytes(20);
       var token = buf.toString("hex");
@@ -134,10 +138,12 @@ exports.requestForgetPassword = asyncHandler(async (req, res, next) => {
           console.log("mail res", res);
         })
         .catch((err) => res.status(400).json({ message: err.message }));
-      res.status(200).json({ message: Texts.Email_has_been_sent_successfully });
+      return res
+        .status(200)
+        .json({ message: Texts.Email_has_been_sent_successfully });
     }
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    return res.status(400).json({ message: err.message });
     next(err);
   }
 });
@@ -145,7 +151,7 @@ exports.requestForgetPassword = asyncHandler(async (req, res, next) => {
 //Forget Password update//
 exports.forgetPassword = asyncHandler(async (req, res, next) => {
   try {
-     console.log(req.body,"REQ");
+    console.log(req.body, "REQ");
     const user = await User.findOne({
       resetPasswordToken: req.query.passwordToken,
       restPasswordExpires: {
@@ -154,6 +160,7 @@ exports.forgetPassword = asyncHandler(async (req, res, next) => {
     });
 
     if (!user) {
+      return;
       res.status(400).json({
         message: Texts.invalidToken,
       });
@@ -173,7 +180,7 @@ exports.forgetPassword = asyncHandler(async (req, res, next) => {
         { new: true }
       );
     } else {
-      res.status(400).json({ message: Texts.passwordInvalid });
+      return res.status(400).json({ message: Texts.passwordInvalid });
     }
 
     var smtpTransport = nodemailer.createTransport({
@@ -198,12 +205,10 @@ exports.forgetPassword = asyncHandler(async (req, res, next) => {
         return res.status(400).json({ message: error.message });
       }
     });
-    res
-      .status(200)
-      .json({
-        message: Texts.Password_updated_successfully,
-        user: updatedUser,
-      });
+    return res.status(200).json({
+      message: Texts.Password_updated_successfully,
+      user: updatedUser,
+    });
   } catch (err) {
     next(err);
   }
@@ -234,14 +239,14 @@ exports.getAllNotifications = asyncHandler(async (req, res, next) => {
           (not) => not.statusNew == true
         );
 
-        res
+        return res
           .status(200)
           .json({ message: "Success!", notifications: notifications });
       } else {
         const notifications = requestedUser.student.notifications.filter(
           (not) => not.statusNew == true
         );
-        res
+        return res
           .status(200)
           .json({ message: "Success!", notifications: notifications });
       }
@@ -300,7 +305,9 @@ exports.updateNotifications = asyncHandler(async (req, res, next) => {
       );
     }
 
-    res.status(200).json({ message: "Success!", notifications: tempNotify });
+    return res
+      .status(200)
+      .json({ message: "Success!", notifications: tempNotify });
   } catch (err) {
     next(err);
   }

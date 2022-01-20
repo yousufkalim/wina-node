@@ -6,7 +6,7 @@ const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Company = require("../models/Company");
 const Student = require("../models/Student");
-const { Texts } = require('../utils/texts')
+const { Texts } = require("../utils/texts");
 //REGISTER USER API
 exports.registerUser = asyncHandler(async (req, res, next) => {
   try {
@@ -59,9 +59,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
     //// Check If user exist with this Email or not ////
     const result = await User.findOne({ email: email });
     if (result) {
-      res
-        .status(404)
-        .send({ message: Texts.emailExists });
+      res.status(404).send({ message: Texts.emailExists });
     } else {
       // Saving User in DataBase
       const user = await User.create({
@@ -91,13 +89,12 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
       } else {
         updateUser = user;
       }
-      res
+      return res
         .status(200)
         .json({ user: updateUser, message: Texts.userCreated });
     }
   } catch (err) {
-    res.status(400).json({ message: err.message });
-
+    return res.status(400).json({ message: err.message });
   }
 });
 
@@ -158,21 +155,25 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
             from: process.env.MailingId,
             subject: Texts.Verification_email_TITLE,
             text:
-              Texts.Verification_email_BODY1 + "\n\n" +
-              Texts.Verification_email_BODY2 + " :\n\n" +
-
-              "URL:" + "\n\n" +
+              Texts.Verification_email_BODY1 +
+              "\n\n" +
+              Texts.Verification_email_BODY2 +
+              " :\n\n" +
+              "URL:" +
+              "\n\n" +
               `${process.env.verifyEmail}` +
               "/verifyEmail/" +
-              token + "\n\n" +
-              Texts.Verification_email_URL + "\n\n"
+              token +
+              "\n\n" +
+              Texts.Verification_email_URL +
+              "\n\n",
           };
 
           transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
               return res.status(400).json({ message: error.message });
             }
-            res
+            return res
               .status(200)
               .json({ message: Texts.Verification_email_has_been_sent });
           });
@@ -180,7 +181,9 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
       ],
       function (err) {
         if (err) return next(err);
-        res.status(200).send({ message: Texts.Verification_email_has_been_sent });
+        res
+          .status(200)
+          .send({ message: Texts.Verification_email_has_been_sent });
       }
     );
   } catch (error) {
@@ -192,7 +195,7 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
 
 exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
   try {
-    console.log("REQ",req.params)
+    console.log("REQ", req.params);
     async.waterfall(
       [
         function (done) {
@@ -235,16 +238,17 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
                   to: user.email,
                   from: process.env.MailingId,
                   subject: Texts.emailVerificationSent,
-                  text:
-                    Texts.You_have_successfully_verified,
+                  text: Texts.You_have_successfully_verified,
                 };
-                console.log
+                console.log;
                 transporter.sendMail(mailOptions, (error, info) => {
                   if (error) {
                     return res.status(400).json({ message: error.message });
                   }
-                  res.status(200).json({
-                    message: Texts.success + Texts.You_have_successfully_registered_on_WINA,
+                  return res.status(200).json({
+                    message:
+                      Texts.success +
+                      Texts.You_have_successfully_registered_on_WINA,
                   });
                   done(error);
                 });
@@ -255,13 +259,13 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
       ],
       function (err) {
         console.log(err, "err");
-        res.status(400).json({
+        return res.status(400).json({
           message: err.message,
         });
       }
     );
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       message: error.message,
     });
     next(error);
@@ -270,7 +274,7 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
 
 //Login User
 exports.login = asyncHandler(async (req, res, next) => {
-  console.log(req.body,"REQ")
+  console.log(req.body, "REQ");
   const { email, password } = req.body;
   const schema = Joi.object().keys({
     email: Joi.string().max(40).required().email(),
@@ -284,22 +288,16 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   //validating email and password
   if (!email) {
-    return res
-      .status(400)
-      .send({ message: Texts.emailRequired });
+    return res.status(400).send({ message: Texts.emailRequired });
   }
   if (!password) {
-    return res
-      .status(400)
-      .send({ message: Texts.passwordRequired });
+    return res.status(400).send({ message: Texts.passwordRequired });
   }
 
   // check if user exists //
   const user = await User.findOne({ email: email }).select("+password");
   if (!user) {
-    return res
-      .status(400)
-      .send({ message: Texts.Register_your_account });
+    return res.status(400).send({ message: Texts.Register_your_account });
   }
 
   // check if user exists //
@@ -308,9 +306,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   );
 
   if (!result) {
-    return res
-      .status(400)
-      .send({ message: Texts.unverifiedEmail});
+    return res.status(400).send({ message: Texts.unverifiedEmail });
   }
   // Check if password matches
 
@@ -356,13 +352,13 @@ const sendTokenResponse = async (user, statusCode, res) => {
   if (user) {
     const student = await User.findById(user._id).populate(populateQuery);
 
-    res.status(statusCode).cookie("token", token, options).json({
+    return res.status(statusCode).cookie("token", token, options).json({
       token: token,
       user: student,
-      message:Texts.loginSuccess,
+      message: Texts.loginSuccess,
     });
   } else {
-    res.send({ message: Texts.error });
+    return res.send({ message: Texts.error });
   }
 };
 

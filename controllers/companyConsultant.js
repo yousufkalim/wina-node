@@ -40,7 +40,7 @@ exports.editInfo = asyncHandler(async (req, res, next) => {
         new: true,
       }
     );
-    res.status(200).json({
+    return res.status(200).json({
       message: Texts.success,
       CompanyConsultant: companyConsultant,
     });

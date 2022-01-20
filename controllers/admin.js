@@ -23,7 +23,7 @@ exports.skillList = asyncHandler(async (req, res, next) => {
     const listOfSkills = await Skill.find({ isDeleted: false }).sort({
       _id: -1,
     });
-    res.status(200).json({ listOfSkills: listOfSkills });
+    return res.status(200).json({ listOfSkills: listOfSkills });
   } catch (err) {
     next(err);
   }
@@ -49,7 +49,7 @@ exports.createSkill = asyncHandler(async (req, res, next) => {
     });
     await newSkill.save();
     const skills = await Skill.find();
-    res
+    return res
       .status(200)
       .json({ message: Texts.Skill_created_successfully, skills: skills });
   } catch (err) {
@@ -81,7 +81,7 @@ exports.editSkill = asyncHandler(async (req, res, next) => {
         new: true,
       }
     );
-    res.status(200).json({ message: Texts.Skill_Updated_Successfully });
+    return res.status(200).json({ message: Texts.Skill_Updated_Successfully });
   } catch (err) {
     next(err);
   }
@@ -101,7 +101,7 @@ exports.deleteSkill = asyncHandler(async (req, res, next) => {
         new: true,
       }
     );
-    res.status(200).json({ message: Texts.Skill_Deleted_Successfully });
+    return res.status(200).json({ message: Texts.Skill_Deleted_Successfully });
   } catch (err) {
     next(err);
   }
@@ -112,7 +112,7 @@ exports.domainList = asyncHandler(async (req, res, next) => {
     const domains = await Domain.find({ isDeleted: false }).sort({
       createdAt: -1,
     });
-    res.status(200).json({ domains: domains });
+    return res.status(200).json({ domains: domains });
   } catch (err) {
     next(err);
   }
@@ -134,7 +134,7 @@ exports.createDomain = asyncHandler(async (req, res, next) => {
     }
     await Domain.create(req.body);
     const domains = await Domain.find();
-    res
+    return res
       .status(200)
       .json({ message: Texts.Domain_created_successfully, domains: domains });
   } catch (err) {
@@ -159,7 +159,7 @@ exports.editDomain = asyncHandler(async (req, res, next) => {
     });
     const domains = await Domain.find();
 
-    res
+    return res
       .status(200)
       .json({ domains, message: Texts.Domain_Updated_Successfully });
   } catch (err) {
@@ -181,7 +181,7 @@ exports.deleteDomain = asyncHandler(async (req, res, next) => {
         new: true,
       }
     );
-    res.status(200).json({ message: Texts.Skill_Deleted_Successfully });
+    return res.status(200).json({ message: Texts.Skill_Deleted_Successfully });
   } catch (err) {
     next(err);
   }
@@ -193,7 +193,7 @@ exports.deleteDomain = asyncHandler(async (req, res, next) => {
 exports.jobList = asyncHandler(async (req, res, next) => {
   try {
     const jobList = await Job.find({ isDeleted: false });
-    res.status(200).json({ ListOfJobs: jobList });
+    return res.status(200).json({ ListOfJobs: jobList });
   } catch (err) {
     next(err);
   }
@@ -306,7 +306,7 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       $push: { job: newJob._id },
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: Texts.success + Texts.jobCreated,
       job: newJob,
       user: requestedUser,
@@ -418,7 +418,7 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
         new: true,
       }
     );
-    res.status(200).json({ message: Texts.success, Job: updatedJob });
+    return res.status(200).json({ message: Texts.success, Job: updatedJob });
   } catch (err) {
     next(err);
   }
@@ -438,7 +438,7 @@ exports.DeleteJob = asyncHandler(async (req, res, next) => {
         $pull: { job: jobID },
       });
     });
-    res.status(200).json({ message: Texts.success });
+    return res.status(200).json({ message: Texts.success });
   } catch (err) {
     next(err);
   }
@@ -450,7 +450,7 @@ exports.DeleteJob = asyncHandler(async (req, res, next) => {
 exports.companyList = asyncHandler(async (req, res, next) => {
   try {
     const listOfCompanies = await Company.find({ isDeleted: false });
-    res.status(200).json({ listOfCompanies: listOfCompanies });
+    return res.status(200).json({ listOfCompanies: listOfCompanies });
   } catch (err) {
     next(err);
   }
@@ -531,13 +531,13 @@ exports.registerCompany = asyncHandler(async (req, res, next) => {
     const user = await User.findByIdAndUpdate(req.user.id, {
       company: newCompany._id,
     });
-    res.status(200).json({
+    return res.status(200).json({
       message: Texts.success,
       Company: newCompany,
       user: user,
     });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    return res.status(400).json({ message: err.message });
   }
 });
 
@@ -603,12 +603,12 @@ exports.editCompany = asyncHandler(async (req, res, next) => {
       },
       { new: true }
     );
-    res.status(200).json({
+    return res.status(200).json({
       message: Texts.success,
       company: company,
     });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    return res.status(400).json({ message: err.message });
   }
 });
 
@@ -632,7 +632,7 @@ exports.deleteCompany = asyncHandler(async (req, res, next) => {
       );
     });
 
-    res
+    return res
       .status(200)
       .json({ message: Texts.Company_has_been_deleted_Successfully });
   } catch (err) {
@@ -714,6 +714,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
         phone,
       });
 
+      return;
       res.status(200).json({ message: Texts.userCreated, user: user });
     }
   } catch (err) {
@@ -726,9 +727,9 @@ exports.GetProfile = asyncHandler(async (req, res, next) => {
   try {
     const userID = req.params.id;
     const user = await User.findById(userID);
-    res.status(200).json({ user: user });
+    return res.status(200).json({ user: user });
   } catch (err) {
-    res.status(400).res.json({ message: err.message });
+    return res.status(400).res.json({ message: err.message });
   }
 });
 
@@ -766,9 +767,9 @@ exports.editProfile = asyncHandler(async (req, res, next) => {
       },
       { new: true }
     );
-    res.status(200).json({ message: Texts.userUpdated, user: user });
+    return res.status(200).json({ message: Texts.userUpdated, user: user });
   } catch (err) {
-    res.status(400).res.json({ message: err.message });
+    return res.status(400).res.json({ message: err.message });
   }
 });
 
@@ -808,7 +809,9 @@ exports.DeleteProfile = asyncHandler(async (req, res, next) => {
         );
       }
     });
-    res.status(200).json({ message: "User has been deleted Successfully!" });
+    return res
+      .status(200)
+      .json({ message: "User has been deleted Successfully!" });
   } catch (err) {
     next(err);
   }
@@ -844,7 +847,7 @@ exports.StudentfilesToValidate = asyncHandler(async (req, res, next) => {
       pictures.push(item.professional_Picture);
       videos.push(item.presentation_Video);
     });
-    res
+    return res
       .status(200)
       .json({ students: students, pictures: pictures, videos: videos });
   } catch (err) {
@@ -917,7 +920,7 @@ exports.validateImages = asyncHandler(async (req, res, next) => {
         }
       });
 
-      res.status(200).json({ message: Texts.Picture_has_been_deleted });
+      return res.status(200).json({ message: Texts.Picture_has_been_deleted });
     }
   } catch (err) {
     next(err);
@@ -960,7 +963,7 @@ exports.validateVideo = asyncHandler(async (req, res, next) => {
           return res.status(400).json({ message: error.message });
         }
       });
-      res.status(200).json({ message: "Video validated" });
+      return res.status(200).json({ message: "Video validated" });
     } else if (decision == "refuse") {
       const student = await Student.findByIdAndUpdate(studentId, {
         $unset: { presentation_Video: 1 },
@@ -988,7 +991,7 @@ exports.validateVideo = asyncHandler(async (req, res, next) => {
           return res.status(400).json({ message: error.message });
         }
       });
-      res.status(200).json({ message: Texts.Video_has_been_deleted });
+      return res.status(200).json({ message: Texts.Video_has_been_deleted });
     }
   } catch (err) {
     next(err);
@@ -1033,7 +1036,7 @@ exports.validateJobImages = asyncHandler(async (req, res, next) => {
           return res.status(400).json({ message: error.message });
         }
       });
-      res.status(200).json({ message: Texts.Picture_validated });
+      return res.status(200).json({ message: Texts.Picture_validated });
     } else if (decision == "refuse") {
       const job = await Job.findByIdAndUpdate(jobID, {
         $unset: { photo: 1 },
@@ -1062,7 +1065,7 @@ exports.validateJobImages = asyncHandler(async (req, res, next) => {
         }
       });
 
-      res.status(200).json({ message: Texts.Picture_has_been_deleted });
+      return res.status(200).json({ message: Texts.Picture_has_been_deleted });
     }
   } catch (err) {
     next(err);
@@ -1147,7 +1150,7 @@ exports.createConsultantProfile = asyncHandler(async (req, res, next) => {
               studentConsultant: studentConsultant._id,
             });
           });
-          res
+          return res
             .status(200)
             .json({ user: user, studentConsultant: studentConsultant });
         } else if (type == "companyConsultant") {
@@ -1161,7 +1164,7 @@ exports.createConsultantProfile = asyncHandler(async (req, res, next) => {
               companyConsultant: companyConsultant._id,
             });
           });
-          res
+          return res
             .status(200)
             .json({ user: user, companyConsultant: companyConsultant });
         }
@@ -1178,7 +1181,7 @@ exports.consultantProfileTeacher = asyncHandler(async (req, res, next) => {
       .sort({
         _id: -1,
       });
-    res.status(200).json({ consultantTeacher: data });
+    return res.status(200).json({ consultantTeacher: data });
   } catch (err) {
     next(err);
   }
@@ -1190,7 +1193,7 @@ exports.consultantProfileStudent = asyncHandler(async (req, res, next) => {
       .sort({
         _id: -1,
       });
-    res.status(200).json({ consultantStudent: data });
+    return res.status(200).json({ consultantStudent: data });
   } catch (err) {
     next(err);
   }
@@ -1224,7 +1227,7 @@ exports.registerSchool = asyncHandler(async (req, res, next) => {
       createdBy: user.role,
     });
     await newSchool.save();
-    res
+    return res
       .status(200)
       .json({ message: Texts.School_Created_Successfully, school: newSchool });
   } catch (err) {
@@ -1265,7 +1268,7 @@ exports.editSchool = asyncHandler(async (req, res, next) => {
       { new: true }
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       message: Texts.School_updated_Successfully,
       school: updatedSchool,
     });
@@ -1287,7 +1290,7 @@ exports.deleteSchool = asyncHandler(async (req, res, next) => {
       { new: true }
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       message: Texts.Skill_Deleted_Successfully,
       school: updatedSchool,
     });
@@ -1305,9 +1308,9 @@ exports.getAllAppointments = asyncHandler(async (req, res, next) => {
       "company"
     );
     if (!appointments) {
-      res.status(200).json({ message: "There is no Appointment ATM" });
+      return res.status(200).json({ message: "There is no Appointment ATM" });
     } else {
-      res
+      return res
         .status(200)
         .json({ message: Texts.success, Appointments: appointments });
     }
@@ -1322,9 +1325,9 @@ exports.getAllPendingAppointments = asyncHandler(async (req, res, next) => {
   try {
     const appointments = await Appointment.find({ status: "Pending" });
     if (!appointments) {
-      res.status(200).json({ message: "There is no Appointment ATM" });
+      return res.status(200).json({ message: "There is no Appointment ATM" });
     } else {
-      res
+      return res
         .status(200)
         .json({ message: Texts.success, Appointments: appointments });
     }
@@ -1346,9 +1349,9 @@ exports.getAllStudentAppointments = asyncHandler(async (req, res, next) => {
       }
     });
     if (filteredArray.length == 0) {
-      res.status(200).json({ message: "There is no Appointment ATM" });
+      return res.status(200).json({ message: "There is no Appointment ATM" });
     } else {
-      res
+      return res
         .status(200)
         .json({ message: Texts.success, Appointments: filteredArray });
     }
@@ -1370,9 +1373,9 @@ exports.getAllCompanyAppointments = asyncHandler(async (req, res, next) => {
       }
     });
     if (filteredArray.length == 0) {
-      res.status(200).json({ message: "There is no Appointment ATM" });
+      return res.status(200).json({ message: "There is no Appointment ATM" });
     } else {
-      res
+      return res
         .status(200)
         .json({ message: Texts.success, Appointments: filteredArray });
     }
@@ -1395,6 +1398,7 @@ exports.editAppointment = asyncHandler(async (req, res, next) => {
         new: true,
       }
     );
+    return;
     res.status(200).json({ message: "Success! Appointment Edited" });
   } catch (err) {
     next(err);
@@ -1414,7 +1418,7 @@ exports.deleteAppointment = asyncHandler(async (req, res, next) => {
         new: true,
       }
     );
-    res.status(200).json({ message: "Success! Appointment Deleted" });
+    return res.status(200).json({ message: "Success! Appointment Deleted" });
   } catch (err) {
     next(err);
   }
@@ -1504,7 +1508,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
             return res.status(400).json({ message: error.message });
           }
         });
-
+        return;
         res.status(200).json({
           message: Texts.Your_Appointment_has_been_approved_successfully,
         });
@@ -1560,7 +1564,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
             return res.status(400).json({ message: error.message });
           }
         });
-        res.status(200).json({ message: "Appointment cancelled!" });
+        return res.status(200).json({ message: "Appointment cancelled!" });
       }
     }
     if (result.company) {
@@ -1637,7 +1641,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           }
         });
 
-        res.status(200).json({ message: Texts.Appointment_Approved });
+        return res.status(200).json({ message: Texts.Appointment_Approved });
       } else if (decision == "Disapprove") {
         const appointment = await Appointment.findByIdAndUpdate(
           appointmentId,
@@ -1690,7 +1694,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
             return res.status(400).json({ message: error.message });
           }
         });
-        res.status(200).json({ message: Texts.Appointment_Cancelled });
+        return res.status(200).json({ message: Texts.Appointment_Cancelled });
       }
     }
   } catch (err) {
@@ -1775,66 +1779,61 @@ exports.addJob = asyncHandler(async (req, res, next) => {
       });
     }
     let jobs = await Job.find();
-    res.json({ message: "success", jobs });
+    return res.json({ message: "success", jobs });
   } catch (error) {
-    res.json({ message: error.message });
+    return res.json({ message: error.message });
   }
 });
-
-
 
 exports.postHardSkills = async (req, res) => {
   try {
     const data = [];
     var array = [];
-    if(req.file){
-      console.log('file',req.file.path)
+    if (req.file) {
+      console.log("file", req.file.path);
     }
     // Reading All rows from Excel file and pushing in data array
-    await xlsxFile(req.file.path).then( (rows) => {  
-      rows.forEach(async(item) => {
-        array=item[0].split("\n");
+    await xlsxFile(req.file.path).then((rows) => {
+      rows.forEach(async (item) => {
+        array = item[0].split("\n");
         data.push({
-          isDeleted:'false',
-          skillField:array[0],
-          skillType:'Hard Skill'
+          isDeleted: "false",
+          skillField: array[0],
+          skillType: "Hard Skill",
         });
-       var skix=await Skill.insertMany(data);
+        var skix = await Skill.insertMany(data);
       });
-      res.status(200).send({ msg: "Ok"});
+      res.status(200).send({ msg: "Ok" });
     });
 
-     // inserting all data in database
+    // inserting all data in database
 
     // deleting Excel File after saving data to database
-    
   } catch (error) {
     console.log("Error ----> ", error);
     res.status(500).send("Something Failed");
   }
 };
 
-
 exports.postSoftSkills = async (req, res) => {
   try {
     const data = [];
     var array = [];
     // Reading All rows from Excel file and pushing in data array
-    await xlsxFile(req.file.path).then(  (rows) => {  
-      rows.forEach(async(item) => { 
-        array=item[0].split("\r");
+    await xlsxFile(req.file.path).then((rows) => {
+      rows.forEach(async (item) => {
+        array = item[0].split("\r");
         data.push({
-          isDeleted:'false',
-          skillField:array[0],
-          skillType:'Soft Skill'
+          isDeleted: "false",
+          skillField: array[0],
+          skillType: "Soft Skill",
         });
-        console.log(data,"DATA")
-        var skix=await Skill.insertMany(data);
-        console.log(skix)
+        console.log(data, "DATA");
+        var skix = await Skill.insertMany(data);
+        console.log(skix);
       });
-      res.status(200).send({ msg: "Ok"});
+      return res.status(200).send({ msg: "Ok" });
     });
-    
   } catch (error) {
     console.log("Error ----> ", error);
     res.status(500).send("Something Failed");

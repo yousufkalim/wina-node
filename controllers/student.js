@@ -139,7 +139,7 @@ exports.register = asyncHandler(async (req, res, next) => {
             status: "To be Validated",
           };
         } else {
-          res
+          return res
             .status(400)
             .send({ message: Texts.Please_select_an_image_of_File_type_jpg });
         }
@@ -200,11 +200,11 @@ exports.register = asyncHandler(async (req, res, next) => {
       student: newStudent._id,
     });
 
-    res
+    return res
       .status(200)
       .json({ message: Texts.success, student: newStudent, user: user });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    return res.status(400).json({ message: err.message });
   }
 });
 
@@ -213,7 +213,7 @@ exports.GetStudentProfile = asyncHandler(async (req, res, next) => {
   try {
     const studentID = req.params.id;
     const student = await Student.findById(studentID).populate("student");
-    res.status(200).json({ user: student });
+    return res.status(200).json({ user: student });
   } catch (err) {
     next(err);
   }
@@ -395,7 +395,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
             status: "To be Validated",
           };
         } else {
-          res
+          return res
             .status(400)
             .send({ message: Texts.Please_select_an_image_of_File_type_jpg });
         }
@@ -414,7 +414,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
             uploadedResume = req.files.resume[0].filename;
           }
         } else {
-          res
+          return res
             .status(400)
             .send({ message: Texts.Please_select_an_resume_of_File_type_PDF });
         }
@@ -481,9 +481,11 @@ exports.edit = asyncHandler(async (req, res, next) => {
     const updateUser = await User.findByIdAndUpdate(req.user.id, {
       student: userobj._id,
     }).populate("student");
-    res.status(200).json({ message: Texts.userUpdated, user: updateUser });
+    return res
+      .status(200)
+      .json({ message: Texts.userUpdated, user: updateUser });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    return res.status(400).json({ message: err.message });
     next(err);
   }
 });
@@ -501,7 +503,7 @@ exports.DeleteProfile = asyncHandler(async (req, res, next) => {
       { new: true }
     );
 
-    res.status(200).json({ message: Texts.userDeleted });
+    return res.status(200).json({ message: Texts.userDeleted });
   } catch (err) {
     next(err);
   }
@@ -538,7 +540,7 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
       }
     );
 
-    res.status(200).json({ message: Texts.success });
+    return res.status(200).json({ message: Texts.success });
   } catch (err) {
     next(err);
   }
@@ -560,7 +562,7 @@ exports.searchForJob = asyncHandler(async (req, res, next) => {
     // matchingCriteria.search(req, res, next);
     matchingCriteria.display(req, res, next);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    return res.status(400).json({ message: err.message });
 
     next(err);
   }
@@ -591,7 +593,7 @@ exports.GetUser = asyncHandler(async (req, res, next) => {
       type: type,
     }).populate(populateQuery);
 
-    res.status(200).json({
+    return res.status(200).json({
       message: Texts.userData,
       user: requestedUser,
     });
@@ -616,7 +618,7 @@ exports.DeleteSchool = asyncHandler(async (req, res, next) => {
     const updated_user = await User.findByIdAndUpdate(req.user.id, {
       student: student._id,
     }).populate("student");
-    res.status(200).json({
+    return res.status(200).json({
       message: Texts.schoolDeleted,
       user: updated_user,
     });
@@ -641,7 +643,7 @@ exports.DeleteProfessionalInfo = asyncHandler(async (req, res, next) => {
     const updated_user = await User.findByIdAndUpdate(req.user.id, {
       student: student._id,
     }).populate("student");
-    res.status(200).json({
+    return res.status(200).json({
       message: Texts.professional_info_deleted,
       user: updated_user,
     });
@@ -654,9 +656,9 @@ exports.DeleteProfessionalInfo = asyncHandler(async (req, res, next) => {
 
 exports.GetSkills = asyncHandler(async (req, res, next) => {
   try {
-    const { type,query} = req.body;
-    // var query="négociat"
-    console.log(query,"Query")
+    const { type, query } = req.body;
+    //var query="négociat"
+    //console.log(query, "Query");
     if (type === "Soft Skill") {
       const skills = await Skill.find({
         $and: [
@@ -664,11 +666,11 @@ exports.GetSkills = asyncHandler(async (req, res, next) => {
           {
             isDeleted: false,
           },
-          { skillField: { $regex: query, $options: "$i" }}
+          //{ skillField: { $regex: query, $options: "$i" } },
         ],
       }).limit(10);
-      console.log(skills,"SKILLS")
-      res
+      console.log(skills, "SKILLS");
+      return res
         .status(200)
         .send({ skills: skills, message: "Skills has fetched successfully" });
     } else {
@@ -678,15 +680,15 @@ exports.GetSkills = asyncHandler(async (req, res, next) => {
           {
             isDeleted: false,
           },
-          { skillField: { $regex: query, $options: "$i" }}
+          //{ skillField: { $regex: query, $options: "$i" } },
         ],
       }).limit(10);
-      res
+      return res
         .status(200)
         .send({ skills: skills, message: "Skills has fetched successfully" });
     }
   } catch (error) {
-    res.status(200).send({ message: error.message });
+    return res.status(200).send({ message: error.message });
     next(error);
   }
 });
@@ -706,7 +708,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           new: true,
         }
       );
-      res
+      return res
         .status(200)
         .json({ message: Texts.success + Texts.Appoinment_Disapproved });
     } else {
@@ -717,7 +719,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           new: true,
         }
       );
-      res
+      return res
         .status(200)
         .json({ message: Texts.success + Texts.Appoinment_Approved });
     }

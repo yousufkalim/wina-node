@@ -26,7 +26,7 @@ class DealBreaker {
       return filteredJobs;
       // res.status(200).json({ Jobs: filteredJobs });
     } catch (err) {
-      res.status(200).json({ message: err.message });
+      return res.status(200).json({ message: err.message });
     }
   };
 }
@@ -204,7 +204,6 @@ class MatchingCriteria extends DealBreaker {
       const result = studentDuration[0] - jobDuration[0];
 
       if (result == 0) {
-    
         score = 1;
       } else if (result == 1) {
         score = 0.4;
@@ -412,7 +411,7 @@ class MatchingCriteria extends DealBreaker {
       });
       return newArray;
     } catch (err) {
-      res.status(200).json({ message: err.message });
+      return res.status(200).json({ message: err.message });
     }
   };
 
@@ -421,6 +420,7 @@ class MatchingCriteria extends DealBreaker {
       let output = [];
       const sortedArray = await this.search(req, res, next);
       if (sortedArray !== undefined) {
+        console.log(sortedArray, "Arr");
         await Promise.all(
           sortedArray.map(async (job) => {
             const newJob = await Job.findByIdAndUpdate(job.jobId, {
@@ -430,9 +430,10 @@ class MatchingCriteria extends DealBreaker {
           })
         );
       }
-      res.status(200).json({ jobs: output });
+      return res.status(200).json({ jobs: output });
     } catch (err) {
-      res.status(200).json({ message: err.message });
+      console.log("err", err.message);
+      //return res.status(200).json({ message: err.message });
     }
   };
 }
