@@ -33,10 +33,10 @@ exports.register = asyncHandler(async (req, res, next) => {
       linkedIn: Joi.string().required().optional().allow(""),
       type: Joi.string().required().optional().allow(""),
       contactPerson: Joi.object().keys({
-      firstName: Joi.string().max(250).required(),
-      lastName: Joi.string().max(250).required(),
-      email: Joi.string().email().required(),
-      positionHeld: Joi.string().required(),
+        firstName: Joi.string().max(250).required(),
+        lastName: Joi.string().max(250).required(),
+        email: Joi.string().email().required(),
+        positionHeld: Joi.string().required(),
         phone: Joi.string()
           .max(10)
           .pattern(/^[0-9]+$/)
@@ -48,7 +48,7 @@ exports.register = asyncHandler(async (req, res, next) => {
     });
     // Storing Error Responses in Result //
     const results = schema.validate(req.body);
-      
+
     if (results.error) {
       return res
         .status(400)
@@ -115,13 +115,13 @@ exports.register = asyncHandler(async (req, res, next) => {
         { new: true }
       );
 
-      res.status(200).json({
+      return res.status(200).json({
         user: updatedUser,
         message: Texts.userCreated,
       });
     }
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    return res.status(400).json({ message: err.message });
   }
 });
 // Edit Company
@@ -186,9 +186,11 @@ exports.editCompany = asyncHandler(async (req, res, next) => {
       },
       { new: true }
     );
-    res.status(200).json({ message: Texts.companyUpdated, company: company });
+    return res
+      .status(200)
+      .json({ message: Texts.companyUpdated, company: company });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    return res.status(400).json({ message: err.message });
   }
 });
 
@@ -210,9 +212,9 @@ exports.deleteCompany = asyncHandler(async (req, res, next) => {
         { multi: true }
       );
     });
-    res.status(200).json({ message: Texts.companyDeleted });
+    return res.status(200).json({ message: Texts.companyDeleted });
   } catch (err) {
-    res.status(400).message({ message: err.message });
+    return res.status(400).message({ message: err.message });
   }
 });
 
@@ -223,14 +225,15 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
     const StudentID = req.params.id;
     const jobID = req.body.id;
     let userID = await Student.findById(StudentID);
-
     const companyId = req.user.company;
-
+    console.log(companyId, "company", "jobID", jobID);
     let results = await Appointment.find({
       $and: [{ student: StudentID }, { jobID: jobID }],
     });
     if (results && results.length) {
-      res.status(400).json({ message: Texts.Appointment_is_already_existed });
+      return res
+        .status(400)
+        .json({ message: Texts.Appointment_is_already_existed });
     } else {
       const newAppointment = new Appointment({
         company: companyId,
@@ -273,7 +276,7 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
         { new: true }
       );
 
-      res
+      return res
         .status(200)
         .json({ message: Texts.success + Texts.Appoinment_Created });
     }

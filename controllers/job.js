@@ -13,7 +13,7 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
   try {
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.company) {
-      res.status(400).json({
+      return res.status(400).json({
         message: Texts.notAuthorized,
       });
     }
@@ -108,13 +108,13 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
     await Company.findByIdAndUpdate(companyID, {
       $push: { job: newJob._id },
     });
-    res.status(200).json({
+    return res.status(200).json({
       message: Texts.success + Texts.jobCreated,
       job: newJob,
       user: requestedUser,
     });
   } catch (err) {
-    res.status(400).json({
+    return res.status(400).json({
       message: err.message,
     });
   }
@@ -219,11 +219,11 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
         new: true,
       }
     );
-    res
+    return res
       .status(200)
       .json({ message: Texts.success + Texts.jobUpdated, Job: updatedJob });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    return res.status(400).json({ message: err.message });
     next(err);
   }
 });
@@ -246,12 +246,12 @@ exports.DeleteJob = asyncHandler(async (req, res, next) => {
             $pull: { job: jobID },
           });
         });
-        res.status(200).json({ message: Texts.jobDeleted });
+        return res.status(200).json({ message: Texts.jobDeleted });
       } else {
-        res.status(400).json({ message: Texts.notAuthorized });
+        return res.status(400).json({ message: Texts.notAuthorized });
       }
     } else {
-      res.status(400).json({ message: Texts.notAuthorized });
+      return res.status(400).json({ message: Texts.notAuthorized });
     }
   } catch (err) {
     next(err);
@@ -274,15 +274,17 @@ exports.GetJob = asyncHandler(async (req, res, next) => {
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
-      res.status(400).send({ message: Texts.notAuthorized });
+      return res.status(400).send({ message: Texts.notAuthorized });
     }
     const jobID = req.params.id;
     const job = await Job.findById(jobID).populate(populateQuery);
     if (job) {
-      res.status(200).send({ job: job, message: "Job fetched successfully" });
+      return res
+        .status(200)
+        .send({ job: job, message: "Job fetched successfully" });
     }
   } catch (error) {
-    res.status(200).send({ message: error.message });
+    return res.status(200).send({ message: error.message });
     next(err);
   }
 });
@@ -290,7 +292,6 @@ exports.GetJob = asyncHandler(async (req, res, next) => {
 // GET all Jobs
 exports.GetJobs = asyncHandler(async (req, res, next) => {
   try {
-    
     const populateQuery = [
       {
         path: "company",
@@ -304,18 +305,19 @@ exports.GetJobs = asyncHandler(async (req, res, next) => {
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
-     return res.status(400).send({ message: Texts.notAuthorized });
-    }
-    else{
+      return res.status(400).send({ message: Texts.notAuthorized });
+    } else {
       const jobs = await Job.find({ company: requestedUser.company }).populate(
         populateQuery
       );
       if (jobs) {
-        return res.status(200).send({ jobs: jobs, message: "Jobs fetched successfully" });
+        return res
+          .status(200)
+          .send({ jobs: jobs, message: "Jobs fetched successfully" });
       }
     }
   } catch (error) {
-    res.status(200).send({ message: error });
+    return res.status(200).send({ message: error });
 
     next(error);
   }
@@ -856,6 +858,7 @@ exports.CancelOfferDecisionByCompany = asyncHandler(async (req, res, next) => {
         .send({ message: results.error.details[0].message });
     }
     const JOB_ID = req.body.id;
+    console.log("job", JOB_ID);
     const SENDER_ID = req.params.id;
     await Job.findByIdAndUpdate(JOB_ID, {
       $pull: {
@@ -982,7 +985,7 @@ exports.GetStudentAppliedSuccessJobs = asyncHandler(async (req, res, next) => {
         },
       })
       .populate(populateQuery);
-      console.log(results,"re")
+    console.log(results, "re");
     // .populate(populateQuery);
     if (results) {
       res.status(200).send({
@@ -1102,10 +1105,12 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
       },
     ];
     const requestedUser = await User.findById(req.user.id);
+    console.log(requestedUser, "User");
     if (!requestedUser.type) {
-      res.status(400).send({ message: Texts.notAuthorized });
+      return res.status(400).send({ message: Texts.notAuthorized });
     }
     const { status, offerID } = req.body;
+    console.log(req.body);
     const JOB_ID = offerID;
     const SENDER_ID = requestedUser.company;
     const company = await Company.findById(SENDER_ID);
@@ -1115,6 +1120,7 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
       offerID: Joi.string().required(),
     });
     let results = schema.validate(req.body);
+    console.log(results, "Result");
     if (results.error) {
       return res
         .status(400)
@@ -1123,6 +1129,7 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
     let temp = await Appointment.find({
       $and: [{ student: RECIEVER_ID }, { jobID: JOB_ID }],
     });
+    console.log(temp, "Temp");
     if (temp && temp.length) {
       return res
         .status(400)
@@ -1144,7 +1151,8 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
       },
     ]).exec(async (err, data) => {
       if (err) {
-        res.status(404).send({ message: err.message });
+        //console.log(err[0].message, "Hi");
+        return res.status(404).send({ message: err.message });
       } else {
         let fill = data.find((fl) => JOB_ID === `${fl._id}`);
         if (fill && fill.company_requests && fill.company_requests.length > 0) {
@@ -1152,7 +1160,8 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
             (sr) => sr.status === "requested" && `${sr.student}` === RECIEVER_ID
           );
           if (check === true) {
-            res
+            console.log(check, "CHECK");
+            return res
               .status(404)
               .send({ message: Texts.You_have_already_sent_a_request });
           } else {
