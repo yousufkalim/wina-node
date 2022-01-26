@@ -3,8 +3,10 @@ const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 const Student = require("../models/Student");
 const Appointment = require("../models/Appointment");
-const matchingAlgo = require("../services/searchJobs");
+//const matchingAlgo = require("../services/searchJobs");
+const matchingAlgo = require("../services/sJobs");
 const Skill = require("../models/Skill");
+const Job = require("../models/Job");
 const { Texts } = require("../utils/texts");
 
 var matchingCriteria = new matchingAlgo.MatchingCriteria();
@@ -560,6 +562,7 @@ exports.searchForJob = asyncHandler(async (req, res, next) => {
     // matchingCriteria.frequencyOfApprenticeship(req, res, next);
     // matchingCriteria.ageRange(req, res, next);
     // matchingCriteria.search(req, res, next);
+    console.log("Request", req.user);
     matchingCriteria.display(req, res, next);
   } catch (err) {
     return res.status(400).json({ message: err.message });

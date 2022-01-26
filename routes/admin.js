@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
     cb(null, "views/uploads");
   },
 });
-const upload = multer({ storage: storage }).single("image");
+const upload = multer({ storage: storage }).single("file");
 // ADMIN CONTROLLER //
 const {
   skillList,
@@ -54,9 +54,8 @@ const {
   getAllStudentAppointments,
   getAllCompanyAppointments,
   deleteAppointment,
-  postSoftSkills,
   addJob,
-  postHardSkills,
+  postAllSkills,
 } = require("../controllers/admin");
 
 // Middleware Functions //
@@ -67,8 +66,8 @@ const { protect, authorize } = require("../middlewares/auth");
 //Skills
 router.get("/skill-list", protect, skillList);
 router.post("/create-skill", createSkill);
-router.post("/postHardSkills",upload,postHardSkills);
-router.post("/postSoftSkills",upload,postSoftSkills);
+router.post("/postAllSkills", upload, postAllSkills);
+router.post("/addJob", upload, addJob);
 router.put("/edit-skill/:id", [protect, authorize("admin")], editSkill);
 router.put("/delete-skill/:id", [protect, authorize("admin")], deleteSkill);
 
@@ -177,6 +176,5 @@ router.post(
   [protect, authorize("admin")],
   validateAppointment
 );
-router.post("/addJob", addJob);
 
 module.exports = router;

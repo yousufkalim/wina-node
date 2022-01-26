@@ -26,7 +26,7 @@ const notificationService = require("./socket.io/notifications");
 
 app.use(
   cors({
-    origin: "*",
+    origin: true,
   })
 );
 
