@@ -56,6 +56,7 @@ const {
   deleteAppointment,
   addJob,
   postAllSkills,
+  CheckSkills,
 } = require("../controllers/admin");
 
 // Middleware Functions //
@@ -66,6 +67,7 @@ const { protect, authorize } = require("../middlewares/auth");
 //Skills
 router.get("/skill-list", protect, skillList);
 router.post("/create-skill", createSkill);
+router.post("/CheckSkills", CheckSkills);
 router.post("/postAllSkills", upload, postAllSkills);
 router.post("/addJob", upload, addJob);
 router.put("/edit-skill/:id", [protect, authorize("admin")], editSkill);

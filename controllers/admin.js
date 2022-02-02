@@ -1900,3 +1900,30 @@ exports.postAllSkills = async (req, res) => {
     res.status(500).send("Something Failed");
   }
 };
+
+exports.CheckSkills = async (req, res) => {
+  try {
+    const findJobs = await Job.find();
+    const findWord = await Skill.find({ wordCheck: { $ne: null } });
+    console.log("Total Wordstobecheck", findWord.length);
+    for (let i = 0; i < findWord.length; i++) {
+      console.log("I Iteration", i);
+      for (let j = 0; j < findJobs.length; j++) {
+        let titleArr = findJobs[j].title.split("/").join(",").split("-");
+        for (let n = 0; n < titleArr.length; n++) {
+          titleArr = titleArr[n].split(",");
+        }
+        console.log(
+          titleArr,
+          "Ttile Arr",
+          titleArr.length,
+          "Length",
+          j,
+          "j iteration"
+        );
+      }
+    }
+  } catch (err) {
+    console.log("Err", err.message);
+  }
+};

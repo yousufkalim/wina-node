@@ -311,7 +311,6 @@ exports.login = asyncHandler(async (req, res, next) => {
   // Check if password matches
 
   const isMatch = await user.matchPassword(password);
-
   if (!isMatch) {
     return res.status(400).send({ message: Texts.passwordInvalid });
   }

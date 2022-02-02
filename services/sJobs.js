@@ -21,7 +21,7 @@ class DealBreaker {
       console.log("SET STD starting date");
       const jobs = await Job.find({ isDeleted: false })
         .sort({ createdAt: -1 })
-        .limit(30);
+        .limit(10);
       jobs.map((item) => {
         const jobDate = moment(item.startDate, "YYYY-MM-DD");
         const result = Math.abs(studentStartingDate.diff(jobDate, "months"));
@@ -112,38 +112,50 @@ class MatchingCriteria extends DealBreaker {
         score = score * 20;
         if (score > 0)
           return softSkillsArray.push({ id: job.id, score: score });
-      } else if (job.softSkills == null) {
-        console.log(job.softSkills, "Null softSkills");
-        job.title.map((item) => {
-          skill.map(async (item1) => {
-            if (item.toString() == item1.wordCheck.toString()) {
-              item.softSkills.push(item1.id);
-              await item.save();
-            }
-          });
-        });
-        if (job.softSkills !== null) {
-          userSoftSkills.map((item) => {
-            job.softSkills.map((item1) => {
-              if (item.toString() == item1.toString()) {
-                n++;
-              }
-            });
-          });
-          if (n == 0) {
-            score = 0;
-          } else if (n == 1) {
-            score = 0.5;
-          } else if (n == 2) {
-            score = 0.8;
-          } else if (n == 3) {
-            score = 1;
-          }
-          score = score * 20;
-          if (score > 0)
-            return softSkillsArray.push({ id: job.id, score: score });
-        }
-      } else {
+      }
+      //else if (job.softSkills == null) {
+      //   console.log(job.softSkills, "Null softSkills");
+      //   job.map((item) => {
+      //     skill.map(async (item1) => {
+      //       console.log(
+      //         "Job Title",
+      //         item.title,
+      //         "WordCheck",
+      //         item1.wordCheck,
+      //         "SoftS"
+      //       );
+      //       if (item.title.toString() == item1.wordCheck.toString()) {
+      //         item.softSkills.push(item1.id);
+      //         await item.save();
+      //       }
+      //     });
+      //   });
+      //   if (job.softSkills !== null) {
+      //     userSoftSkills.map((item) => {
+      //       job.softSkills.map((item1) => {
+      //         if (item.toString() == item1.toString()) {
+      //           n++;
+      //         }
+      //       });
+      //     });
+      //     if (n == 0) {
+      //       score = 0;
+      //     } else if (n == 1) {
+      //       score = 0.5;
+      //     } else if (n == 2) {
+      //       score = 0.8;
+      //     } else if (n == 3) {
+      //       score = 1;
+      //     }
+      //     score = score * 20;
+      //     if (score > 0)
+      //       return softSkillsArray.push({ id: job.id, score: score });
+      //   } else {
+      //     score = 0.5 * 20;
+      //     return softSkillsArray.push({ id: job.id, score: score });
+      //   }
+      // }
+      else {
         score = 0.5 * 20;
         return softSkillsArray.push({ id: job.id, score: score });
       }
@@ -184,42 +196,55 @@ class MatchingCriteria extends DealBreaker {
         score = score * 20;
         if (score > 0)
           return hardSkillsArray.push({ id: job.id, score: score });
-      } else {
-        console.log("Inside hard Skills null part");
-        jobs.map((item) => {
-          if (item.title != undefined) {
-            skill.map(async (item1) => {
-              if (item1.wordCheck != undefined || item1.wordCheck != null) {
-                if (item.title.toString() == item1.wordCheck.toString()) {
-                  console.log("Matched");
-                  item.hardSkills.push(item1.id);
-                  await item.save();
-                }
-              }
-            });
-          }
-        });
-        if (job.hardSkills.length > 0) {
-          userHardSkills.map((item) => {
-            job.hardSkills.map((item1) => {
-              if (item.toString() == item1.toString()) {
-                n++;
-              }
-            });
-          });
-          if (n == 0) {
-            score = 0;
-          } else if (n == 1) {
-            score = 0.5;
-          } else if (n == 2) {
-            score = 0.8;
-          } else if (n == 3) {
-            score = 1;
-          }
-          score = score * 20;
-          if (score > 0)
-            return hardSkillsArray.push({ id: job.id, score: score });
-        }
+      }
+      // else {
+      //   jobs.map((item) => {
+      //     if (item.title != undefined) {
+      //       skill.map(async (item1) => {
+      //         if (item1.wordCheck != undefined || item1.wordCheck != null) {
+      //           console.log(
+      //             "Job Title",
+      //             item.title,
+      //             "WordCheck",
+      //             item1.wordCheck
+      //           );
+      //           if (item.title.toString() == item1.wordCheck.toString()) {
+      //             console.log("Matched");
+      //             item.hardSkills.push(item1.id);
+      //             await item.save();
+      //           }
+      //         }
+      //       });
+      //     }
+      //   });
+      //   if (job.hardSkills.length > 0) {
+      //     userHardSkills.map((item) => {
+      //       job.hardSkills.map((item1) => {
+      //         if (item.toString() == item1.toString()) {
+      //           n++;
+      //         }
+      //       });
+      //     });
+      //     if (n == 0) {
+      //       score = 0;
+      //     } else if (n == 1) {
+      //       score = 0.5;
+      //     } else if (n == 2) {
+      //       score = 0.8;
+      //     } else if (n == 3) {
+      //       score = 1;
+      //     }
+      //     score = score * 20;
+      //     if (score > 0)
+      //       return hardSkillsArray.push({ id: job.id, score: score });
+      //   } else {
+      //     score = 0.5 * 20;
+      //     return hardSkillsArray.push({ id: job.id, score: score });
+      //   }
+      // }
+      else {
+        score = 0.5 * 20;
+        return hardSkillsArray.push({ id: job.id, score: score });
       }
     });
     console.log(hardSkillsArray, "HardSkills");
@@ -552,7 +577,7 @@ class MatchingCriteria extends DealBreaker {
       let output = [];
       const sortedArray = await this.search(req, res, next);
       if (sortedArray !== undefined) {
-        console.log(sortedArray, "Arr");
+        //console.log(sortedArray, "Arr");
         await Promise.all(
           sortedArray.map(async (job) => {
             const newJob = await Job.findByIdAndUpdate(job.jobId, {
@@ -562,7 +587,7 @@ class MatchingCriteria extends DealBreaker {
           })
         );
       }
-      console.log(output, "Jobs on frontEnd");
+      //console.log(output, "Jobs on frontEnd");
       return res.status(200).json({ jobs: output });
     } catch (err) {
       console.log("err", err.message);
