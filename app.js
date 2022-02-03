@@ -5,7 +5,8 @@ const session = require("express-session");
 const dotenv = require("dotenv").config();
 const passport = require("passport");
 const FacebookStrategy = require("passport-facebook").Strategy;
-var GoogleStrategy = require("passport-google-oauth2").Strategy;
+
+// var GoogleStrategy = require("passport-google-oauth2").Strategy;
 const MongoStore = require("connect-mongo")(session);
 const User = require("./models/User");
 const cookieParser = require("cookie-parser");
@@ -23,10 +24,12 @@ const app = express();
 const server = http.createServer(app);
 var xlsx = require("xlsx");
 const notificationService = require("./socket.io/notifications");
-
+require("./utils/passport");
 app.use(
   cors({
-    origin: "*",
+    origin: true,
+    credentials: true,
+    allowedHeaders: "*",
   })
 );
 
@@ -202,36 +205,79 @@ passport.use(
   )
 );
 
-app.get("/auth/facebook", passport.authenticate("facebook"));
+app.get("/api/v1/auth/facebook", passport.authenticate("facebook"));
 
 app.get(
-  "/auth/facebook/callback",
+  "/api/v1/auth/facebook/callback",
   passport.authenticate("facebook", { failureRedirect: "/login" }),
   function (req, res) {
     // Successful authentication, redirect home.
     res.json({ success: true, user: req });
   }
 );
+// ! Done
+// passport.use(
+//   new GoogleStrategy(
+//     {
+//       //hamza
+//       // clientID:
+//       //   "GOOGLE_OAUTH_CLIENT_ID_REDACTED",
+//       // clientSecret: "GOOGLE_OAUTH_SECRET_REDACTED",
+//       // callbackURL: "http://localhost:9190/auth/google/callback",
+//       // passReqToCallback: true,
+//       //shuja
+//       clientID:
+//         "GOOGLE_OAUTH_CLIENT_ID_REDACTED",
+//       clientSecret: "GOOGLE_OAUTH_SECRET_REDACTED",
+//       callbackURL: "http://localhost:9190/auth/google/callback",
+//       passReqToCallback: true,
+//     },
+//     async function (request, accessToken, refreshToken, profile, done) {
+//       const email = profile.email;
+//       return done(email);
+//     }
+//   )
+// );
+// ? Dne
+// app.get(
+//   "/auth/google",
+//   passport.authenticate("google", { scope: ["email", "profile"] })
+// );
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID:
-        "GOOGLE_OAUTH_CLIENT_ID_REDACTED",
-      clientSecret: "GOOGLE_OAUTH_SECRET_REDACTED",
-      callbackURL: "http://localhost:9190/auth/google/callback",
-      passReqToCallback: true,
-    },
-    async function (request, accessToken, refreshToken, profile, done) {
-      const email = profile.email;
-      return done(email);
-    }
-  )
-);
+// app.get(
+//   "/auth/google/callback",
+//   passport.authenticate("google", {
+//     successRedirect: "/auth/google/success",
+//     failureRedirect: "/auth/google/failure",
+//   })
+// );
+
+// app.get("/auth/google/success", async (req, res) => {
+//   const user = await User.findOne({ email: req.email });
+//   if (user)
+//     return res.send({
+//       success: true,
+//       message: "user exists in db",
+//       user: user,
+//     });
+//   else
+//     return res.send({
+//       success: true,
+//       message: "User dont exist in db need to signup",
+//       user: req.email,
+//     });
+// });
+
+// Hamza Passport
+const isLoggedIn = (req, res, next) => {
+  if (req.user) {
+    next();
+  }
+};
 
 app.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["email", "profile"] })
+  "/api/v1/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
 app.get(
@@ -240,6 +286,10 @@ app.get(
     successRedirect: "/auth/google/success",
     failureRedirect: "/auth/google/failure",
   })
+  // function (req, res) {
+  //   // Successful authentication, redirect home.
+  //   res.redirect("/");
+  // }
 );
 
 app.get("/auth/google/success", async (req, res) => {
