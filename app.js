@@ -238,7 +238,7 @@ app.get(
 //     }
 //   )
 // );
-// ? Dne
+// ? Done
 // app.get(
 //   "/auth/google",
 //   passport.authenticate("google", { scope: ["email", "profile"] })
