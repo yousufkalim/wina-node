@@ -9,8 +9,9 @@ passport.use(
       clientSecret: "GOOGLE_OAUTH_SECRET_REDACTED",
       callbackURL: "http://localhost:9190/auth/google/callback",
     },
-    function (accessToken, refreshToken, profile, cb) {
-      return cb(null, profile);
+    function (request, accessToken, refreshToken, profile, cb) {
+      const email = profile.email;
+      return cb(email);
     }
   )
 );
