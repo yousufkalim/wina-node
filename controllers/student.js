@@ -20,7 +20,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       requestedUser.studentConsultant ||
       requestedUser.companyConsultant
     ) {
-      const error = new Error("Access Denied!");
+      const error = new Error("Accès refusé!");
       error.status = 400;
       throw error;
     }
@@ -670,9 +670,10 @@ exports.GetSkills = asyncHandler(async (req, res, next) => {
         ],
       }).limit(10);
       console.log(skills, "SKILLS");
-      return res
-        .status(200)
-        .send({ skills: skills, message: "Skills has fetched successfully" });
+      return res.status(200).send({
+        skills: skills,
+        message: "Les compétences ont été récupérées avec succès",
+      });
     } else {
       const skills = await Skill.find({
         $and: [
@@ -685,7 +686,10 @@ exports.GetSkills = asyncHandler(async (req, res, next) => {
       }).limit(10);
       return res
         .status(200)
-        .send({ skills: skills, message: "Skills has fetched successfully" });
+        .send({
+          skills: skills,
+          message: "Les compétences ont été récupérées avec succès",
+        });
     }
   } catch (error) {
     return res.status(200).send({ message: error.message });

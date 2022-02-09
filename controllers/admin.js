@@ -467,7 +467,7 @@ exports.registerCompany = asyncHandler(async (req, res, next) => {
       requestedUser.studentConsultant ||
       requestedUser.companyConsultant
     ) {
-      const error = new Error("Access Denied!");
+      const error = new Error("Accès refusé!");
       error.status = 400;
       throw error;
     }
@@ -811,7 +811,7 @@ exports.DeleteProfile = asyncHandler(async (req, res, next) => {
     });
     return res
       .status(200)
-      .json({ message: "User has been deleted Successfully!" });
+      .json({ message: "L'utilisateur a été supprimé avec succès !" });
   } catch (err) {
     next(err);
   }
@@ -891,7 +891,7 @@ exports.validateImages = asyncHandler(async (req, res, next) => {
           return res.status(400).json({ message: error.message });
         }
       });
-      res.status(200).json({ message: "Picture validated" });
+      res.status(200).json({ message: "Image validée" });
     } else if (decision == "refuse") {
       const student = await Student.findByIdAndUpdate(studentId, {
         $unset: { professional_Picture: 1 },
@@ -963,7 +963,7 @@ exports.validateVideo = asyncHandler(async (req, res, next) => {
           return res.status(400).json({ message: error.message });
         }
       });
-      return res.status(200).json({ message: "Video validated" });
+      return res.status(200).json({ message: "Vidéo validée" });
     } else if (decision == "refuse") {
       const student = await Student.findByIdAndUpdate(studentId, {
         $unset: { presentation_Video: 1 },
@@ -1308,7 +1308,9 @@ exports.getAllAppointments = asyncHandler(async (req, res, next) => {
       "company"
     );
     if (!appointments) {
-      return res.status(200).json({ message: "There is no Appointment ATM" });
+      return res.status(200).json({
+        message: "Il n'y a pas de guichet automatique de rendez-vous",
+      });
     } else {
       return res
         .status(200)
@@ -1325,7 +1327,9 @@ exports.getAllPendingAppointments = asyncHandler(async (req, res, next) => {
   try {
     const appointments = await Appointment.find({ status: "Pending" });
     if (!appointments) {
-      return res.status(200).json({ message: "There is no Appointment ATM" });
+      return res.status(200).json({
+        message: "Il n'y a pas de guichet automatique de rendez-vous",
+      });
     } else {
       return res
         .status(200)
@@ -1349,7 +1353,9 @@ exports.getAllStudentAppointments = asyncHandler(async (req, res, next) => {
       }
     });
     if (filteredArray.length == 0) {
-      return res.status(200).json({ message: "There is no Appointment ATM" });
+      return res.status(200).json({
+        message: "Il n'y a pas de guichet automatique de rendez-vous",
+      });
     } else {
       return res
         .status(200)
@@ -1373,7 +1379,9 @@ exports.getAllCompanyAppointments = asyncHandler(async (req, res, next) => {
       }
     });
     if (filteredArray.length == 0) {
-      return res.status(200).json({ message: "There is no Appointment ATM" });
+      return res.status(200).json({
+        message: "Il n'y a pas de guichet automatique de rendez-vous",
+      });
     } else {
       return res
         .status(200)
@@ -1399,7 +1407,7 @@ exports.editAppointment = asyncHandler(async (req, res, next) => {
       }
     );
     return;
-    res.status(200).json({ message: "Success! Appointment Edited" });
+    res.status(200).json({ message: "Succès! Rendez-vous modifié" });
   } catch (err) {
     next(err);
   }
@@ -1418,7 +1426,7 @@ exports.deleteAppointment = asyncHandler(async (req, res, next) => {
         new: true,
       }
     );
-    return res.status(200).json({ message: "Success! Appointment Deleted" });
+    return res.status(200).json({ message: "Succès! Rendez-vous supprimé" });
   } catch (err) {
     next(err);
   }
@@ -1564,7 +1572,7 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
             return res.status(400).json({ message: error.message });
           }
         });
-        return res.status(200).json({ message: "Appointment cancelled!" });
+        return res.status(200).json({ message: "Rendez-vous annulé !" });
       }
     }
     if (result.company) {
