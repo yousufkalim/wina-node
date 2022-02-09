@@ -281,7 +281,7 @@ exports.GetJob = asyncHandler(async (req, res, next) => {
     if (job) {
       return res
         .status(200)
-        .send({ job: job, message: "Job fetched successfully" });
+        .send({ job: job, message: "Travail récupéré avec succès" });
     }
   } catch (error) {
     return res.status(200).send({ message: error.message });
@@ -313,7 +313,7 @@ exports.GetJobs = asyncHandler(async (req, res, next) => {
       if (jobs) {
         return res
           .status(200)
-          .send({ jobs: jobs, message: "Jobs fetched successfully" });
+          .send({ jobs: jobs, message: "Travail récupéré avec succès" });
       }
     }
   } catch (error) {
@@ -378,7 +378,7 @@ exports.GetStudentAppliedJobs = asyncHandler(async (req, res, next) => {
           if (results && results.length > 0) {
             res
               .status(200)
-              .send({ jobs: results, message: "Jobs fetched successfully" });
+              .send({ jobs: results, message: "Travail récupéré avec succès" });
           } else {
             res.status(400).send({ jobs: [], message: Texts.error });
           }
@@ -429,7 +429,7 @@ exports.GetStudentRejectedJobs = asyncHandler(async (req, res, next) => {
           if (results && results.length > 0) {
             res
               .status(200)
-              .send({ jobs: results, message: "Jobs fetched successfully" });
+              .send({ jobs: results, message: "Travail récupéré avec succès" });
           } else {
             res.status(200).send({ jobs: results, message: Texts.error });
           }
@@ -935,7 +935,7 @@ exports.GetCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
           if (results && results.length > 0) {
             res
               .status(200)
-              .send({ jobs: results, message: "Jobs fetched successfully" });
+              .send({ jobs: results, message: "Travail récupéré avec succès" });
           } else {
             res.status(200).send({ jobs: [], message: Texts.error });
           }
@@ -990,7 +990,7 @@ exports.GetStudentAppliedSuccessJobs = asyncHandler(async (req, res, next) => {
     if (results) {
       res.status(200).send({
         jobs: results,
-        message: "Jobs fetched successfully",
+        message: "Travail récupéré avec succès",
       });
     }
   } catch (error) {
@@ -1036,7 +1036,7 @@ exports.GetAllStudentAppliedJobs = asyncHandler(async (req, res, next) => {
     if (results) {
       res.status(200).send({
         jobs: results.student_requests,
-        message: "Jobs fetched successfully",
+        message: "Travail récupéré avec succès",
       });
     }
   } catch (error) {
@@ -1081,7 +1081,7 @@ exports.GetAllCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
     if (results) {
       res.status(200).send({
         jobs: results.company_requests,
-        message: "Jobs fetched successfully",
+        message: "Travail récupéré avec succès",
       });
     }
   } catch (error) {

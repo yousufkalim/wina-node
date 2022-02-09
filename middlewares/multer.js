@@ -1,4 +1,5 @@
 const multer = require("multer");
+var maxSize = 1 * 1000 * 1000 * 10;
 
 const storage = multer.diskStorage({
   filename: function (req, file, cb) {
@@ -9,7 +10,10 @@ const storage = multer.diskStorage({
   },
 });
 
-exports.upload = multer({ storage: storage }).fields([
+exports.upload = multer({
+  storage: storage,
+  limits: { fileSize: maxSize },
+}).fields([
   {
     name: "video",
     maxCount: 1,
@@ -30,5 +34,4 @@ exports.upload = multer({ storage: storage }).fields([
     name: "resume",
     maxCount: 1,
   },
-  
 ]);

@@ -21,6 +21,16 @@ exports.GetProfile = asyncHandler(async (req, res, next) => {
   }
 });
 
+exports.GetUser = asyncHandler(async (req, res) => {
+  try {
+    const token = req.params.token;
+    const user = await User.findOne({ resetPasswordToken: token });
+    return res.status(200).json({ status: "sucess", user: user });
+  } catch (err) {
+    return res.status(400).res.json({ message: err.message });
+  }
+});
+
 // Edit profile
 exports.editProfile = asyncHandler(async (req, res, next) => {
   const userID = req.user.id;
@@ -122,15 +132,17 @@ exports.requestForgetPassword = asyncHandler(async (req, res, next) => {
       var mailOptions = {
         to: email,
         from: process.env.MailingId,
-        subject: "Password Reset",
+        subject: "Réinitialisez votre mot de passe - Winaa",
         text:
-          "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
-          "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
+          "Bonjour,\n\n\n" +
+          "Vous avez récemment fait une requête pour réinitialiser votre mot de passe sur la plateforme Winaa.\n\n" +
+          "Veuillez cliquer sur le lien suivant pour le réinitialiser:\n\n" +
           `${process.env.verifyEmail}` +
-          "/reset/" +
+          "/réinitialiser/" +
           token +
           "\n\n" +
-          "If you did not request this, please ignore this email and your password will remain unchanged.\n",
+          "Merci.\n\n" +
+          "L'équipe Winaa",
       };
       await smtpTransport
         .sendMail(mailOptions)
@@ -193,12 +205,12 @@ exports.forgetPassword = asyncHandler(async (req, res, next) => {
     var mailOptions = {
       to: user.email,
       from: process.env.MailingId,
-      subject: "Your password has been changed",
+      subject: "Votre mot de passe a été modifié - Winaa",
       text:
-        "Hello,\n\n" +
-        "This is a confirmation that the password for your account " +
+        "Bonjour,\n\n" +
+        "Ceci est une confirmation que le mot de passe de votre compte " +
         user.email +
-        " has just been changed.\n",
+        " vient d'être changé.\n",
     };
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
@@ -232,7 +244,9 @@ exports.getAllNotifications = asyncHandler(async (req, res, next) => {
       populateQuery
     );
     if (!requestedUser.type) {
-      res.status(400).send({ message: "You are not authorized to get Job" });
+      res
+        .status(400)
+        .send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
     } else {
       if (requestedUser.type === "company") {
         const notifications = requestedUser.company.notifications.filter(
@@ -262,7 +276,9 @@ exports.updateNotifications = asyncHandler(async (req, res, next) => {
     const userId = req.params.id;
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
-      res.status(400).send({ message: "You are not authorized to get Job" });
+      res
+        .status(400)
+        .send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
     }
     let tempNotify;
     // console.log(loggedInUser, "loggedIn");
@@ -326,9 +342,10 @@ exports.GetSoftSkills = asyncHandler(async (req, res, next) => {
     });
 
     if (skills) {
-      res
-        .status(200)
-        .send({ skills: skills, message: "Skills has fetched successfully" });
+      res.status(200).send({
+        skills: skills,
+        message: "Les compétences ont été récupérées avec succès",
+      });
     }
   } catch (error) {
     res.status(200).send({ message: error.message });
