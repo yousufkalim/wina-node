@@ -17,7 +17,9 @@ exports.protect = asyncHandler(async (req, res, next) => {
 
   //make sure token exists
   if (!token) {
-    return res.status(401).send("Please Login to view that resource");
+    return res
+      .status(401)
+      .send("Veuillez vous connecter pour voir cette ressource");
   }
   try {
     //verify token
@@ -25,7 +27,9 @@ exports.protect = asyncHandler(async (req, res, next) => {
     req.user = await User.findById(decoded.id);
     next();
   } catch (err) {
-    return res.status(401).send("Please Login to view that resource");
+    return res
+      .status(401)
+      .send("Veuillez vous connecter pour voir cette ressource");
   }
 });
 
@@ -34,7 +38,9 @@ exports.protect = asyncHandler(async (req, res, next) => {
 exports.authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return res.status(401).send("Please Login to view that resource");
+      return res
+        .status(401)
+        .send("Veuillez vous connecter pour voir cette ressource");
     }
     next();
   };
@@ -45,7 +51,9 @@ exports.authorize = (...roles) => {
 exports.validateType = (...types) => {
   return (req, res, next) => {
     if (!types.includes(req.user.type)) {
-      return res.status(400).send("You have no access to view this resource");
+      return res
+        .status(400)
+        .send("Vous n'avez pas accès pour voir cette ressource");
     }
     next();
   };
@@ -67,7 +75,9 @@ exports.dashboard = asyncHandler(async (req, res, next) => {
 
   //make sure token exists
   if (!token) {
-    return res.status(400).send("Please Login to view that resource");
+    return res
+      .status(400)
+      .send("Veuillez vous connecter pour voir cette ressource");
   }
   try {
     //verify token
@@ -81,6 +91,8 @@ exports.dashboard = asyncHandler(async (req, res, next) => {
     }
     next();
   } catch (err) {
-    return res.status(400).send("Please Login to view that resource");
+    return res
+      .status(400)
+      .send("Veuillez vous connecter pour voir cette ressource");
   }
 });
