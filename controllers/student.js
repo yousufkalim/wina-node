@@ -288,7 +288,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
       type: Joi.string().max(250),
       place: Joi.string().max(250),
       position_hold: Joi.boolean(),
-      image: Joi.string(),
+      image: Joi.string().optional().allow(""),
 
       company: Joi.string().max(250),
       duration: Joi.object().keys({
@@ -301,7 +301,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
     const schema = Joi.object().keys({
       general_Presentation: Joi.string().max(2000).optional().allow(""),
       presentation_Video: Joi.string(),
-      image: Joi.string(),
+      image: Joi.string().optional().allow(""),
 
       // School_Index: Joi.number(),
 
@@ -684,12 +684,10 @@ exports.GetSkills = asyncHandler(async (req, res, next) => {
           //{ skillField: { $regex: query, $options: "$i" } },
         ],
       }).limit(10);
-      return res
-        .status(200)
-        .send({
-          skills: skills,
-          message: "Les compétences ont été récupérées avec succès",
-        });
+      return res.status(200).send({
+        skills: skills,
+        message: "Les compétences ont été récupérées avec succès",
+      });
     }
   } catch (error) {
     return res.status(200).send({ message: error.message });

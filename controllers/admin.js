@@ -109,9 +109,7 @@ exports.deleteSkill = asyncHandler(async (req, res, next) => {
 // Get List of Domains
 exports.domainList = asyncHandler(async (req, res, next) => {
   try {
-    const domains = await Domain.find({ isDeleted: false }).sort({
-      createdAt: -1,
-    });
+    const domains = await Domain.find({ isDeleted: false });
     return res.status(200).json({ domains: domains });
   } catch (err) {
     next(err);
