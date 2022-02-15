@@ -9,6 +9,7 @@ const FacebookStrategy = require("passport-facebook").Strategy;
 // var GoogleStrategy = require("passport-google-oauth2").Strategy;
 const MongoStore = require("connect-mongo")(session);
 const User = require("./models/User");
+const Student = require("./models/Student");
 const cookieParser = require("cookie-parser");
 const nodemailer = require("nodemailer");
 const async = require("async");
@@ -143,7 +144,6 @@ io.on("connection", (socket) => {
   console.log("Connected");
 
   socket.on("sendnotification", (data) => {
-    //console.log(data, "data dash");
     socket.broadcast.emit("sendnotification", data);
   });
   // logInfo.info(
@@ -183,13 +183,6 @@ io.on("connection", (socket) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.serializeUser(function (user, cb) {
-  cb(null, user);
-});
-
-passport.deserializeUser(function (obj, cb) {
-  cb(null, obj);
-});
 passport.use(
   new FacebookStrategy(
     {
@@ -215,58 +208,6 @@ app.get(
     res.json({ success: true, user: req });
   }
 );
-// ! Done
-// passport.use(
-//   new GoogleStrategy(
-//     {
-//       //hamza
-//       // clientID:
-//       //   "GOOGLE_OAUTH_CLIENT_ID_REDACTED",
-//       // clientSecret: "GOOGLE_OAUTH_SECRET_REDACTED",
-//       // callbackURL: "http://localhost:9190/auth/google/callback",
-//       // passReqToCallback: true,
-//       //shuja
-//       clientID:
-//         "GOOGLE_OAUTH_CLIENT_ID_REDACTED",
-//       clientSecret: "GOOGLE_OAUTH_SECRET_REDACTED",
-//       callbackURL: "http://localhost:9190/auth/google/callback",
-//       passReqToCallback: true,
-//     },
-//     async function (request, accessToken, refreshToken, profile, done) {
-//       const email = profile.email;
-//       return done(email);
-//     }
-//   )
-// );
-// ? Done
-// app.get(
-//   "/auth/google",
-//   passport.authenticate("google", { scope: ["email", "profile"] })
-// );
-
-// app.get(
-//   "/auth/google/callback",
-//   passport.authenticate("google", {
-//     successRedirect: "/auth/google/success",
-//     failureRedirect: "/auth/google/failure",
-//   })
-// );
-
-// app.get("/auth/google/success", async (req, res) => {
-//   const user = await User.findOne({ email: req.email });
-//   if (user)
-//     return res.send({
-//       success: true,
-//       message: "user exists in db",
-//       user: user,
-//     });
-//   else
-//     return res.send({
-//       success: true,
-//       message: "User dont exist in db need to signup",
-//       user: req.email,
-//     });
-// });
 
 // Hamza Passport
 const isLoggedIn = (req, res, next) => {
@@ -277,33 +218,55 @@ const isLoggedIn = (req, res, next) => {
 
 app.get(
   "/api/v1/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("google", { scope: ["email", "profile"] })
 );
 
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    successRedirect: "/auth/google/success",
+    successReturnToOrRedirect: "/auth/google/success",
     failureRedirect: "/auth/google/failure",
   })
-  // function (req, res) {
-  //   // Successful authentication, redirect home.
-  //   res.redirect("/");
-  // }
 );
 
 app.get("/auth/google/success", async (req, res) => {
-  const user = await User.findOne({ email: req.email });
-  if (user)
-    return res.send({
-      success: true,
-      message: "user exists in db",
-      user: user,
-    });
-  else
-    return res.send({
-      success: true,
-      message: "User dont exist in db need to signup",
-      user: req.email,
-    });
+  try {
+    const profile = req.user;
+    const email = req.user.emails[0].value;
+    const user = await User.findOne({ email: email });
+    if (user) {
+      const token = user.getSignedJwtToken();
+
+      if (user.status === "googleSignup") {
+        return res.redirect(
+          process.env.REACT_URL + `?SignupByGoogle=true&&user=${token}`
+        );
+      } else {
+        return res.redirect(
+          process.env.REACT_URL + `goolgeLogin?token=${token}`
+        );
+      }
+    } else {
+      let newUser = await User.create({
+        role: "user",
+        status: "googleSignup",
+        firstName: profile.name.givenName,
+        lastName: profile.name.familyName,
+        email: email,
+        isSignupByGoogle: true,
+      });
+      const token = newUser.getSignedJwtToken();
+
+      return res.redirect(
+        process.env.REACT_URL + `?SignupByGoogle=true&&user=${token}`
+      );
+    }
+  } catch (error) {
+    console.log("err", error);
+    return res.redirect(process.env.REACT_URL);
+  }
+});
+
+app.get("/auth/google/failure", async (req, res) => {
+  return res.redirect(process.env.REACT_URL);
 });

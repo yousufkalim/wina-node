@@ -17,6 +17,9 @@ const School = require("../models/School");
 const Appointment = require("../models/Appointment");
 const { socket, io } = require("../app");
 const { Texts } = require("../utils/texts");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 // Get List of Skills
 exports.skillList = asyncHandler(async (req, res, next) => {
   try {
@@ -690,12 +693,16 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
       phone,
     } = req.body;
 
-    //// Check If Password and Confirm Password are same or not ////
+    // Check If Password and Confirm Password are same or not //
     if (password !== confirm_password) {
       res.status(403).send({ message: Texts.Password_must_match });
     }
 
-    //// Check If user exist with this Email or not ////
+    //Encrypt Password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Check If user exist with this Email or not //
     const result = await User.findOne({ email: email });
     if (result) {
       res.status(404).send({ message: Texts.emailExists });
@@ -708,7 +715,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
         type,
         status: "active",
         address,
-        password,
+        password: hashedPassword,
         phone,
       });
 

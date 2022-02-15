@@ -54,7 +54,7 @@ const UserSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ["active", "deactive"],
+    enum: ["active", "deactive", "googleSignup", "facebookSignup"],
     default: "deactive",
   },
 
@@ -99,6 +99,14 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isSignupByGoogle: {
+    type: Boolean,
+    default: false,
+  },
+  isSignupByFacebook: {
+    type: Boolean,
+    default: false,
+  },
 
   invitation: {
     type: [mongoose.Schema.Types.ObjectId],
@@ -116,12 +124,6 @@ const UserSchema = new mongoose.Schema({
 
   verifyEmailToken: String,
   emailVerificationExpiresIn: Date,
-});
-
-//Encrypt Password
-UserSchema.pre("save", async function () {
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
 });
 
 //sign JWT and return
