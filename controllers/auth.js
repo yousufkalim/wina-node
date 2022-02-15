@@ -7,6 +7,9 @@ const User = require("../models/User");
 const Company = require("../models/Company");
 const Student = require("../models/Student");
 const { Texts } = require("../utils/texts");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 //REGISTER USER API
 exports.registerUser = asyncHandler(async (req, res, next) => {
   try {
@@ -51,12 +54,16 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
       phone,
     } = req.body;
 
-    //// Check If Password and Confirm Password are same or not ////
+    // Check If Password and Confirm Password are same or not //
     if (password !== confirm_password) {
       res.status(403).send(Texts.Password_must_match);
     }
 
-    //// Check If user exist with this Email or not ////
+    //Encrypt Password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Check If user exist with this Email or not //
     const result = await User.findOne({ email: email });
     if (result) {
       res.status(404).send({ message: Texts.emailExists });
@@ -67,7 +74,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
         lastName,
         email,
         address,
-        password,
+        password: hashedPassword,
         phone,
         type,
       });
@@ -195,7 +202,6 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
 
 exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
   try {
-    console.log("REQ", req.params);
     async.waterfall(
       [
         function (done) {
@@ -240,7 +246,6 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
                   subject: Texts.emailVerificationSent,
                   text: Texts.You_have_successfully_verified,
                 };
-                console.log;
                 transporter.sendMail(mailOptions, (error, info) => {
                   if (error) {
                     return res.status(400).json({ message: error.message });
@@ -274,7 +279,6 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
 
 //Login User
 exports.login = asyncHandler(async (req, res, next) => {
-  console.log(req.body, "REQ");
   const { email, password } = req.body;
   const schema = Joi.object().keys({
     email: Joi.string().max(40).required().email(),
@@ -370,3 +374,85 @@ exports.logout = asyncHandler(async (req, res, next) => {
     res.status(200).send(Texts.Logout_was_successful);
   });
 });
+
+exports.verifyUser = async (req, res, next) => {
+  // req body values
+
+  const populateQuery = [
+    { path: "company" },
+    {
+      path: "student",
+      populate: [
+        {
+          path: "softSkills",
+        },
+        {
+          path: "hardSkills",
+        },
+      ],
+    },
+  ];
+  const user = await User.findById(req.user._id).populate(populateQuery);
+
+  try {
+    // response send
+    res.status(200).json({ success: true, user: user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.registerByGoogle = async (req, res, next) => {
+  // req body values
+  try {
+    const address = req.body.address;
+    const phone = req.body.phone;
+    const type = req.body.type;
+    const userId = req.body.userId;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        address: address,
+        phone: phone,
+        type: type,
+        status: "active",
+      },
+      {
+        new: true,
+      }
+    );
+
+    let updateUser;
+    if (type === "student") {
+      userobj = new Student({
+        general_Presentation: "",
+        presentation_Video: "",
+        professional_Picture: "",
+        professional_networks: "",
+
+        user: user._id,
+      });
+
+      await userobj.save();
+      updateUser = await User.findByIdAndUpdate(
+        user._id,
+        {
+          student: userobj._id,
+        },
+        {
+          new: true,
+        }
+      ).populate("student");
+    } else {
+      updateUser = user;
+    }
+    const token = user.getSignedJwtToken();
+
+    return res
+      .status(200)
+      .json({ user: updateUser, token: token, message: Texts.userCreated });
+  } catch (err) {
+    next(err);
+  }
+};
