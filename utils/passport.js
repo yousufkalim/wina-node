@@ -1,5 +1,5 @@
-const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
+var passport = require("passport");
+var GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 passport.use(
   new GoogleStrategy(
@@ -7,19 +7,20 @@ passport.use(
       clientID:
         "GOOGLE_OAUTH_CLIENT_ID_REDACTED",
       clientSecret: "GOOGLE_OAUTH_SECRET_REDACTED",
-      callbackURL: "http://localhost:9190/auth/google/callback",
+      callbackURL: "/auth/google/callback",
+      scope: ["profile"],
+      state: true,
     },
-    function (request, accessToken, refreshToken, profile, cb) {
-      const email = profile.email;
-      return cb(email);
+    function (accessToken, refreshToken, profile, cb) {
+      return cb(null, profile);
     }
   )
 );
 
-passport.serializeUser(function (user, done) {
-  done(null, user);
+passport.serializeUser(function (profile, done) {
+  done(null, profile);
 });
 
-passport.deserializeUser(function (user, done) {
-  done(null, user);
+passport.deserializeUser(function (profile, done) {
+  done(null, profile);
 });
