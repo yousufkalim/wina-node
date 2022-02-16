@@ -163,7 +163,6 @@ exports.requestForgetPassword = asyncHandler(async (req, res, next) => {
 //Forget Password update//
 exports.forgetPassword = asyncHandler(async (req, res, next) => {
   try {
-    console.log(req.body, "REQ");
     const user = await User.findOne({
       resetPasswordToken: req.query.passwordToken,
       restPasswordExpires: {
@@ -281,7 +280,6 @@ exports.updateNotifications = asyncHandler(async (req, res, next) => {
         .send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
     }
     let tempNotify;
-    // console.log(loggedInUser, "loggedIn");
     if (requestedUser.type === "student") {
       let user = await Student.findById(requestedUser.student).populate(
         "student"
