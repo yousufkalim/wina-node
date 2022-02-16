@@ -29,6 +29,21 @@ exports.skillList = asyncHandler(async (req, res, next) => {
   }
 });
 
+// To Get list of hard and soft skills
+exports.allSkillList = asyncHandler(async (req, res, next) => {
+  try {
+    const allSkills = await Student.findById(req.params.id)
+      .populate("softSkills")
+      .populate("hardSkills");
+    const skills = {
+      softSkills: allSkills.softSkills,
+      hardSkills: allSkills.hardSkills,
+    };
+    return res.status(200).json({ allSkills: skills });
+  } catch (err) {
+    next(err);
+  }
+});
 // CREATE Skill
 exports.createSkill = asyncHandler(async (req, res, next) => {
   try {
@@ -1799,7 +1814,7 @@ exports.postHardSkills = async (req, res) => {
       console.log("file", req.file.path);
     }
     // Reading All rows from Excel file and pushing in data array
-    await xlsxFile(req.file.path).then((rows) => {
+    await xlsxFile(req.file.path).then(async (rows) => {
       rows.forEach(async (item) => {
         array = item[0].split("\n");
         data.push({
@@ -1807,8 +1822,8 @@ exports.postHardSkills = async (req, res) => {
           skillField: array[0],
           skillType: "Hard Skill",
         });
-        var skix = await Skill.insertMany(data);
       });
+      var skix = await Skill.insertMany(data);
       res.status(200).send({ msg: "Ok" });
     });
 
@@ -1826,18 +1841,20 @@ exports.postSoftSkills = async (req, res) => {
     const data = [];
     var array = [];
     // Reading All rows from Excel file and pushing in data array
-    await xlsxFile(req.file.path).then((rows) => {
+    await xlsxFile(req.file.path).then(async (rows) => {
       rows.forEach(async (item) => {
         array = item[0].split("\r");
+        console.log("rows", array);
         data.push({
           isDeleted: "false",
           skillField: array[0],
           skillType: "Soft Skill",
         });
         console.log(data, "DATA");
-        var skix = await Skill.insertMany(data);
-        console.log(skix);
+        console.log("rapeate");
       });
+      var skix = await Skill.insertMany(data);
+
       return res.status(200).send({ msg: "Ok" });
     });
   } catch (error) {
