@@ -143,15 +143,9 @@ io.on("connection", (socket) => {
   console.log("Connected");
 
   socket.on("sendnotification", (data) => {
-    //console.log(data, "data dash");
     socket.broadcast.emit("sendnotification", data);
   });
-  // logInfo.info(
-  //   "Connection Established ",
-  //   socket.id,
-  //   " accepted at ",
-  //   new Date().toJSON()
-  // );
+
   exports.socket = { socket, io };
   var useris = socket.handshake.query.userConnectionId;
   socket.join(useris);
@@ -215,66 +209,6 @@ app.get(
     res.json({ success: true, user: req });
   }
 );
-// ! Done
-// passport.use(
-//   new GoogleStrategy(
-//     {
-//       //hamza
-//       // clientID:
-//       //   "GOOGLE_OAUTH_CLIENT_ID_REDACTED",
-//       // clientSecret: "GOOGLE_OAUTH_SECRET_REDACTED",
-//       // callbackURL: "http://localhost:9190/auth/google/callback",
-//       // passReqToCallback: true,
-//       //shuja
-//       clientID:
-//         "GOOGLE_OAUTH_CLIENT_ID_REDACTED",
-//       clientSecret: "GOOGLE_OAUTH_SECRET_REDACTED",
-//       callbackURL: "http://localhost:9190/auth/google/callback",
-//       passReqToCallback: true,
-//     },
-//     async function (request, accessToken, refreshToken, profile, done) {
-//       const email = profile.email;
-//       return done(email);
-//     }
-//   )
-// );
-// ? Done
-// app.get(
-//   "/auth/google",
-//   passport.authenticate("google", { scope: ["email", "profile"] })
-// );
-
-// app.get(
-//   "/auth/google/callback",
-//   passport.authenticate("google", {
-//     successRedirect: "/auth/google/success",
-//     failureRedirect: "/auth/google/failure",
-//   })
-// );
-
-// app.get("/auth/google/success", async (req, res) => {
-//   const user = await User.findOne({ email: req.email });
-//   if (user)
-//     return res.send({
-//       success: true,
-//       message: "user exists in db",
-//       user: user,
-//     });
-//   else
-//     return res.send({
-//       success: true,
-//       message: "User dont exist in db need to signup",
-//       user: req.email,
-//     });
-// });
-
-// Hamza Passport
-const isLoggedIn = (req, res, next) => {
-  if (req.user) {
-    next();
-  }
-};
-
 app.get(
   "/api/v1/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
@@ -286,10 +220,6 @@ app.get(
     successRedirect: "/auth/google/success",
     failureRedirect: "/auth/google/failure",
   })
-  // function (req, res) {
-  //   // Successful authentication, redirect home.
-  //   res.redirect("/");
-  // }
 );
 
 app.get("/auth/google/success", async (req, res) => {
