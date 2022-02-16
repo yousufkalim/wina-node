@@ -37,7 +37,6 @@ router.post("/fileUpload", upload, async (req, res, next) => {
         throw error;
       }
     } else {
-      console.log("hello");
       res.status(200).json("");
     }
   }
@@ -66,8 +65,6 @@ router.post("/resumeUpload", upload, async (req, res, next) => {
       res.status(400).send({
         message: "Votre fichier CV doit être du type de fichier PDF/DOC/DOCX",
       });
-      // error.status = 400;
-      // throw error;
     }
   }
 });
