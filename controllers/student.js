@@ -668,7 +668,7 @@ exports.GetSkills = asyncHandler(async (req, res, next) => {
           },
           //{ skillField: { $regex: query, $options: "$i" } },
         ],
-      }).limit(10);
+      });
       console.log(skills, "SKILLS");
       return res.status(200).send({
         skills: skills,
@@ -683,7 +683,7 @@ exports.GetSkills = asyncHandler(async (req, res, next) => {
           },
           //{ skillField: { $regex: query, $options: "$i" } },
         ],
-      }).limit(10);
+      });
       return res.status(200).send({
         skills: skills,
         message: "Les compétences ont été récupérées avec succès",
