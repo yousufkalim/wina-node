@@ -12,6 +12,7 @@ const {
   register,
   edit,
   GetStudentProfile,
+  getStdById,
   DeleteProfile,
   bookCoachingAppointment,
   searchForJob,
@@ -28,11 +29,12 @@ const { protect, validateType } = require("../middlewares/auth");
 // Routes for Students //
 router.get("/getStudentProfile/:id", protect, GetStudentProfile);
 router.post("/get_skills", protect, GetSkills);
-
+router.get("/getStdById/:stdId", getStdById);
 router.post("/get-info", [protect, validateType("student")], GetUser);
 
 router.post("/add-info", [protect, validateType("student")], upload, register);
 // router.put("/edit-info/:id", [protect, validateType("student")], upload, edit);
+
 // update student profile
 router.put("/edit-info", [protect, validateType("student")], upload, edit);
 
