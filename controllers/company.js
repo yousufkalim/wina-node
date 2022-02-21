@@ -7,6 +7,8 @@ const { Texts } = require("../utils/texts");
 
 const Appointment = require("../models/Appointment");
 const matchingAlgo = require("../services/searchStudents");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 var matchingCriteria = new matchingAlgo.MatchingCriteria();
 var dealBreaker = new matchingAlgo.DealBreaker();
@@ -74,12 +76,16 @@ exports.register = asyncHandler(async (req, res, next) => {
         positionHeld,
       },
     } = req.body;
-    //// Check If Password and Confirm Password are same or not ////
+    // Check If Password and Confirm Password are same or not //
     if (password !== confirm_password) {
       res.status(403).send({ message: Texts.Password_must_match });
     }
 
-    //// Check If user exist with this Email or not ////
+    //Encrypt Password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Check If user exist with this Email or not //
     const result = await User.findOne({ email: email });
     if (result) {
       res.status(404).send({ message: Texts.emailExists });
@@ -90,7 +96,7 @@ exports.register = asyncHandler(async (req, res, next) => {
         firstName,
         lastName,
         email,
-        password,
+        password: hashedPassword,
         phone,
         type,
       });
