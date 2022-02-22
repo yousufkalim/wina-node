@@ -25,6 +25,8 @@ const {
   verifyEmailProcess,
   login,
   logout,
+  verifyUser,
+  registerByGoogle,
 } = require("../controllers/auth");
 
 //middleware functions
@@ -34,6 +36,7 @@ const { protect, authorize, dashboard } = require("../middlewares/auth");
 //Register USER routes
 
 router.post("/register", registerUser);
+router.get("/verify-user", protect, verifyUser);
 
 router.post("/email-verfication", verifyEmail);
 router.post("/verify-email/:token", verifyEmailProcess);
@@ -44,5 +47,7 @@ router.post("/login", login);
 
 //LOGOUT Route
 router.post("/logout", logout);
+
+router.post("/google-register", registerByGoogle);
 
 module.exports = router;
