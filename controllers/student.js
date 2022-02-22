@@ -173,7 +173,6 @@ exports.register = asyncHandler(async (req, res, next) => {
       hardSkills,
       resume,
       positionSought,
-
       languages,
     } = req.body;
 
@@ -263,8 +262,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
 
     const education_info = Joi.object().keys({
       school: Joi.string(),
-      image: Joi.string(),
-
+      image: Joi.string().optional().allow(""),
       levelOfEducation: Joi.string().valid(
         "Brevet",
         "CAP",
@@ -289,7 +287,6 @@ exports.edit = asyncHandler(async (req, res, next) => {
       place: Joi.string().max(250),
       position_hold: Joi.boolean(),
       image: Joi.string().optional().allow(""),
-
       company: Joi.string().max(250),
       duration: Joi.object().keys({
         start_date: Joi.string(),
@@ -302,9 +299,6 @@ exports.edit = asyncHandler(async (req, res, next) => {
       general_Presentation: Joi.string().max(2000).optional().allow(""),
       presentation_Video: Joi.string(),
       image: Joi.string().optional().allow(""),
-
-      // School_Index: Joi.number(),
-
       professional_Picture: Joi.string(),
       professional_networks: professional_network,
       education: Joi.array().items(education_info),
@@ -355,17 +349,8 @@ exports.edit = asyncHandler(async (req, res, next) => {
       await Promise.all(
         await softSkills.map(async (val) => {
           const requestedMaterial = val.skillName;
-          console.log(requestedMaterial, "result");
-
           if (requestedMaterial) {
             const result = await Skill.find({ skillField: val.skillName });
-            console.log(result, "result");
-            // if (result.length == 0) {
-            //   const newMaterial = new Material({
-            //     name: requestedMaterial,
-            //   });
-            //   await newMaterial.save().then((val.material = newMaterial._id));
-            // }
           }
         })
       );
@@ -421,7 +406,6 @@ exports.edit = asyncHandler(async (req, res, next) => {
       }
     }
     const studentID = user.student;
-    // console.log(EDUCATION, "EDUCATION");
 
     // let parsed_professional_network = JSON.parse(professional_networks);
     let userobj;
@@ -658,7 +642,6 @@ exports.GetSkills = asyncHandler(async (req, res, next) => {
   try {
     const { type, query } = req.body;
     //var query="négociat"
-    //console.log(query, "Query");
     if (type === "Soft Skill") {
       const skills = await Skill.find({
         $and: [
@@ -666,10 +649,8 @@ exports.GetSkills = asyncHandler(async (req, res, next) => {
           {
             isDeleted: false,
           },
-          //{ skillField: { $regex: query, $options: "$i" } },
         ],
       });
-      console.log(skills, "SKILLS");
       return res.status(200).send({
         skills: skills,
         message: "Les compétences ont été récupérées avec succès",
@@ -729,3 +710,16 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
+//Find std with id
+exports.getStdById = async (req, res) => {
+  try {
+    let stdId = req.params.stdId;
+    const std = await Student.findById(stdId)
+      .populate("hardSkills")
+      .populate("softSkills")
+      .populate("languages");
+    res.json({ success: true, std });
+  } catch (err) {
+    res.json({ success: false, message: "Internal server error" });
+  }
+};

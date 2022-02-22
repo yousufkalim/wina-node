@@ -146,12 +146,7 @@ io.on("connection", (socket) => {
   socket.on("sendnotification", (data) => {
     socket.broadcast.emit("sendnotification", data);
   });
-  // logInfo.info(
-  //   "Connection Established ",
-  //   socket.id,
-  //   " accepted at ",
-  //   new Date().toJSON()
-  // );
+
   exports.socket = { socket, io };
   var useris = socket.handshake.query.userConnectionId;
   socket.join(useris);
@@ -208,14 +203,6 @@ app.get(
     res.json({ success: true, user: req });
   }
 );
-
-// Hamza Passport
-const isLoggedIn = (req, res, next) => {
-  if (req.user) {
-    next();
-  }
-};
-
 app.get(
   "/api/v1/auth/google",
   passport.authenticate("google", { scope: ["email", "profile"] })

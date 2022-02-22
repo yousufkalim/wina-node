@@ -1838,7 +1838,6 @@ exports.postHardSkills = async (req, res) => {
 
     // deleting Excel File after saving data to database
   } catch (error) {
-    console.log("Error ----> ", error);
     res.status(500).send("Something Failed");
   }
 };
@@ -1851,21 +1850,17 @@ exports.postSoftSkills = async (req, res) => {
     await xlsxFile(req.file.path).then(async (rows) => {
       rows.forEach(async (item) => {
         array = item[0].split("\r");
-        console.log("rows", array);
         data.push({
           isDeleted: "false",
           skillField: array[0],
           skillType: "Soft Skill",
         });
-        console.log(data, "DATA");
-        console.log("rapeate");
       });
       var skix = await Skill.insertMany(data);
 
       return res.status(200).send({ msg: "Ok" });
     });
   } catch (error) {
-    console.log("Error ----> ", error);
     res.status(500).send("Something Failed");
   }
 };
