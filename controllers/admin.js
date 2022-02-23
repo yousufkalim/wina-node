@@ -889,9 +889,9 @@ exports.validateImages = asyncHandler(async (req, res, next) => {
         "professional_Picture.status": "Validated",
       });
       let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
+        host: "mail.gandi.net",
+        port: 465,
+        secure: true,
         tls: {
           rejectUnauthorized: false,
         },
@@ -917,9 +917,9 @@ exports.validateImages = asyncHandler(async (req, res, next) => {
         $unset: { professional_Picture: 1 },
       });
       let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
+        host: "mail.gandi.net",
+        port: 465,
+        secure: true,
         tls: {
           rejectUnauthorized: false,
         },
@@ -961,9 +961,9 @@ exports.validateVideo = asyncHandler(async (req, res, next) => {
         "presentation_Video.status": "Validated",
       });
       let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
+        host: "mail.gandi.net",
+        port: 465,
+        secure: true,
         tls: {
           rejectUnauthorized: false,
         },
@@ -989,9 +989,9 @@ exports.validateVideo = asyncHandler(async (req, res, next) => {
         $unset: { presentation_Video: 1 },
       });
       let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
+        host: "mail.gandi.net",
+        port: 465,
+        secure: true,
         tls: {
           rejectUnauthorized: false,
         },
@@ -1034,9 +1034,9 @@ exports.validateJobImages = asyncHandler(async (req, res, next) => {
         "photo.status": "Validated",
       });
       let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
+        host: "mail.gandi.net",
+        port: 465,
+        secure: true,
         tls: {
           rejectUnauthorized: false,
         },
@@ -1062,9 +1062,9 @@ exports.validateJobImages = asyncHandler(async (req, res, next) => {
         $unset: { photo: 1 },
       });
       let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
+        host: "mail.gandi.net",
+        port: 465,
+        secure: true,
         tls: {
           rejectUnauthorized: false,
         },
@@ -1514,9 +1514,9 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
 
         // Sending success mail
         let transporter = nodemailer.createTransport({
-          host: "smtp.gmail.com",
-          port: 587,
-          secure: false,
+          host: "mail.gandi.net",
+          port: 465,
+          secure: true,
           tls: {
             rejectUnauthorized: false,
           },
@@ -1570,9 +1570,9 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
         });
 
         let transporter = nodemailer.createTransport({
-          host: "smtp.gmail.com",
-          port: 587,
-          secure: false,
+          host: "mail.gandi.net",
+          port: 465,
+          secure: true,
           tls: {
             rejectUnauthorized: false,
           },
@@ -1646,9 +1646,9 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
         });
 
         let transporter = nodemailer.createTransport({
-          host: "smtp.gmail.com",
-          port: 587,
-          secure: false,
+          host: "mail.gandi.net",
+          port: 465,
+          secure: true,
           tls: {
             rejectUnauthorized: false,
           },
@@ -1700,9 +1700,9 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
         });
 
         let transporter = nodemailer.createTransport({
-          host: "smtp.gmail.com",
-          port: 587,
-          secure: false,
+          host: "mail.gandi.net",
+          port: 465,
+          secure: true,
           tls: {
             rejectUnauthorized: false,
           },
