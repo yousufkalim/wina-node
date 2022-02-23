@@ -146,9 +146,9 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
         },
         function (token, user, done) {
           let transporter = nodemailer.createTransport({
-            host: "smtp.gmail.com",
-            port: 587,
-            secure: false,
+            host: "mail.gandi.net",
+            port: 465,
+            secure: true,
             tls: {
               rejectUnauthorized: false,
             },
@@ -229,9 +229,9 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
                   }
                 );
                 let transporter = nodemailer.createTransport({
-                  host: "smtp.gmail.com",
-                  port: 587,
-                  secure: false,
+                  host: "mail.gandi.net",
+                  port: 465,
+                  secure: true,
                   tls: {
                     rejectUnauthorized: false,
                   },

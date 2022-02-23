@@ -123,7 +123,9 @@ exports.requestForgetPassword = asyncHandler(async (req, res, next) => {
         { new: true }
       );
       var smtpTransport = nodemailer.createTransport({
-        service: "gmail",
+        host: "mail.gandi.net",
+        port: 465,
+        secure: true,
         auth: {
           user: process.env.MailingId,
           pass: process.env.MailingPassword,
@@ -195,7 +197,9 @@ exports.forgetPassword = asyncHandler(async (req, res, next) => {
     }
 
     var smtpTransport = nodemailer.createTransport({
-      service: "Gmail",
+      host: "mail.gandi.net",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.MailingId,
         pass: process.env.MailingPassword,
