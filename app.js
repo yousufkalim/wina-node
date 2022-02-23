@@ -203,7 +203,6 @@ app.get(
     res.json({ success: true, user: req });
   }
 );
-
 app.get(
   "/api/v1/auth/google",
   passport.authenticate("google", { scope: ["email", "profile"] })
