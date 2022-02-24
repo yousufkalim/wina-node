@@ -157,24 +157,73 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
               pass: process.env.MailingPassword,
             },
           });
-          var mailOptions = {
-            to: user.email,
-            from: process.env.MailingId,
-            subject: Texts.Verification_email_TITLE,
-            text:
-              Texts.Verification_email_BODY1 +
-              "\n\n" +
-              Texts.Verification_email_BODY2 +
-              " :\n\n" +
-              "URL:" +
-              "\n\n" +
-              `${process.env.verifyEmail}` +
-              "/verifyEmail/" +
-              token +
-              "\n\n" +
-              Texts.Verification_email_URL +
-              "\n\n",
-          };
+          //if type student than send email with this format
+          if (user.type === "student") {
+            var mailOptions = {
+              to: user.email,
+              from: process.env.MailingId,
+              subject: Texts.Student_verification_Email_Title,
+              text:
+                Texts.Hi +
+                " " +
+                user.firstName +
+                "\n\n" +
+                Texts.Student_verification_Email_Body1 +
+                "\n\n" +
+                Texts.Student_verification_Email_Body2 +
+                " :\n\n" +
+                "\n\n" +
+                `${process.env.verifyEmail}` +
+                "/verifyEmail/" +
+                token +
+                "\n\n" +
+                "\n\n" +
+                Texts.Student_verification_Email_Body3 +
+                "\n\n" +
+                Texts.Student_verification_Email_Body4 +
+                "\n\n" +
+                Texts.Student_verification_Email_Footer1 +
+                "\n\n" +
+                "\n\n" +
+                Texts.Student_verification_Email_Footer2 +
+                "\n\n",
+            };
+            // else if type Company than send email with this format
+          } else if (user.type === "company") {
+            var mailOptions = {
+              to: user.email,
+              from: process.env.MailingId,
+              subject: Texts.Company_verification_Email_Title,
+              text:
+                Texts.Hello +
+                " " +
+                user.firstName +
+                "\n\n" +
+                Texts.Company_verification_Email_Body1 +
+                "\n\n" +
+                Texts.Company_verification_Email_Body2 +
+                "\n\n" +
+                Texts.Company_verification_Email_Body3 +
+                " :\n\n" +
+                "\n\n" +
+                `${process.env.verifyEmail}` +
+                "/verifyEmail/" +
+                token +
+                "\n\n" +
+                Texts.Company_verification_Email_Body4 +
+                "\n\n" +
+                Texts.Company_verification_Email_Body5 +
+                "\n\n" +
+                Texts.Company_verification_Email_Footer1 +
+                "\n\n" +
+                Texts.Company_verification_Email_Footer2 +
+                "\n\n" +
+                Texts.Company_verification_Email_Footer3 +
+                "\n\n",
+            };
+          } else {
+            console.log("No type found");
+          }
 
           transporter.sendMail(mailOptions, (error, info) => {
             if (error) {

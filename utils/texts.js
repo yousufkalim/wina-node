@@ -1,4 +1,37 @@
 const Texts = {
+  //Student Email Verification text
+  Student_verification_Email_Title:
+    "Prêt à décrocher ton contrat d’apprentissage?",
+  Hi: "Salut",
+  Student_verification_Email_Body1:
+    "Bienvenue chez WinaA première plateforme dédiée à la recherche d’une alternance en contrat d’apprentissage.",
+  Student_verification_Email_Body2:
+    "Nous sommes ravis de te compter parmi nos rangs de soldats. Prêt à conquérir ta futur entreprise ? Notre algorithme de matching est notre meilleure arme, plusieurs offres correspondent à ton profil. Pour ne pas laisser échapper ces opportunités, clique sur le lien suivant afin de valider ton adresse mail",
+  Student_verification_Email_Body3:
+    "Après cette validation, rendez-vous sur ton espace personnel pour nous décrire ton profil et ta recherche ! ",
+  Student_verification_Email_Body4:
+    "Une question ? RDV sur le chatbot une équipe de conseiller s’engage à te répondre dans un délai maximum de 48H .",
+  Student_verification_Email_Footer1: "A très vite, Ensemble on va y arriver !",
+  Student_verification_Email_Footer2: "L’équipe WinaA",
+
+  // Company Email verification text
+  Company_verification_Email_Title: "Prêt à recruter votre super apprenti ?",
+  Hello: "Bonjour",
+  Company_verification_Email_Body1:
+    "Bienvenue chez WinaA première plateforme dédiée au recrutement des apprentis via un système de matching.",
+  Company_verification_Email_Body2:
+    "Nous sommes ravis de vous compter parmi nos entreprises soucieuses de l’avenir de nos jeunes.Notre algorithme de matching est la solution qui vous facilite le recrutement de vos apprentis. Plusieurs talents sélectionnés et coachés par nos experts répondent à vos critères de recherche.",
+  Company_verification_Email_Body3:
+    "Pour les rencontrer, il vous suffit de cliquer sur le lien suivant afin de valider votre compte",
+  Company_verification_Email_Body4:
+    "Après cette validation, rendez-vous sur votre espace entreprise pour publier vos offres et gérer vos recrutements.",
+  Company_verification_Email_Body5:
+    "Une question ? Adressez-nous votre demande sur entreprise@winaa.fr et un conseiller reviendra vers vous dans un délai maximum de 48H !",
+  Company_verification_Email_Footer1:
+    "En vous souhaitant de belles rencontres avec nos Talents !",
+  Company_verification_Email_Footer2: "Bien cordialement ,",
+  Company_verification_Email_Footer3: "L’équipe WinaA",
+  //------------------------------------\\
   Verification_email_has_been_sent: "Un e-mail de confirmation a été envoyé. ",
   Verification_email_TITLE: "Vérification de votre adresse e-mail",
   Verification_email_BODY1:
