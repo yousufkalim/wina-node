@@ -47,7 +47,7 @@ const Texts = {
   userData: "Donnée utilisateur",
   userAdded: "Utilisateur ajouté",
   userCreated: "Utilisateur créé",
-  userUpdated: "Utilisateur mis à jour",
+  userUpdated: "Données mises à jour avec succès",
   companyUpdated: "Entreprise mise à jour",
   companyDeleted: "Entreprise supprimée",
   userDeleted: "Utilisateur supprimé",
