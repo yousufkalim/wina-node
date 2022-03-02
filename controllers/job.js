@@ -48,11 +48,11 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       longitude: Joi.number().required(),
     });
     const schema = Joi.object().keys({
-      title: Joi.string(),
+      title: Joi.string().optional().allow(""),
       status: Joi.string().valid("open", "filled"),
       domain: Joi.string(),
       description: Joi.string(),
-      photo: Joi.string(),
+      photo: Joi.string().optional().allow(""),
       position: Joi.string(),
       startDate: Joi.string(),
       duration: Joi.string(),
@@ -137,11 +137,11 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
     });
 
     const schema = Joi.object().keys({
-      title: Joi.string(),
+      title: Joi.string().optional().allow(""),
       status: Joi.string().valid("open", "filled"),
       domain: Joi.string(),
       description: Joi.string().max(250),
-      photo: Joi.string(),
+      photo: Joi.string().optional().allow(""),
       position: Joi.string(),
       startDate: Joi.string(),
       duration: Joi.string(),
