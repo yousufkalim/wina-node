@@ -26,6 +26,7 @@ const server = http.createServer(app);
 var xlsx = require("xlsx");
 const notificationService = require("./socket.io/notifications");
 require("./utils/passport");
+require("./utils/linkedInOauth");
 app.use(
   cors({
     origin: true,
@@ -255,5 +256,22 @@ app.get("/auth/google/success", async (req, res) => {
 });
 
 app.get("/auth/google/failure", async (req, res) => {
+  return res.redirect(process.env.REACT_URL);
+});
+// LinkedIn Oauth
+app.get(
+  "/api/v1/auth/linkedin",
+  passport.authenticate("linkedin", { scope: ["email", "profile"] })
+);
+app.get(
+  "/api/v1/auth/linkedin/callback",
+  passport.authenticate("linkedin", {
+    successReturnToOrRedirect: "/auth/linkedin/success",
+    failureRedirect: "/auth/linkedin/failure",
+  })
+);
+
+// failure
+app.get("/api/v1/auth/linkedin/failure", async (req, res) => {
   return res.redirect(process.env.REACT_URL);
 });
