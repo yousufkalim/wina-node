@@ -27,6 +27,7 @@ const {
   logout,
   verifyUser,
   registerByGoogle,
+  registerBylinkedIn,
 } = require("../controllers/auth");
 
 //middleware functions
@@ -47,7 +48,10 @@ router.post("/login", login);
 
 //LOGOUT Route
 router.post("/logout", logout);
-
+// Google LOGIN route
 router.post("/google-register", registerByGoogle);
+// Linkedin LOGIN route
+router.post("/linkedIn-register", registerBylinkedIn);
+
 
 module.exports = router;

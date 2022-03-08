@@ -259,9 +259,13 @@ app.get("/auth/google/failure", async (req, res) => {
   return res.redirect(process.env.REACT_URL);
 });
 // LinkedIn Oauth
+
+
 app.get(
   "/api/v1/auth/linkedin",
-  passport.authenticate("linkedin", { scope: ["email", "profile"] })
+  passport.authenticate("linkedin", {
+    scope: ["r_liteprofile", "r_emailaddress"],
+  })
 );
 app.get(
   "/api/v1/auth/linkedin/callback",
@@ -270,8 +274,47 @@ app.get(
     failureRedirect: "/auth/linkedin/failure",
   })
 );
+//success
+app.get("/auth/linkedin/success", async (req, res) => {
+  try {
+    const profile = req.user;
+
+    const email = req.user.emails[0].value;
+    const user = await User.findOne({ email: email });
+    if (user) {
+      const token = user.getSignedJwtToken();
+
+      if (user.status === "linkedInSignup") {
+        return res.redirect(
+          process.env.REACT_URL + `?SignupBylinkedIn=true&&user=${token}`
+        );
+      } else {
+        return res.redirect(
+          process.env.REACT_URL + `linkedInLogin?token=${token}`
+        );
+      }
+    } else {
+      let newUser = await User.create({
+        role: "user",
+        status: "linkedInSignup",
+        firstName: profile.name.givenName,
+        lastName: profile.name.familyName,
+        email: email,
+        isSignupBylinkedIn: true,
+      });
+      const token = newUser.getSignedJwtToken();
+
+      return res.redirect(
+        process.env.REACT_URL + `?SignupBylinkedIn=true&&user=${token}`
+      );
+    }
+  } catch (error) {
+    console.log("err", error);
+    return res.redirect(process.env.REACT_URL);
+  }
+});
 
 // failure
-app.get("/api/v1/auth/linkedin/failure", async (req, res) => {
+app.get("/auth/linkedin/failure", async (req, res) => {
   return res.redirect(process.env.REACT_URL);
 });

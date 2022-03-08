@@ -54,7 +54,7 @@ const UserSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ["active", "deactive", "googleSignup", "facebookSignup"],
+    enum: ["active", "deactive", "googleSignup", "linkedInSignup"],
     default: "deactive",
   },
 
