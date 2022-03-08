@@ -80,12 +80,12 @@ const Texts = {
   Student_has_requested_for_Coaching_Appointment:
     "L'étudiant a demandé un rendez-vous d'entraîneur",
   Appoinment_Disapproved: "Rendez-vous_Refusé",
-  Appoinment_Approved: "Nomination_Approuvé",
-  Appointment_is_already_existed: "Rendez-vous_est_already_existé",
+  Appoinment_Approved: "Nomination Approuvé",
+  Appointment_is_already_existed: "Rendez-vous est already existé",
   Coaching_Appointment_for_Company: "Rendez-vous de coaching pour l'entreprise",
   Company_has_requested_for_Coaching_Appointment:
     "L'entreprise a demandé un rendez-vous de coaching",
-  Company_has_book_Appointments: "Entreprise_a_réservé_rendez-vous",
+  Company_has_book_Appointments: "Entreprise a réservé rendez-vous",
   please_validate_one_of_it: "merci d'en valider un",
   Appoinment_Created: "Sauvegardé avec succès",
   jobCreated: "travailCréé",
@@ -93,14 +93,14 @@ const Texts = {
   jobDeleted: "travailSupprimé",
   notAuthorized: "Vous n'avez pas les autorisations",
   You_have_already_sent_a_request: "Vous avez déjà envoyé une demande",
-  student_is_applied_on_your_job: "étudiant_est_appliqué_sur_votre_emploi",
+  student_is_applied_on_your_job: "étudiant est appliqué sur votre emploi",
   Applied_on_job_successfully: "Enregistré avec succès",
   You_have_already_rejected_this_request: "Vous avez déjà rejeté cette demande",
   Rejected_job_successfully: "Rejeté_emploi_avec succès",
-  has_rejected_your_job: "a_rejeté_votre_emploi",
-  has_rejected_your_offer: "a_rejeté_votre_offre",
+  has_rejected_your_job: "a rejeté votre emploi",
+  has_rejected_your_offer: "a rejeté votre offre",
 
-  has_accepted_your_offer: "a_accepté_votre_offre",
+  has_accepted_your_offer: "a accepté votre offre",
   Request_has_been_accepted_successfully:
     "La demande a été acceptée avec succès",
   Request_has_been_deleted_successfully:
@@ -134,26 +134,26 @@ const Texts = {
 
   Your_Presentational_video_has_been_Validated_successfully:
     "Votre vidéo de présentation a été validée avec succès",
-  School_Created_Successfully: "École_Créée_Succès",
+  School_Created_Successfully: "École Créée Succès",
   School_updated_Successfully: "École mise à jour avec succès",
   School_deleted_Successfully: "École supprimée avec succès",
 
-  Appointment_updated_Successfully: "Rendez-vous_mis_à jour_avec succès",
-  Appointment_deleted_Successfully: "Rendez-vous_supprimé_avec succès",
-  Appointment_Approved: "Rendez-vous_Approuvé",
-  Appointment_Cancelled: "Rendez-vous_Annulé",
+  Appointment_updated_Successfully: "Rendez-vous mis à jour avec succès",
+  Appointment_deleted_Successfully: "Rendez vous supprimé avec succès",
+  Appointment_Approved: "Rendez vous Approuvé",
+  Appointment_Cancelled: "Rendez-vous Annulé",
   Your_Appointment_has_been_cancelled_by_the_Admin:
-    "Your_Appointment_has_been_cancelled_by_the_Admin",
+    "Votre rendez-vous a été annulé par l'administrateur",
   Validation_Failed: "Validation échouée",
-  Appointment_Scheduled: "Rendez-vous_Planifié",
+  Appointment_Scheduled: "Rendez-vous Planifié",
   Your_Appointment_has_been_approved_successfully:
-    "Votre_rendez-vous_a_été_approuvé_avec succès",
+    "Votre rendez-vous a été approuvé avec succès",
   Admin_has_assigned_you_an_appointment:
-    "Admin_has_assigned_you_an_appointment",
+    "L'administrateur vous a attribué un rendez-vous",
   Your_request_for_Coaching_Appointment_has_been_Approved:
-    "Your_request_for_Coaching_Appointment_has_been_Approved",
+    "Votre demande de rendez-vous de coaching a été approuvée",
   Your_request_for_Coaching_Appointment_has_been_cancelled:
-    "Your_request_for_Coaching_Appointment_has_been_cancelled",
+    "Votre demande de rendez-vous de coaching a été annulée",
 
   Profile_updated_successfully: "Mise à jour du profil réussie",
   User_has_been_deleted_Successfully:
