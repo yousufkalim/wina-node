@@ -505,3 +505,58 @@ exports.registerByGoogle = async (req, res, next) => {
     next(err);
   }
 };
+
+
+exports.registerBylinkedIn = async (req, res, next) => {
+  try {
+    const address = req.body.address;
+    const phone = req.body.phone;
+    const type = req.body.type;
+    const userId = req.body.userId;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        address: address,
+        phone: phone,
+        type: type,
+        status: "active",
+      },
+      {
+        new: true,
+      }
+    );
+
+    let updateUser;
+    if (type === "student") {
+      userobj = new Student({
+        general_Presentation: "",
+        presentation_Video: "",
+        professional_Picture: "",
+        professional_networks: "",
+
+        user: user._id,
+      });
+
+      await userobj.save();
+      updateUser = await User.findByIdAndUpdate(
+        user._id,
+        {
+          student: userobj._id,
+        },
+        {
+          new: true,
+        }
+      ).populate("student");
+    } else {
+      updateUser = user;
+    }
+    const token = user.getSignedJwtToken();
+
+    return res
+      .status(200)
+      .json({ user: updateUser, token: token, message: Texts.userCreated });
+  } catch (err) {
+    next(err);
+  }
+};
