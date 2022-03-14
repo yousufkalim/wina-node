@@ -270,8 +270,8 @@ app.get(
 app.get(
   "/api/v1/auth/linkedin/callback",
   passport.authenticate("linkedin", {
-    successReturnToOrRedirect: "/auth/linkedin/success",
-    failureRedirect: "/auth/linkedin/failure",
+    successReturnToOrRedirect: process.env.linkedIn_Success,
+    failureRedirect: process.env.linkedIn_failure,
   })
 );
 //success
