@@ -6,7 +6,7 @@ passport.use(
     {
       clientID: process.env.GCP_Client_ID,
       clientSecret: process.env.GCP_Client_Secret,
-      callbackURL: "/auth/google/callback",
+      callbackURL: process.env.Google_Callback,
       scope: ["profile"],
       state: true,
     },

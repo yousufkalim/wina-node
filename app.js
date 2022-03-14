@@ -210,7 +210,7 @@ app.get(
 );
 
 app.get(
-  "/auth/google/callback",
+  "/api/v1/auth/google/callback",
   passport.authenticate("google", {
     successReturnToOrRedirect: "/auth/google/success",
     failureRedirect: "/auth/google/failure",
@@ -260,7 +260,6 @@ app.get("/auth/google/failure", async (req, res) => {
 });
 // LinkedIn Oauth
 
-
 app.get(
   "/api/v1/auth/linkedin",
   passport.authenticate("linkedin", {
@@ -270,8 +269,8 @@ app.get(
 app.get(
   "/api/v1/auth/linkedin/callback",
   passport.authenticate("linkedin", {
-    successReturnToOrRedirect: process.env.linkedIn_Success,
-    failureRedirect: process.env.linkedIn_failure,
+    successReturnToOrRedirect: "/auth/linkedin/success",
+    failureRedirect: "/auth/linkedin/failure",
   })
 );
 //success
