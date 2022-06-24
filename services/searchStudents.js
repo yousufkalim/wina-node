@@ -42,12 +42,7 @@ class MatchingCriteria extends DealBreaker {
       var lat1 = toRad(lat1);
       var lat2 = toRad(lat2);
 
-      var a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.sin(dLon / 2) *
-          Math.sin(dLon / 2) *
-          Math.cos(lat1) *
-          Math.cos(lat2);
+      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
       var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       var d = R * c;
       return d;
@@ -63,17 +58,16 @@ class MatchingCriteria extends DealBreaker {
     const locationFilterArray = [];
 
     await Promise.all(
-      students.map(async (student) => {
+      students.map(async (student, index) => {
         const user = await User.findById(student.user);
-        const latitude2 = user.address.latitude;
-        const longitude2 = user.address.longitude;
+        if (user) {
+          const latitude2 = user.address.latitude;
+          const longitude2 = user.address.longitude;
 
-        const result =
-          (1 -
-            calcDistance(latitude1, longitude1, latitude2, longitude2) * 0.02) *
-          5;
+          const result = (1 - calcDistance(latitude1, longitude1, latitude2, longitude2) * 0.02) * 5;
 
-        return locationFilterArray.push({ id: student.id, score: result });
+          return locationFilterArray.push({ id: student.id, score: result });
+        }
       })
     );
     return locationFilterArray;
@@ -181,10 +175,7 @@ class MatchingCriteria extends DealBreaker {
     let score = 0;
 
     students.map((student) => {
-      const studentDate = moment(
-        student.positionSought.startDate,
-        "YYYY-MM-DD"
-      );
+      const studentDate = moment(student.positionSought.startDate, "YYYY-MM-DD");
       const result = Math.abs(jobStartingDate.diff(studentDate, "weeks"));
       if (result <= 1) {
         score = 1;
@@ -229,8 +220,7 @@ class MatchingCriteria extends DealBreaker {
     var levelOfEducationArray = [];
     let score = 0;
     students.map((student) => {
-      const studentLevelOfEducation =
-        student.positionSought.levelOfEducation.toUpperCase();
+      const studentLevelOfEducation = student.positionSought.levelOfEducation.toUpperCase();
       const result = jobEducation.localeCompare(studentLevelOfEducation);
       if (result === 0) {
         score = 1;
@@ -250,11 +240,8 @@ class MatchingCriteria extends DealBreaker {
     let score = 0;
 
     students.map((student) => {
-      const studentAlternationRhythm =
-        student.positionSought.alternationRhythm.toUpperCase();
-      const result = jobAlternationRhythm.localeCompare(
-        studentAlternationRhythm
-      );
+      const studentAlternationRhythm = student.positionSought.alternationRhythm.toUpperCase();
+      const result = jobAlternationRhythm.localeCompare(studentAlternationRhythm);
       if (result == 0) {
         score = 1;
       } else {
@@ -277,18 +264,12 @@ class MatchingCriteria extends DealBreaker {
     let score = 0;
 
     students.map((student) => {
-      const studentDOB = moment(
-        student.positionSought.dateOfBirth,
-        "YYYY-MM-DD"
-      );
+      const studentDOB = moment(student.positionSought.dateOfBirth, "YYYY-MM-DD");
       const currentDate = moment(new Date());
       const studentAge = Math.abs(studentDOB.diff(currentDate, "years"));
 
       if (jobAgeRange == "18-20" || jobAgeRange == "21-24") {
-        if (
-          studentAge >= splittedjobAgeRange[0] &&
-          studentAge <= splittedjobAgeRange[1]
-        ) {
+        if (studentAge >= splittedjobAgeRange[0] && studentAge <= splittedjobAgeRange[1]) {
           score = 1;
         } else {
           score = 0;
@@ -322,13 +303,9 @@ class MatchingCriteria extends DealBreaker {
       const fieldResult = await this.field(job, students);
       const jobNameResult = await this.jobName(job, students);
       const startDateResult = await this.startDate(job, students);
-      const lengthOfTheAlternateResult = await this.lengthOfTheAlternate(
-        job,
-        students
-      );
+      const lengthOfTheAlternateResult = await this.lengthOfTheAlternate(job, students);
       const levelOfEducationResult = await this.levelOfEducation(job, students);
-      const frequencyOfApprenticeshipResult =
-        await this.frequencyOfApprenticeship(job, students);
+      const frequencyOfApprenticeshipResult = await this.frequencyOfApprenticeship(job, students);
       const ageRangeResult = await this.ageRange(job, students);
 
       // console.log(locationResult, "location");
@@ -347,84 +324,78 @@ class MatchingCriteria extends DealBreaker {
 
       const newArray = [];
 
-      students.map((student) => {
-        let totalScore = 0;
-        // Location Filter //
-        let locationIndex = locationResult.findIndex(
-          (loc) => loc.id === student.id
-        );
-        totalScore += locationResult[locationIndex].score / 100;
-        // Soft Skills Filter //
-        let softSkillIndex = softSkillsResult.findIndex(
-          (softSkill) => softSkill.id === student.id
-        );
-        totalScore += softSkillsResult[softSkillIndex].score / 100;
 
-        // Hard Skills Filter //
-        let hardSkillIndex = hardSkillsResult.findIndex(
-          (hardSkill) => hardSkill.id === student.id
-        );
-        totalScore += hardSkillsResult[hardSkillIndex].score / 100;
+      students.map(
+        (student, index) => {
+          let totalScore = 0;
+          // Location Filter //
 
-        // Field Filter //
-        let fieldIndex = fieldResult.findIndex(
-          (field) => field.id === student.id
-        );
-        totalScore += fieldResult[fieldIndex].score / 100;
+          let locationIndex = locationResult.findIndex((loc) => loc.id === student.id);
 
-        // Job Name Filter //
-        let jobNameIndex = jobNameResult.findIndex(
-          (jobName) => jobName.id === student.id
-        );
-        totalScore += jobNameResult[jobNameIndex].score / 100;
+          if (locationIndex < 0) {
+return null
+          }
 
-        // Start Date Filter //
-        let startDateIndex = startDateResult.findIndex(
-          (startDate) => startDate.id === student.id
-        );
-        totalScore += startDateResult[startDateIndex].score / 100;
+          totalScore += locationResult[locationIndex].score / 100;
+          // Soft Skills Filter //
+          let softSkillIndex = softSkillsResult.findIndex((softSkill) => softSkill.id === student.id);
+          totalScore += softSkillsResult[softSkillIndex].score / 100;
 
-        // Length of the Alternate Filter //
-        let lengthOfTheAlternateIndex = lengthOfTheAlternateResult.findIndex(
-          (lengthOfTheAlternate) => lengthOfTheAlternate.id === student.id
-        );
-        totalScore +=
-          lengthOfTheAlternateResult[lengthOfTheAlternateIndex].score / 100;
 
-        // Level Of Education Filter //
-        let levelOfEducationIndex = levelOfEducationResult.findIndex(
-          (levelOfEducation) => levelOfEducation.id === student.id
-        );
-        totalScore += levelOfEducationResult[levelOfEducationIndex].score / 100;
+          // Hard Skills Filter //
+          let hardSkillIndex = hardSkillsResult.findIndex((hardSkill) => hardSkill.id === student.id);
+          totalScore += hardSkillsResult[hardSkillIndex].score / 100;
 
-        // Frequency of Apprenticeship Filter //
-        let frequencyOfApprenticeshipIndex =
-          frequencyOfApprenticeshipResult.findIndex(
-            (frequencyOfApprenticeship) =>
-              frequencyOfApprenticeship.id === student.id
+          // Field Filter //
+          let fieldIndex = fieldResult.findIndex((field) => field.id === student.id);
+          totalScore += fieldResult[fieldIndex].score / 100;
+
+          // Job Name Filter //
+          let jobNameIndex = jobNameResult.findIndex((jobName) => jobName.id === student.id);
+          totalScore += jobNameResult[jobNameIndex].score / 100;
+
+          // Start Date Filter //
+          let startDateIndex = startDateResult.findIndex((startDate) => startDate.id === student.id);
+          totalScore += startDateResult[startDateIndex].score / 100;
+
+          // Length of the Alternate Filter //
+          let lengthOfTheAlternateIndex = lengthOfTheAlternateResult.findIndex(
+            (lengthOfTheAlternate) => lengthOfTheAlternate.id === student.id
           );
-        totalScore +=
-          frequencyOfApprenticeshipResult[frequencyOfApprenticeshipIndex]
-            .score / 100;
+          totalScore += lengthOfTheAlternateResult[lengthOfTheAlternateIndex].score / 100;
 
-        // Age Range Filter //
-        let ageRangeIndex = ageRangeResult.findIndex(
-          (ageRange) => ageRange.id === student.id
-        );
-        totalScore += ageRangeResult[ageRangeIndex].score / 100;
+          // Level Of Education Filter //
+          let levelOfEducationIndex = levelOfEducationResult.findIndex((levelOfEducation) => levelOfEducation.id === student.id);
+          totalScore += levelOfEducationResult[levelOfEducationIndex].score / 100;
 
-        newArray.push({
-          studentId: student.id,
-          score: totalScore,
-        });
-        newArray.sort(function (a, b) {
-          return b.score - a.score;
-        });
-      });
+          // Frequency of Apprenticeship Filter //
+          let frequencyOfApprenticeshipIndex = frequencyOfApprenticeshipResult.findIndex(
+            (frequencyOfApprenticeship) => frequencyOfApprenticeship.id === student.id
+          );
+          totalScore += frequencyOfApprenticeshipResult[frequencyOfApprenticeshipIndex].score / 100;
+
+          // Age Range Filter //
+          let ageRangeIndex = ageRangeResult.findIndex((ageRange) => ageRange.id === student.id);
+          totalScore += ageRangeResult[ageRangeIndex].score / 100;
+
+          newArray.push({
+            studentId: student.id,
+            score: totalScore,
+          });
+          console.log({
+            studentId: student.id,
+            score: totalScore,
+          });
+          newArray.sort(function (a, b) {
+            return b.score - a.score;
+          });
+        } 
+        
+      );
 
       return newArray;
     } catch (err) {
-      return res.status(404).send({ message: err.message });
+      return res.status(404).send({ message: err.message});
       next(err.message);
     }
   };
@@ -434,7 +405,6 @@ class MatchingCriteria extends DealBreaker {
       let output = [];
       const sortedArray = await this.search(req, res, next);
       if (sortedArray !== undefined) {
-        console.log(sortedArray, "Arr");
         await Promise.all(
           sortedArray.map(async (student) => {
             const result = await Student.findByIdAndUpdate(student.studentId, {
