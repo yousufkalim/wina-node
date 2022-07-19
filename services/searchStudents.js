@@ -417,7 +417,7 @@ return null
       }
     } catch (err) {
       //return res.status(200).json({ message: err.message });
-      console.log("err", err.message);
+      console.log("err----->", err);
     }
   };
 }
