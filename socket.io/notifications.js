@@ -10,9 +10,9 @@ async function addNotifcation(data) {
       {
         $push: {
           notifications: {
-            title: data.title,
-            description: data.message,
-            projectID: projectID,
+            // title: "qwertyu",
+            // description: "qwertyui",
+            // projectID: projectID,
           },
         },
       },

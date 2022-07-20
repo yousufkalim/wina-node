@@ -45,7 +45,7 @@ app.get("/", (req, res) => {
   var xlData = workbook.Sheets[sheets[0]];
   let jsonData = xlsx.utils.sheet_to_json(xlData);
 
-  console.log("Raeding second sheet...", sheets);
+  console.log("Reading second sheet...", sheets);
 
   res.json({ message: "success", jsonData });
 });
@@ -142,7 +142,7 @@ server.listen(PORT, () => {
 
 // Socket configuration //
 io.on("connection", (socket) => {
-  console.log("Connected");
+  console.log("User Connected");
 
   socket.on("sendnotification", (data) => {
     socket.broadcast.emit("sendnotification", data);
@@ -163,13 +163,14 @@ io.on("connection", (socket) => {
     notificationService
       .addNotifcation({
         id: data.id,
-        title: data.title,
-        message: data.message,
+        // title: data.title,
+        // message: data.message,
       })
       .then((message) => {
+        console.log(message, "message");
         socket.broadcast.emit(`recieveNotification${data.id}`, {
-          title: data.title,
-          message: data.message,
+          // title: "qwerty",
+          // message: "qwerty",
         });
       })
       .catch((e) => console.log(e));
