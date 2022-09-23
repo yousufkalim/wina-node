@@ -21,6 +21,7 @@ const {
   DeleteProfessionalInfo,
   GetSkills,
   validateAppointment,
+  getAllAppointments,
 } = require("../controllers/student");
 //middleware functions
 
@@ -65,4 +66,10 @@ router.post(
 
 // Search for Jobs //
 router.post("/search-job", [protect, validateType("student")], searchForJob);
+
+router.get(
+  "/get-all-appointments",
+  [protect, validateType("student")],
+  getAllAppointments
+);
 module.exports = router;

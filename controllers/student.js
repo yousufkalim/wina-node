@@ -723,3 +723,16 @@ exports.getStdById = async (req, res) => {
     res.json({ success: false, message: "Internal server error" });
   }
 };
+
+exports.getAllAppointments = async (req, res) => {
+  try {
+    let appointments = await Appointment.find({
+      student: req.user.student,
+      isDeleted: false,
+      status: "Approved",
+    }).populate("company student jobID");
+    res.json({ appointments });
+  } catch (err) {
+    res.json({ success: false, message: "Internal server error" });
+  }
+};
