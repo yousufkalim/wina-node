@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "deploy": "sudo chmod 644 .git/index && git pull origin main && npm install && sudo pm2 restart 16 && sudo pm2 logs 16"
+    "deploy": "sudo chmod 644 .git/index && git pull origin main && npm install && sudo pm2 restart 16 && sudo pm2 logs 16",
+    "prepare": "husky install"
   },
   "author": "Hanan Ahmad",
   "license": "ISC",
@@ -41,6 +42,9 @@
     "xlsx": "^0.17.4"
   },
   "devDependencies": {
-    "nodemon": "^2.0.4"
+    "husky": "^8.0.0",
+    "nodemon": "^2.0.4",
+    "prettier": "^2.7.1",
+    "pretty-quick": "^3.1.3"
   }
 }
