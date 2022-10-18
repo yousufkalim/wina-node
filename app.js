@@ -101,27 +101,32 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //// Routes ////
-const auth = require("./routes/auth");
-const student = require("./routes/student");
-const company = require("./routes/company");
-const studentConsultant = require("./routes/studentConsultant");
-const companyConsultant = require("./routes/companyConsultant");
-const profile = require("./routes/profile");
-const admin = require("./routes/admin");
-const job = require("./routes/job");
-const FileUpload = require("./routes/FileUpload");
+const auth = require('./routes/auth');
+const student = require('./routes/student');
+const company = require('./routes/company');
+const companyV2 = require('./routes/company-v2/company');
+const studentConsultant = require('./routes/studentConsultant');
+const companyConsultant = require('./routes/companyConsultant');
+const profile = require('./routes/profile');
+const admin = require('./routes/admin');
+const job = require('./routes/job');
+const FileUpload = require('./routes/FileUpload');
 
 //// Mount Routers ////
 
-app.use("/api/v1/auth", auth);
-app.use("/api/v1/student", student);
-app.use("/api/v1/company", company);
-app.use("/api/v1/student-consultant", studentConsultant);
-app.use("/api/v1/company-consultant", companyConsultant);
-app.use("/api/v1/profile", profile);
-app.use("/api/v1/admin", admin);
-app.use("/api/v1/job", job);
-app.use("/api/v1", FileUpload);
+app.use('/api/v1/auth', auth);
+app.use('/api/v1/student', student);
+app.use('/api/v1/company', company);
+app.use('/api/v1/student-consultant', studentConsultant);
+app.use('/api/v1/company-consultant', companyConsultant);
+app.use('/api/v1/profile', profile);
+app.use('/api/v1/admin', admin);
+app.use('/api/v1/job', job);
+app.use('/api/v1', FileUpload);
+
+/// V2 Company route ///
+
+app.use('/api/v2/company', companyV2);
 
 // app.use("/api/v1/admin", admin);
 
