@@ -1,14 +1,14 @@
-const nodemailer = require("nodemailer");
-const crypto = require("crypto");
-const async = require("async");
-const Joi = require("joi");
-const asyncHandler = require("../middlewares/async");
-const User = require("../models/User");
-const Company = require("../models/Company");
-const Student = require("../models/Student");
-const { Texts } = require("../utils/texts");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+const async = require('async');
+const Joi = require('joi');
+const asyncHandler = require('../middlewares/async');
+const User = require('../models/User');
+const Company = require('../models/Company');
+const Student = require('../models/Student');
+const { Texts } = require('../utils/texts');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 //REGISTER USER API
 exports.registerUser = asyncHandler(async (req, res, next) => {
@@ -19,22 +19,22 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
       city: Joi.string().required(),
       zip: Joi.string().required(),
       latitude: Joi.number().required(),
-      longitude: Joi.number().required(),
+      longitude: Joi.number().required()
     });
 
     const schema = Joi.object().keys({
       firstName: Joi.string().max(250).required(),
       lastName: Joi.string().max(250).required(),
       email: Joi.string().email().required(),
-      type: Joi.string().required().optional().allow(""),
-      role: Joi.string().optional().allow(""),
+      type: Joi.string().required().optional().allow(''),
+      role: Joi.string().optional().allow(''),
       phone: Joi.string()
         .max(10)
         .pattern(/^[0-9]+$/)
         .required(),
       address: address_object.required(),
       password: Joi.string().min(6).max(255).required(),
-      confirm_password: Joi.string().min(6).max(255).required(),
+      confirm_password: Joi.string().min(6).max(255).required()
     });
 
     // Storing Error Responses in Result //
@@ -42,17 +42,8 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
     if (results.error) {
       return res.status(400).send(results.error.details[0].message);
     }
-    const {
-      firstName,
-      lastName,
-      type,
-      email,
-      password,
-      confirm_password,
-      address,
-      role,
-      phone,
-    } = req.body;
+    const { firstName, lastName, type, email, password, confirm_password, address, role, phone } =
+      req.body;
 
     // Check If Password and Confirm Password are same or not //
     if (password !== confirm_password) {
@@ -76,29 +67,27 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
         address,
         password: hashedPassword,
         phone,
-        type,
+        type
       });
       let updateUser;
-      if (req.body.type && req.body.type === "student") {
+      if (req.body.type && req.body.type === 'student') {
         userobj = new Student({
-          general_Presentation: "",
-          presentation_Video: "",
-          professional_Picture: "",
-          professional_networks: "",
+          general_Presentation: '',
+          presentation_Video: '',
+          professional_Picture: '',
+          professional_networks: '',
 
-          user: user._id,
+          user: user._id
         });
 
         await userobj.save();
         updateUser = await User.findByIdAndUpdate(user._id, {
-          student: userobj._id,
-        }).populate("student");
+          student: userobj._id
+        }).populate('student');
       } else {
         updateUser = user;
       }
-      return res
-        .status(200)
-        .json({ user: updateUser, message: Texts.userCreated });
+      return res.status(200).json({ user: updateUser, message: Texts.userCreated });
     }
   } catch (err) {
     return res.status(400).json({ message: err.message });
@@ -112,7 +101,7 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
       [
         function (done) {
           crypto.randomBytes(20, function (err, buf) {
-            var token = buf.toString("hex");
+            var token = buf.toString('hex');
             done(err, token);
           });
         },
@@ -120,12 +109,12 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
           const email = req.body.email;
           User.findOne(
             {
-              email: email,
+              email: email
             },
             function (err, user) {
               if (!user) {
                 return res.status(403).send({
-                  message: Texts.emailExists,
+                  message: Texts.emailExists
                 });
               }
               User.findOneAndUpdate(
@@ -133,8 +122,8 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
                 {
                   $set: {
                     verifyEmailToken: token,
-                    emailVerificationExpiresIn: Date.now() + 36000000,
-                  },
+                    emailVerificationExpiresIn: Date.now() + 36000000
+                  }
                 },
                 { new: true },
                 function (err) {
@@ -146,100 +135,96 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
         },
         function (token, user, done) {
           let transporter = nodemailer.createTransport({
-            host: "mail.gandi.net",
+            host: 'mail.gandi.net',
             port: 465,
             secure: true,
             tls: {
-              rejectUnauthorized: false,
+              rejectUnauthorized: false
             },
             auth: {
               user: process.env.MailingId,
-              pass: process.env.MailingPassword,
-            },
+              pass: process.env.MailingPassword
+            }
           });
           //if type student than send email with this format
-          if (user.type === "student") {
+          if (user.type === 'student') {
             var mailOptions = {
               to: user.email,
               from: process.env.MailingId,
               subject: Texts.Student_verification_Email_Title,
               text:
                 Texts.Hi +
-                " " +
+                ' ' +
                 user.firstName +
-                "\n\n" +
+                '\n\n' +
                 Texts.Student_verification_Email_Body1 +
-                "\n\n" +
+                '\n\n' +
                 Texts.Student_verification_Email_Body2 +
-                " :\n\n" +
-                "\n\n" +
+                ' :\n\n' +
+                '\n\n' +
                 `${process.env.verifyEmail}` +
-                "/verifyEmail/" +
+                '/verifyEmail/' +
                 token +
-                "\n\n" +
-                "\n\n" +
+                '\n\n' +
+                '\n\n' +
                 Texts.Student_verification_Email_Body3 +
-                "\n\n" +
+                '\n\n' +
                 Texts.Student_verification_Email_Body4 +
-                "\n\n" +
+                '\n\n' +
                 Texts.Student_verification_Email_Footer1 +
-                "\n\n" +
-                "\n\n" +
+                '\n\n' +
+                '\n\n' +
                 Texts.Student_verification_Email_Footer2 +
-                "\n\n",
+                '\n\n'
             };
             // else if type Company than send email with this format
-          } else if (user.type === "company") {
+          } else if (user.type === 'company') {
             var mailOptions = {
               to: user.email,
               from: process.env.MailingId,
               subject: Texts.Company_verification_Email_Title,
               text:
                 Texts.Hello +
-                " " +
+                ' ' +
                 user.firstName +
-                "\n\n" +
+                '\n\n' +
                 Texts.Company_verification_Email_Body1 +
-                "\n\n" +
+                '\n\n' +
                 Texts.Company_verification_Email_Body2 +
-                "\n\n" +
+                '\n\n' +
                 Texts.Company_verification_Email_Body3 +
-                " :\n\n" +
-                "\n\n" +
+                ' :\n\n' +
+                '\n\n' +
                 `${process.env.verifyEmail}` +
-                "/verifyEmail/" +
+                '/verifyEmail/' +
                 token +
-                "\n\n" +
+                '\n\n' +
                 Texts.Company_verification_Email_Body4 +
-                "\n\n" +
+                '\n\n' +
                 Texts.Company_verification_Email_Body5 +
-                "\n\n" +
+                '\n\n' +
                 Texts.Company_verification_Email_Footer1 +
-                "\n\n" +
+                '\n\n' +
                 Texts.Company_verification_Email_Footer2 +
-                "\n\n" +
+                '\n\n' +
                 Texts.Company_verification_Email_Footer3 +
-                "\n\n",
+                '\n\n'
             };
           } else {
-            console.log("No type found");
+            console.log('No type found');
           }
 
           transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
               return res.status(400).json({ message: error.message });
             }
-            return res
-              .status(200)
-              .json({ message: Texts.Verification_email_has_been_sent });
+            return res.status(200).json({ message: Texts.Verification_email_has_been_sent });
           });
-        },
+        }
       ],
       function (err) {
         if (err) return next(err);
-        res
-          .status(200)
-          .send({ message: Texts.Verification_email_has_been_sent });
+        res.status(200).send({ message: Texts.Verification_email_has_been_sent });
       }
     );
   } catch (error) {
@@ -258,69 +243,67 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
             {
               verifyEmailToken: req.params.token,
               emailVerificationExpiresIn: {
-                $gt: Date.now(),
-              },
+                $gt: Date.now()
+              }
             },
             async function (err, user) {
               if (!user) {
                 return res.status(403).json({
-                  message: Texts.invalidToken,
+                  message: Texts.invalidToken
                 });
               } else {
                 var user = await User.findOneAndUpdate(
                   {
-                    verifyEmailToken: req.params.token,
+                    verifyEmailToken: req.params.token
                   },
                   {
                     $set: {
-                      status: "active",
-                    },
+                      status: 'active'
+                    }
                   }
                 );
                 let transporter = nodemailer.createTransport({
-                  host: "mail.gandi.net",
+                  host: 'mail.gandi.net',
                   port: 465,
                   secure: true,
                   tls: {
-                    rejectUnauthorized: false,
+                    rejectUnauthorized: false
                   },
                   auth: {
                     user: process.env.MailingId,
-                    pass: process.env.MailingPassword,
-                  },
+                    pass: process.env.MailingPassword
+                  }
                 });
                 var mailOptions = {
                   to: user.email,
                   from: process.env.MailingId,
                   subject: Texts.emailVerificationSent,
-                  text: Texts.You_have_successfully_verified,
+                  text: Texts.You_have_successfully_verified
                 };
                 transporter.sendMail(mailOptions, (error, info) => {
                   if (error) {
                     return res.status(400).json({ message: error.message });
                   }
                   return res.status(200).json({
-                    message:
-                      Texts.success +
-                      Texts.You_have_successfully_registered_on_WINA,
+                    message: Texts.success + Texts.You_have_successfully_registered_on_WINA
                   });
                   done(error);
                 });
               }
             }
           );
-        },
+        }
       ],
       function (err) {
-        console.log(err, "err");
+        console.log(err, 'err');
         return res.status(400).json({
-          message: err.message,
+          message: err.message
         });
       }
     );
   } catch (error) {
     return res.status(400).json({
-      message: error.message,
+      message: error.message
     });
     next(error);
   }
@@ -331,7 +314,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   const schema = Joi.object().keys({
     email: Joi.string().max(40).required().email(),
-    password: Joi.string().min(6).max(255).required(),
+    password: Joi.string().min(6).max(255).required()
   });
 
   const results = schema.validate(req.body);
@@ -348,15 +331,13 @@ exports.login = asyncHandler(async (req, res, next) => {
   }
 
   // check if user exists //
-  const user = await User.findOne({ email: email }).select("+password");
+  const user = await User.findOne({ email: email }).select('+password');
   if (!user) {
     return res.status(400).send({ message: Texts.Register_your_account });
   }
 
   // check if user exists //
-  const result = await User.findOne({ email: email, status: "active" }).select(
-    "+password"
-  );
+  const result = await User.findOne({ email: email, status: 'active' }).select('+password');
 
   if (!result) {
     return res.status(400).send({ message: Texts.unverifiedEmail });
@@ -372,43 +353,61 @@ exports.login = asyncHandler(async (req, res, next) => {
   sendTokenResponse(user, 200, res);
 });
 
+exports.appleLogin = async (req, res, next) => {
+  // req body values
+  const data = req.body;
+  // console.log({ data });
+  if (data?.user) {
+    const user = await User.findOne({ apple: data.user });
+    if (user) {
+      sendTokenResponse(user, 200, res);
+    } else {
+      let newUser = await User.create({
+        role: 'user',
+        status: 'appleSignup',
+        firstName: data?.fullName?.familyName || 'Annonymous',
+        lastName: data?.fullName?.givenName || 'User',
+        isSignupByApple: true
+      });
+      sendTokenResponse(newUser, 200, res);
+    }
+  } else return res.status(400).send({ message: 'Apple User ID is required' });
+};
 //Get token from Model create cookie and send response
 
 const sendTokenResponse = async (user, statusCode, res) => {
   //create token
   const populateQuery = [
-    { path: "company" },
+    { path: 'company' },
     {
-      path: "student",
+      path: 'student',
       populate: [
         {
-          path: "softSkills",
+          path: 'softSkills'
         },
         {
-          path: "hardSkills",
-        },
-      ],
-    },
+          path: 'hardSkills'
+        }
+      ]
+    }
   ];
   const token = user.getSignedJwtToken();
 
   const options = {
-    expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
-    ),
-    httpOnly: true,
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
+    httpOnly: true
   };
 
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === 'production') {
     options.secure = true;
   }
   if (user) {
     const student = await User.findById(user._id).populate(populateQuery);
 
-    return res.status(statusCode).cookie("token", token, options).json({
+    return res.status(statusCode).cookie('token', token, options).json({
       token: token,
       user: student,
-      message: Texts.loginSuccess,
+      message: Texts.loginSuccess
     });
   } else {
     return res.send({ message: Texts.error });
@@ -419,7 +418,7 @@ const sendTokenResponse = async (user, statusCode, res) => {
 exports.logout = asyncHandler(async (req, res, next) => {
   req.session.destroy(() => {
     req.logOut();
-    res.clearCookie("token");
+    res.clearCookie('token');
     res.status(200).send(Texts.Logout_was_successful);
   });
 });
@@ -428,18 +427,18 @@ exports.verifyUser = async (req, res, next) => {
   // req body values
 
   const populateQuery = [
-    { path: "company" },
+    { path: 'company' },
     {
-      path: "student",
+      path: 'student',
       populate: [
         {
-          path: "softSkills",
+          path: 'softSkills'
         },
         {
-          path: "hardSkills",
-        },
-      ],
-    },
+          path: 'hardSkills'
+        }
+      ]
+    }
   ];
   const user = await User.findById(req.user._id).populate(populateQuery);
 
@@ -465,47 +464,44 @@ exports.registerByGoogle = async (req, res, next) => {
         address: address,
         phone: phone,
         type: type,
-        status: "active",
+        status: 'active'
       },
       {
-        new: true,
+        new: true
       }
     );
 
     let updateUser;
-    if (type === "student") {
+    if (type === 'student') {
       userobj = new Student({
-        general_Presentation: "",
-        presentation_Video: "",
-        professional_Picture: "",
-        professional_networks: "",
+        general_Presentation: '',
+        presentation_Video: '',
+        professional_Picture: '',
+        professional_networks: '',
 
-        user: user._id,
+        user: user._id
       });
 
       await userobj.save();
       updateUser = await User.findByIdAndUpdate(
         user._id,
         {
-          student: userobj._id,
+          student: userobj._id
         },
         {
-          new: true,
+          new: true
         }
-      ).populate("student");
+      ).populate('student');
     } else {
       updateUser = user;
     }
     const token = user.getSignedJwtToken();
 
-    return res
-      .status(200)
-      .json({ user: updateUser, token: token, message: Texts.userCreated });
+    return res.status(200).json({ user: updateUser, token: token, message: Texts.userCreated });
   } catch (err) {
     next(err);
   }
 };
-
 
 exports.registerBylinkedIn = async (req, res, next) => {
   try {
@@ -520,42 +516,40 @@ exports.registerBylinkedIn = async (req, res, next) => {
         address: address,
         phone: phone,
         type: type,
-        status: "active",
+        status: 'active'
       },
       {
-        new: true,
+        new: true
       }
     );
 
     let updateUser;
-    if (type === "student") {
+    if (type === 'student') {
       userobj = new Student({
-        general_Presentation: "",
-        presentation_Video: "",
-        professional_Picture: "",
-        professional_networks: "",
+        general_Presentation: '',
+        presentation_Video: '',
+        professional_Picture: '',
+        professional_networks: '',
 
-        user: user._id,
+        user: user._id
       });
 
       await userobj.save();
       updateUser = await User.findByIdAndUpdate(
         user._id,
         {
-          student: userobj._id,
+          student: userobj._id
         },
         {
-          new: true,
+          new: true
         }
-      ).populate("student");
+      ).populate('student');
     } else {
       updateUser = user;
     }
     const token = user.getSignedJwtToken();
 
-    return res
-      .status(200)
-      .json({ user: updateUser, token: token, message: Texts.userCreated });
+    return res.status(200).json({ user: updateUser, token: token, message: Texts.userCreated });
   } catch (err) {
     next(err);
   }
