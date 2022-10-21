@@ -1,0 +1,159 @@
+{
+	"info": {
+		"_postman_id": "665441a6-86af-4ce7-855e-70fdf30afa03",
+		"name": "Wina Shuja",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13373609"
+	},
+	"item": [
+		{
+			"name": "Company",
+			"item": [
+				{
+					"name": "Create Mmember",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "companyId",
+									"value": "61cc5283cb1a2d42af2cec4c",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "Shuja Naqvi",
+									"type": "text"
+								},
+								{
+									"key": "designation",
+									"value": "Mern Stack Developer",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/Users/falconitconsulting/Desktop/1620274726370.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local}}/v1/company/addMember",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"v1",
+								"company",
+								"addMember"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Stage",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "companyId",
+									"value": "61cc5283cb1a2d42af2cec55",
+									"type": "text"
+								},
+								{
+									"key": "title",
+									"value": "Stage5",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/Users/falconitconsulting/Desktop/1620274726370.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local}}/v1/company/addStage",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"v1",
+								"company",
+								"addStage"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth Admin",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"sarib@gmail.com\",\"password\":\"123456789\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{local}}/v1/adminAuth/login",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"v1",
+								"adminAuth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"sarib@gmail.com\",\"role\":\"admin\",\"password\":\"123456789\",\"confirmPassword\":\"123456789\",\"name\":\"Lalit\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{local}}/v1/adminAuth/",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"v1",
+								"adminAuth",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
