@@ -10,10 +10,14 @@ const {
   deleteCompany,
   bookCoachingAppointment,
   searchForStudents,
+  addMember,
+  addStage
 } = require("../controllers/company");
 
 //middleware functions
 const { protect, validateType } = require("../middlewares/auth");
+//Validation
+const {validateMember,validateStage,isValidated}=require("../middlewares/validators")
 
 router.post("/register-company", register);
 
@@ -39,4 +43,10 @@ router.post(
   searchForStudents
 );
 
+/**
+ * ////////////////////////// Routes /////////////////////////
+ * @author Shuja Naqvi
+ */
+router.put("/addMember",upload,validateMember,isValidated,addMember)
+router.put("/addStage",upload,validateStage,isValidated,addStage)
 module.exports = router;

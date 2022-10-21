@@ -77,7 +77,25 @@ const CompanySchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-
+ members:[{
+  _id:{
+    type:mongoose.Schema.Types.ObjectId,
+    index: true,
+    auto: true
+  },
+  name:String,
+  designation:String,
+  photo:String
+ }],
+  stages:[{
+    _id:{
+      type:mongoose.Schema.Types.ObjectId,
+      index: true,
+      auto: true
+    },
+    title:String,
+    photo:String
+  }],
   createdAt: {
     type: Date,
     default: Date.now,

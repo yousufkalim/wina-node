@@ -110,6 +110,7 @@ const profile = require("./routes/profile");
 const admin = require("./routes/admin");
 const job = require("./routes/job");
 const FileUpload = require("./routes/FileUpload");
+const adminAuth = require("./routes/adminAuth");
 
 //// Mount Routers ////
 
@@ -122,6 +123,7 @@ app.use("/api/v1/profile", profile);
 app.use("/api/v1/admin", admin);
 app.use("/api/v1/job", job);
 app.use("/api/v1", FileUpload);
+app.use("/api/v1/adminAuth",adminAuth)
 
 // app.use("/api/v1/admin", admin);
 

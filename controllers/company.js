@@ -311,3 +311,66 @@ exports.searchForStudents = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
+
+
+/**
+ * ////////////////////////// Routes /////////////////////////
+ * @author Shuja Naqvi
+ */
+
+exports.addMember=async(req,res)=>{
+  try{
+   const {companyId}=req.body
+    if(req.files.image){
+      req.body.photo =req.files.image[0].path
+    }
+    const member={
+      photo:req?.body?.photo?req.body.photo:"",
+      name:req.body.name,
+      designation:req.body.designation
+    }
+    const findCompany=await Company.findById(companyId)
+    if(!findCompany){
+      return res.status(404).json({success:false,message:"company not found"})
+    }
+    if(findCompany.members.length>=4){
+      return res.status(404).json({success:false,message:"members already added"})
+    }  
+    findCompany.members.push(member)
+    await findCompany.save()
+    res.status(200).json({success:true,company:findCompany})
+
+  }
+  catch(err){
+    res.status(500).json({success:false,message:"Internal Server Error"})
+    console.log("errr---->",err.message)
+  }
+}
+
+exports.addStage=async(req,res)=>{
+  try{
+   const {companyId}=req.body
+    if(req.files.image){
+      req.body.photo =req.files.image[0].path
+    }
+    const stage={
+      photo:req?.body?.photo?req.body.photo:"",
+      title:req.body.title,
+    }
+    const findCompany=await Company.findById(companyId)
+    if(!findCompany){
+      return res.status(404).json({success:false,message:"company not found"})
+    }
+    if(findCompany.stages.length>=4){
+      return res.status(404).json({success:false,message:"stages already added"})
+    }    
+    findCompany.stages.push(stage)
+    await findCompany.save()
+    res.status(200).json({success:true,company:findCompany})
+
+  }
+  catch(err){
+    res.status(500).json({success:false,message:"Internal Server Error"})
+    console.log("errr---->",err.message)
+  }
+}
