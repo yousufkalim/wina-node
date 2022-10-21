@@ -11,13 +11,16 @@ const {
   bookCoachingAppointment,
   searchForStudents,
   addMember,
-  addStage
+  addStage,
+  deleteMember,
+  deleteStage
+
 } = require("../controllers/company");
 
 //middleware functions
 const { protect, validateType } = require("../middlewares/auth");
 //Validation
-const {validateMember,validateStage,isValidated}=require("../middlewares/validators")
+const {validateMember,validateStage,validateStageDel,validateMemberDel,isValidated}=require("../middlewares/validators")
 
 router.post("/register-company", register);
 
@@ -49,4 +52,6 @@ router.post(
  */
 router.put("/addMember",upload,validateMember,isValidated,addMember)
 router.put("/addStage",upload,validateStage,isValidated,addStage)
+router.put("/deleteStage/:comapnyId",validateStageDel,isValidated,deleteStage)
+router.put("/deleteMember/:comapnyId",validateMemberDel,isValidated,deleteMember)
 module.exports = router;

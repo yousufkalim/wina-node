@@ -318,6 +318,12 @@ exports.searchForStudents = asyncHandler(async (req, res, next) => {
  * @author Shuja Naqvi
  */
 
+
+/**
+ * Add Member
+ * @param {object} req
+ * @param {object} res
+ */
 exports.addMember=async(req,res)=>{
   try{
    const {companyId}=req.body
@@ -346,7 +352,11 @@ exports.addMember=async(req,res)=>{
     console.log("errr---->",err.message)
   }
 }
-
+/**
+ * Add Stage
+ * @param {object} req
+ * @param {object} res
+ */
 exports.addStage=async(req,res)=>{
   try{
    const {companyId}=req.body
@@ -374,3 +384,66 @@ exports.addStage=async(req,res)=>{
     console.log("errr---->",err.message)
   }
 }
+/**
+ * delete Member from company
+ * @param {object} req
+ * @param {object} res
+ */
+ exports.deleteMember = async (req, res) => {
+  try {
+    const comapnyId = req.params.comapnyId; // Getting calculation id from URL parameter
+    const company = await Company.findByIdAndUpdate(
+      comapnyId,
+      { $pull: { range: { _id: req.body.memberId } } },
+      { new: true }
+    ); // Updating the country
+    res.json({ success: true, company }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+
+/**
+ * delete Member from company
+ * @param {object} req
+ * @param {object} res
+ */
+ exports.deleteMember = async (req, res) => {
+  try {
+    const comapnyId = req.params.comapnyId; // Getting calculation id from URL parameter
+    const company = await Company.findByIdAndUpdate(
+      comapnyId,
+      { $pull: { members: { _id: req.body.memberId } } },
+      { new: true }
+    ); // Updating the country
+    res.json({ success: true, company }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * delete Stage from company
+ * @param {object} req
+ * @param {object} res
+ */
+ exports.deleteStage = async (req, res) => {
+  try {
+    const comapnyId = req.params.comapnyId; // Getting calculation id from URL parameter
+    const company = await Company.findByIdAndUpdate(
+      comapnyId,
+      { $pull: { stages: { _id: req.body.stageId } } },
+      { new: true }
+    ); // Updating the country
+    res.json({ success: true, company }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};

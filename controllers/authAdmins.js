@@ -87,4 +87,12 @@
      res.status(500).json({ success: false, message: 'Internal server error' });
    }
  };
- 
+ /**
+ * Confirm auth
+ * @param {object} req
+ * @param {object} res
+ */
+exports.confirmAuth = async (req, res) => {
+  // If user authenticated
+  res.json({ success: true, admin: req.admin, token: req.token });
+};

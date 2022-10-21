@@ -25,6 +25,15 @@
 exports.validateLogin = [
   check('email', 'Email is required').notEmpty().isEmail().trim().toLowerCase(),
   check('password', 'Password is required').notEmpty().trim().isLength({ min: 8 })
+]
+// Delete Stage validation
+exports.validateStageDel = [
+  check('stageId', 'stage Id is required').notEmpty().trim(),
+];
+
+// Delete Member validation
+exports.validateMemberDel = [
+  check('memberId', 'Member Id is required').notEmpty().trim(),
 ];
 
 
