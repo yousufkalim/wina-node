@@ -73,7 +73,7 @@
  
      // Creating payload with admin object
      delete admin.password; // Removing password from admin object
-     const payload = { user: admin };
+     const payload = { admin: admin };
  
      // Generating token
      jwt.sign(payload, tokenSecret, { expiresIn: '8h' }, (err, token) => {

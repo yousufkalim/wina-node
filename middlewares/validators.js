@@ -35,6 +35,19 @@ exports.validateStageDel = [
 exports.validateMemberDel = [
   check('memberId', 'Member Id is required').notEmpty().trim(),
 ];
+//Update Stage Validation
+exports.validateUpdateStage = [
+  check('stageId', 'Stage Id is required').notEmpty().trim(),
+  check('title', 'title is required').notEmpty().trim(),
+];
+//Update Member Validation
+exports.validateUpdateMember = [
+  check('memberId', 'Member Id is required').notEmpty().trim(),
+  check('name', 'Name is required').notEmpty().trim(),
+  check('designation', 'Designation is required').notEmpty().trim(),
+];
+
+
 
 
  
