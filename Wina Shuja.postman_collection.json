@@ -91,6 +91,126 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Delete Stage",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Member",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"stageId\":\"63523ee3264806333c74a864\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{local}}/v1/company/deleteStage/61cc5283cb1a2d42af2cec55",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"v1",
+								"company",
+								"deleteStage",
+								"61cc5283cb1a2d42af2cec55"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Stage",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "stageId",
+									"value": "63523ecc264806333c74a858",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/Users/falconitconsulting/Desktop/sills.xlsx"
+								},
+								{
+									"key": "title",
+									"value": "No title",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local}}/v1/company/updateStage",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"v1",
+								"company",
+								"updateStage"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Member",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "memberId",
+									"value": "635239cf6ddfe7319fcfce24",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "Sarib",
+									"type": "text"
+								},
+								{
+									"key": "designation",
+									"value": "lalit",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/Users/falconitconsulting/Desktop/templatemo_578_first_portfolio.zip"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local}}/v1/company/updateMember",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"v1",
+								"company",
+								"updateMember"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

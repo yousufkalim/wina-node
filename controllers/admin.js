@@ -450,13 +450,23 @@ exports.DeleteJob = asyncHandler(async (req, res, next) => {
   }
 });
 
-//Company
-
 //GET ALL COMPANIES
 exports.companyList = asyncHandler(async (req, res, next) => {
   try {
-    const listOfCompanies = await Company.find({ isDeleted: false });
-    return res.status(200).json({ listOfCompanies: listOfCompanies });
+    const { page, pageSize } = req.query;
+    const pageNumber = page * 1 || 1;
+    const pagesize = pageSize * 1 || 100;
+    const skip = (pageNumber - 1) * pagesize;
+    const listOfCompanies = await Company.find({ isDeleted: false }).skip(skip).limit(pagesize);
+    const recordLength = await Company.aggregate([
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    return res.status(200).json({ count: recordLength[0].count, data: { listOfCompanies } });
   } catch (err) {
     next(err);
   }
