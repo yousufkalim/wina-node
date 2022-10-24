@@ -457,7 +457,10 @@ exports.companyList = asyncHandler(async (req, res, next) => {
     const pageNumber = page * 1 || 1;
     const pagesize = pageSize * 1 || 100;
     const skip = (pageNumber - 1) * pagesize;
-    const listOfCompanies = await Company.find({ isDeleted: false }).skip(skip).limit(pagesize);
+    const listOfCompanies = await Company.find({ isDeleted: false })
+      .populate('contactPerson')
+      .skip(skip)
+      .limit(pagesize);
     const recordLength = await Company.aggregate([
       {
         $group: {
@@ -1652,69 +1655,84 @@ exports.addJob = asyncHandler(async (req, res, next) => {
     var xlData = workbook.Sheets[sheets[0]];
     let jsonData = xlsx.utils.sheet_to_json(xlData);
     if (jsonData && jsonData.length > 0) {
-      const existingSkills=await Skill.find({})
-      for(data of jsonData ){
+      const existingSkills = await Skill.find({});
+      for (data of jsonData) {
         var company = await Company.findOne({ name: data['Company'] });
-        if(!company){
-           company = await Company.create({ name: data['Company'],address: {city: data['City'], zip: data['Postal Code'],latitude:data['longitude'],longitude:data['longitude']} });
+        if (!company) {
+          company = await Company.create({
+            name: data['Company'],
+            address: {
+              city: data['City'],
+              zip: data['Postal Code'],
+              latitude: data['longitude'],
+              longitude: data['longitude']
+            }
+          });
         }
         const createSkills = () => {
           let softSkills = [];
           let hardSkills = [];
           return new Promise(async (resolve, reject) => {
             try {
-              const jobName=data['Job Name'].split(",")
-              if (data["Soft Skills"]) {
-                let skills = data["Soft Skills"].split(",");
-                  for(let i=0;i< skills.length;i++){
-                    const skill=skills[i]
-                    
-                    if (skill !== "" || skill !== "- ") {
-                      var soft_skill=await Skill.findOne({ skillField: skill,skillType: 'Soft Skill'})
-                    if(!soft_skill){
+              const jobName = data['Job Name'].split(',');
+              if (data['Soft Skills']) {
+                let skills = data['Soft Skills'].split(',');
+                for (let i = 0; i < skills.length; i++) {
+                  const skill = skills[i];
+
+                  if (skill !== '' || skill !== '- ') {
+                    var soft_skill = await Skill.findOne({
+                      skillField: skill,
+                      skillType: 'Soft Skill'
+                    });
+                    if (!soft_skill) {
                       soft_skill = await Skill.create({
-                    skillField: skill,
-                  skillType: 'Soft Skill',
-                  wordCheck:skill,
-                });
-              }
-              softSkills.push(soft_skill._id);   
+                        skillField: skill,
+                        skillType: 'Soft Skill',
+                        wordCheck: skill
+                      });
                     }
-                }
-              }  if (data["Hard Skills"]) {
-                let skills = data["Hard Skills"].split(",");
-                for(skill of skills){
-                  if (skill !== "") {
-                    var hard_skill=await Skill.findOne({ skillField: skill,skillType: 'Hard Skill'})
-                   if(!hard_skill){
-                  hard_skill = await Skill.create({
-                  skillField: skill,
-                 skillType: 'Hard Skill',
-                wordCheck:skill,
-              });
-            }
-              hardSkills.push(hard_skill._id);   
+                    softSkills.push(soft_skill._id);
                   }
                 }
               }
-              if(!data["Hard Skills"]){
-                let matchWord = await Skill.find({ wordCheck: { $in: jobName } });
-                if(matchWord.length>0){
-                  for(e of matchWord){
-                   if(e.skillType==="Hard Skill"){
-                    hardSkills.push(e._id)
-                   }
-                 }
+              if (data['Hard Skills']) {
+                let skills = data['Hard Skills'].split(',');
+                for (skill of skills) {
+                  if (skill !== '') {
+                    var hard_skill = await Skill.findOne({
+                      skillField: skill,
+                      skillType: 'Hard Skill'
+                    });
+                    if (!hard_skill) {
+                      hard_skill = await Skill.create({
+                        skillField: skill,
+                        skillType: 'Hard Skill',
+                        wordCheck: skill
+                      });
+                    }
+                    hardSkills.push(hard_skill._id);
+                  }
                 }
               }
-              if(!data["Soft Skills"]){
+              if (!data['Hard Skills']) {
                 let matchWord = await Skill.find({ wordCheck: { $in: jobName } });
-                if(matchWord.length>0){
-                  for(skill of matchWord){
-                   if(e.skillType==="Soft Skill"){
-                    softSkills.push(e._id)
-                   }
-                 }
+                if (matchWord.length > 0) {
+                  for (e of matchWord) {
+                    if (e.skillType === 'Hard Skill') {
+                      hardSkills.push(e._id);
+                    }
+                  }
+                }
+              }
+              if (!data['Soft Skills']) {
+                let matchWord = await Skill.find({ wordCheck: { $in: jobName } });
+                if (matchWord.length > 0) {
+                  for (skill of matchWord) {
+                    if (e.skillType === 'Soft Skill') {
+                      softSkills.push(e._id);
+                    }
+                  }
                 }
               }
             } catch (err) {
@@ -1723,9 +1741,9 @@ exports.addJob = asyncHandler(async (req, res, next) => {
             resolve({ softSkills, hardSkills });
           });
         };
-      await  createSkills().then(async res => {
-            console.log(res)
-         const job= await Job.create({
+        await createSkills().then(async res => {
+          console.log(res);
+          const job = await Job.create({
             domain: data['Domain Name'],
             title: data['Job Name'],
             position: data['Poste'],
@@ -1734,10 +1752,15 @@ exports.addJob = asyncHandler(async (req, res, next) => {
             startDate: data['Publish Date'],
             softSkills: res.softSkills,
             hardSkills: res.hardSkills,
-            location: { city: data['City'], zip: data['Postal Code'], latitude:data['longitude'],longitude:data['longitude']}
+            location: {
+              city: data['City'],
+              zip: data['Postal Code'],
+              latitude: data['longitude'],
+              longitude: data['longitude']
+            }
           });
-          company.job.push(job._id)
-          await company.save()
+          company.job.push(job._id);
+          await company.save();
         });
       }
     }
@@ -1770,7 +1793,7 @@ exports.postHardSkills = async (req, res) => {
       });
 
       var skix = await Skill.insertMany(data);
-       res.status(200).send({ msg: 'Ok', data });
+      res.status(200).send({ msg: 'Ok', data });
     });
 
     // inserting all data in database
@@ -1786,7 +1809,7 @@ exports.postSoftSkills = async (req, res) => {
     const data = [];
     var array = [];
     // Reading All rows from Excel file and pushing in data array
-    
+
     //Reading All rows from Excel file and pushing in data array
     await xlsxFile(req.file.path).then(async rows => {
       rows?.forEach(async (item, index) => {
@@ -1804,11 +1827,9 @@ exports.postSoftSkills = async (req, res) => {
         });
       });
       var skix = await Skill.insertMany(data);
-       res.status(200).send({ msg: 'Ok', data });
+      res.status(200).send({ msg: 'Ok', data });
     });
   } catch (error) {
     res.status(500).send('Something Failed');
   }
 };
-
-
