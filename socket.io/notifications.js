@@ -1,6 +1,6 @@
-const User = require("../models/User");
+const User = require('../models/User');
 module.exports = {
-  addNotifcation,
+  addNotifcation
 };
 
 async function addNotifcation(data) {
@@ -13,14 +13,14 @@ async function addNotifcation(data) {
             // title: "qwertyu",
             // description: "qwertyui",
             // projectID: projectID,
-          },
-        },
+          }
+        }
       },
       { new: true }
     );
 
-    return "Added";
+    return 'Added';
   } catch (e) {
-    return "Error Adding: " + e;
+    return 'Error Adding: ' + e;
   }
 }
