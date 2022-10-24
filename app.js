@@ -101,6 +101,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //// Routes ////
+
 const auth = require("./routes/auth");
 const student = require("./routes/student");
 const company = require("./routes/company");
@@ -124,6 +125,11 @@ app.use("/api/v1/admin", admin);
 app.use("/api/v1/job", job);
 app.use("/api/v1", FileUpload);
 app.use("/api/v1/adminAuth",adminAuth)
+
+
+/// V2 Company route ///
+
+app.use('/api/v2/company', companyV2);
 
 // app.use("/api/v1/admin", admin);
 

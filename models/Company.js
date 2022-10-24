@@ -3,54 +3,98 @@ const mongoose = require("mongoose");
 const CompanySchema = new mongoose.Schema({
   name: {
     type: String,
-    required: false,
+    required: false
   },
-  
+
   address: {
     street: { type: String, required: false },
     city: { type: String, required: false },
     zip: { type: String, required: false },
     latitude: { type: Number, required: false },
-    longitude: { type: Number, required: false },
+    longitude: { type: Number, required: false }
+  },
+  // newly added => company profile picture
+  professional_Picture: {
+    image: {
+      type: String,
+      required: false
+    },
+    status: {
+      type: String,
+      enum: ['None', 'Validated', 'To be Validated'],
+      default: 'Validated',
+      required: false
+    },
+    required: false
+  },
+
+  professional_networks: {
+    linkedIn: {
+      type: String,
+      required: false
+    },
+    website: {
+      type: String,
+      required: false
+    }
+  },
+  company_description: {
+    type: String,
+    required: false
+  },
+
+  presentation_Video: {
+    video: {
+      type: String,
+      required: false
+    },
+    status: {
+      type: String,
+      enum: ['None', 'Validated', 'To be Validated'],
+      default: 'Validated',
+      required: false
+    },
+    required: false
   },
 
   company_type: {
     type: String,
-    enum: ["Startup", "PME", "TPE", "GE", "ETI"],
-    required: false,
+    enum: ['Startup', 'PME', 'TPE', 'GE', 'ETI'],
+    required: false
   },
 
   siretNumber: {
     type: String,
-    required: false,
+    required: false
   },
 
   website: {
     type: String,
-    required: false,
+    required: false
   },
 
   linkedIn: {
     type: String,
-    required: false,
+    required: false
   },
 
   groupName: {
     type: String,
-    required: false,
+    required: false
   },
 
   availableHours: {
     type: String,
-    required: false,
+    required: false
   },
 
   contactPerson: {
-    person: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    person: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     positionHeld: {
-      type: String,
-    },
+      type: String
+    }
   },
+
   notifications: [
     {
       title: String,
@@ -58,24 +102,25 @@ const CompanySchema = new mongoose.Schema({
       statusNew: { type: Boolean, default: true },
       jobID: {
         type: String,
-        required: false,
+        required: false
       },
       createdAt: {
         type: Date,
-        default: Date.now,
-      },
-    },
+        default: Date.now
+      }
+    }
   ],
+
   job: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Job",
-    },
+      ref: 'Job'
+    }
   ],
 
   isDeleted: {
     type: Boolean,
-    default: false,
+    default: false
   },
  members:[{
   _id:{
@@ -98,8 +143,8 @@ const CompanySchema = new mongoose.Schema({
   }],
   createdAt: {
     type: Date,
-    default: Date.now,
-  },
+    default: Date.now
+  }
 });
 
 module.exports = mongoose.model("Company", CompanySchema);
