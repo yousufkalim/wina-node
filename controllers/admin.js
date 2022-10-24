@@ -200,12 +200,57 @@ exports.deleteDomain = asyncHandler(async (req, res, next) => {
 //JOBS
 
 // Get List of jobs
+// exports.jobList = asyncHandler(async (req, res, next) => {
+//   try {
+//     const jobList = await Job.find({ isDeleted: false });
+//     return res.status(200).json({ ListOfJobs: jobList });
+//   } catch (err) {
+//     next(err);
+//   }
+// });
+
 exports.jobList = asyncHandler(async (req, res, next) => {
   try {
-    const jobList = await Job.find({ isDeleted: false });
-    return res.status(200).json({ ListOfJobs: jobList });
-  } catch (err) {
-    next(err);
+    const populateQuery = [
+      {
+        path: 'company'
+      },
+      {
+        path: 'softSkills'
+      },
+      {
+        path: 'hardSkills'
+      },
+      {
+        path: 'company_requests.student',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      }
+    ];
+    const { page, pageSize } = req.query;
+    const pageNumber = page * 1 || 1;
+    const pagesize = pageSize * 1 || 100;
+    const skip = (pageNumber - 1) * pagesize;
+    const listOfJobs = await find
+      .Job({ isDeleted: false })
+      .populate('populateQuery')
+      .skip(skip)
+      .limit(pagesize);
+    const recordLength = await Job.aggregate([
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    return res.status(200).json({ count: recordLength[0].count, data: { listOfJobs } });
+  } catch (error) {
+    return res.status(200).send({ message: error });
+
+    next(error);
   }
 });
 
