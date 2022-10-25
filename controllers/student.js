@@ -715,9 +715,10 @@ exports.getStdById = async (req, res) => {
   try {
     let stdId = req.params.stdId;
     const std = await Student.findById(stdId)
-      .populate("hardSkills")
-      .populate("softSkills")
-      .populate("languages");
+      .populate('hardSkills')
+      .populate('softSkills')
+      .populate('languages')
+      .populate('user');
     res.json({ success: true, std });
   } catch (err) {
     res.json({ success: false, message: "Internal server error" });

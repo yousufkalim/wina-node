@@ -280,7 +280,7 @@ app.get(
   })
 );
 //success
-app.get("/auth/linkedin/success", async (req, res) => {
+app.get('/auth/linkedin/success', async (req, res) => {
   try {
     const profile = req.user;
 
@@ -289,37 +289,30 @@ app.get("/auth/linkedin/success", async (req, res) => {
     if (user) {
       const token = user.getSignedJwtToken();
 
-      if (user.status === "linkedInSignup") {
-        return res.redirect(
-          process.env.REACT_URL + `?SignupBylinkedIn=true&&user=${token}`
-        );
+      if (user.status === 'linkedInSignup') {
+        return res.redirect(process.env.REACT_URL + `?SignupBylinkedIn=true&&user=${token}`);
       } else {
-        return res.redirect(
-          process.env.REACT_URL + `linkedInLogin?token=${token}`
-        );
+        return res.redirect(process.env.REACT_URL + `linkedInLogin?token=${token}`);
       }
     } else {
       let newUser = await User.create({
-        role: "user",
-        status: "linkedInSignup",
+        role: 'user',
+        status: 'linkedInSignup',
         firstName: profile.name.givenName,
         lastName: profile.name.familyName,
         email: email,
-        isSignupBylinkedIn: true,
+        isSignupBylinkedIn: true
       });
       const token = newUser.getSignedJwtToken();
 
-      return res.redirect(
-        process.env.REACT_URL + `?SignupBylinkedIn=true&&user=${token}`
-      );
+      return res.redirect(process.env.REACT_URL + `?SignupBylinkedIn=true&&user=${token}`);
     }
   } catch (error) {
-    console.log("err", error);
     return res.redirect(process.env.REACT_URL);
   }
 });
 
 // failure
-app.get("/auth/linkedin/failure", async (req, res) => {
+app.get('/auth/linkedin/failure', async (req, res) => {
   return res.redirect(process.env.REACT_URL);
 });
