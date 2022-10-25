@@ -1,29 +1,29 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 // USERS SCHEMA
 const UserSchema = new mongoose.Schema({
   firstName: {
     type: String,
-    required: false,
+    required: false
   },
   lastName: {
     type: String,
-    required: false,
+    required: false
   },
   email: {
     type: String,
-    required: false,
+    required: false
   },
   password: {
     type: String,
     required: false,
-    select: false,
+    select: false
   },
   phone: {
     type: Number,
-    required: false,
+    required: false
   },
 
   address: {
@@ -31,105 +31,107 @@ const UserSchema = new mongoose.Schema({
     city: { type: String, required: false },
     zip: { type: String, required: false },
     latitude: { type: Number, required: false },
-    longitude: { type: Number, required: false },
+    longitude: { type: Number, required: false }
   },
   role: {
     type: String,
-    enum: ["admin", "user"],
-    default: "user",
+    enum: ['admin', 'user'],
+    default: 'user'
   },
 
   type: {
     type: String,
-    enum: [
-      "student",
-      "studentConsultant",
-      "companyConsultant",
-      "company",
-      "user",
-    ],
+    enum: ['student', 'studentConsultant', 'companyConsultant', 'company', 'user'],
     required: false,
-    default: "user",
+    default: 'user'
   },
 
   status: {
     type: String,
-    enum: ["active", "deactive", "googleSignup", "linkedInSignup"],
-    default: "deactive",
+    enum: ['active', 'deactive', 'googleSignup', 'linkedInSignup', 'appleSignup'],
+    default: 'deactive'
   },
 
   company: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Company",
-    required: false,
+    ref: 'Company',
+    required: false
   },
 
   student: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Student",
-    required: false,
+    ref: 'Student',
+    required: false
   },
 
   studentConsultant: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "SudentConsultant",
-    required: false,
+    ref: 'SudentConsultant',
+    required: false
   },
 
   companyConsultant: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "CompanyConsultant",
-    required: false,
+    ref: 'CompanyConsultant',
+    required: false
   },
 
   notifications: [
     {
       title: String,
-      description: String,
-    },
+      description: String
+    }
   ],
   appointments: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Appointment",
-    },
+      ref: 'Appointment'
+    }
   ],
 
   isDeleted: {
     type: Boolean,
-    default: false,
+    default: false
   },
   isSignupByGoogle: {
     type: Boolean,
-    default: false,
+    default: false
   },
+
   isSignupByFacebook: {
     type: Boolean,
-    default: false,
+    default: false
   },
+
+  isSignupByApple: {
+    type: Boolean,
+    default: false
+  },
+
+  apple: String,
 
   invitation: {
     type: [mongoose.Schema.Types.ObjectId],
-    ref: "Invitation",
-    required: false,
+    ref: 'Invitation',
+    required: false
   },
 
   createdAt: {
     type: Date,
-    default: Date.now,
+    default: Date.now
   },
 
   resetPasswordToken: String,
   restPasswordExpires: Date,
 
   verifyEmailToken: String,
-  emailVerificationExpiresIn: Date,
+  emailVerificationExpiresIn: Date
 });
 
 //sign JWT and return
 UserSchema.methods.getSignedJwtToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE,
+    expiresIn: process.env.JWT_EXPIRE
   });
 };
 
@@ -137,4 +139,4 @@ UserSchema.methods.getSignedJwtToken = function () {
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model('User', UserSchema);

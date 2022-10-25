@@ -1,23 +1,24 @@
-const mongoose = require("mongoose")
+const mongoose = require('mongoose');
 
 const SkillSchema = new mongoose.Schema({
   skillField: {
     type: String,
-    required: false,
+    required: false
   },
   skillType: {
     type: String,
-    enum: ["Soft Skill", "Hard Skill"],
+    enum: ['Soft Skill', 'Hard Skill']
   },
+  wordCheck: String,
   isDeleted: {
     type: Boolean,
     required: false,
-    default: false,
+    default: false
   },
   createdAt: {
     type: Date,
-    default: Date.now,
-  },
-})
+    default: Date.now
+  }
+});
 
-module.exports = mongoose.model("Skill", SkillSchema)
+module.exports = mongoose.model('Skill', SkillSchema);

@@ -57,6 +57,7 @@ const {
   deleteAppointment,
   postSoftSkills,
   addJob,
+  check,
   postHardSkills
 } = require('../controllers/admin');
 
@@ -139,6 +140,6 @@ router.get(
 router.put('/delete-appointment/:id', [protect, authorize('admin')], deleteAppointment);
 //Validate Appointments
 router.post('/validate-appointmnet', [protect, authorize('admin')], validateAppointment);
-router.post('/addJob', addJob);
+router.post('/addJob', upload, addJob);
 
 module.exports = router;
