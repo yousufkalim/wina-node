@@ -229,7 +229,7 @@ exports.jobList = asyncHandler(async (req, res, next) => {
         }
       }
     ];
-    const { page, pageSize } = req.query;
+    const { page, pageSize } = req.params;
     const pageNumber = page * 1 || 1;
     const pagesize = pageSize * 1 || 100;
     const skip = (pageNumber - 1) * pagesize;
@@ -498,12 +498,12 @@ exports.DeleteJob = asyncHandler(async (req, res, next) => {
 //GET ALL COMPANIES
 exports.companyList = asyncHandler(async (req, res, next) => {
   try {
-    const { page, pageSize } = req.query;
+    const { page, pageSize } = req.params;
     const pageNumber = page * 1 || 1;
     const pagesize = pageSize * 1 || 100;
     const skip = (pageNumber - 1) * pagesize;
     const listOfCompanies = await Company.find({ isDeleted: false })
-      .populate('contactPerson')
+      .populate('contactPerson.person')
       .skip(skip)
       .limit(pagesize);
     const recordLength = await Company.aggregate([
@@ -844,8 +844,22 @@ exports.DeleteProfile = asyncHandler(async (req, res, next) => {
 // GET List of Users
 exports.userList = asyncHandler(async (req, res, next) => {
   try {
-    const listOfUsers = await User.find({ isDeleted: false });
-    res.status(200).json({ listOfUsers: listOfUsers });
+    const { page, pageSize } = req.params;
+    const pageNumber = page * 1 || 1;
+    const pagesize = pageSize * 1 || 100;
+    const skip = (pageNumber - 1) * pagesize;
+    const listOfUsers = await User.find({ isDeleted: false, type: 'student' })
+      .skip(skip)
+      .limit(pagesize);
+    const recordLength = await User.aggregate([
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    return res.status(200).json({ count: recordLength[0].count, data: { listOfUsers } });
   } catch (err) {
     next(err);
   }

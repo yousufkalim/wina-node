@@ -83,13 +83,13 @@ router.put('/edit-domain/:id', [protect, authorize('admin')], editDomain);
 router.put('/delete-domain/:id', [protect, authorize('admin')], deleteDomain);
 
 //Jobs
-router.get('/job-list', jobList);
+router.get('/job-list/:page/:pageSize', jobList);
 router.post('/create-job', [protect, authorize('admin')], upload, CreateJob);
 router.put('/edit-job/:id', [protect, authorize('admin')], upload, EditJob);
 router.put('/delete-job/:id', [protect, authorize('admin')], DeleteJob);
 
 //Companies
-router.get('/company-list', [protect, authorize('admin')], companyList);
+router.get('/company-list/:page/:pageSize', companyList);
 
 router.post('/register-company', [protect, authorize('admin')], registerCompany);
 router.put('/edit-company/:id', [protect, authorize('admin')], editCompany);
@@ -98,7 +98,7 @@ router.put('/delete-company/:id', [protect, authorize('admin')], deleteCompany);
 //Users
 router.post('/register-user', [protect, authorize('admin')], registerUser);
 router.get('/get-profile/:id', [protect, authorize('admin')], GetProfile);
-router.get('/user-list', [protect, authorize('admin')], userList);
+router.get('/user-list/:page/:pageSize', userList);
 router.put('/editProfile/:id', [protect, authorize('admin')], editProfile);
 router.put('/delete-profile/:id', [protect, authorize('admin')], DeleteProfile);
 
@@ -141,6 +141,6 @@ router.get(
 router.put('/delete-appointment/:id', [protect, authorize('admin')], deleteAppointment);
 //Validate Appointments
 router.post('/validate-appointmnet', [protect, authorize('admin')], validateAppointment);
-router.post('/addJob',upload, addJob);
+router.post('/addJob', upload, addJob);
 
 module.exports = router;
