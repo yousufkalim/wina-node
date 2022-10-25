@@ -1,10 +1,10 @@
-const express = require("express");
-const multer = require("multer");
+const express = require('express');
+const multer = require('multer');
 const router = express.Router();
-const passport = require("passport");
-const FacebookStrategy = require("passport-facebook").Strategy;
-var GoogleStrategy = require("passport-google-oauth2").Strategy;
-const User = require("../models/User");
+const passport = require('passport');
+const FacebookStrategy = require('passport-facebook').Strategy;
+var GoogleStrategy = require('passport-google-oauth2').Strategy;
+const User = require('../models/User');
 
 // MULTER Configuaration //
 const storage = multer.diskStorage({
@@ -12,8 +12,8 @@ const storage = multer.diskStorage({
     cb(null, file.originalname);
   },
   destination: function (req, file, cb) {
-    cb(null, "views/uploads");
-  },
+    cb(null, 'views/uploads');
+  }
 });
 
 const upload = multer({ storage: storage });
@@ -28,30 +28,31 @@ const {
   verifyUser,
   registerByGoogle,
   registerBylinkedIn,
-} = require("../controllers/auth");
+  appleLogin
+} = require('../controllers/auth');
 
 //middleware functions
 
-const { protect, authorize, dashboard } = require("../middlewares/auth");
+const { protect, authorize, dashboard } = require('../middlewares/auth');
 
 //Register USER routes
 
-router.post("/register", registerUser);
-router.get("/verify-user", protect, verifyUser);
+router.post('/register', registerUser);
+router.get('/verify-user', protect, verifyUser);
 
-router.post("/email-verfication", verifyEmail);
-router.post("/verify-email/:token", verifyEmailProcess);
+router.post('/email-verfication', verifyEmail);
+router.post('/verify-email/:token', verifyEmailProcess);
 
 //LOGIN Route
 
-router.post("/login", login);
+router.post('/login', login);
+router.post('/login/apple', appleLogin);
 
 //LOGOUT Route
-router.post("/logout", logout);
+router.post('/logout', logout);
 // Google LOGIN route
-router.post("/google-register", registerByGoogle);
+router.post('/google-register', registerByGoogle);
 // Linkedin LOGIN route
-router.post("/linkedIn-register", registerBylinkedIn);
-
+router.post('/linkedIn-register', registerBylinkedIn);
 
 module.exports = router;

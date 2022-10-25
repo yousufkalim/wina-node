@@ -280,3 +280,195 @@ exports.searchForStudents = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
+
+
+/**
+ * ////////////////////////// Routes /////////////////////////
+ * @author Shuja Naqvi
+ */
+
+
+/**
+ * Add Member
+ * @param {object} req
+ * @param {object} res
+ */
+exports.addMember=async(req,res)=>{
+  try{
+   const {companyId}=req.body
+    if(req.files.image){
+      req.body.photo =req.files.image[0].path
+    }
+    const member={
+      photo:req?.body?.photo?req.body.photo:"",
+      name:req.body.name,
+      designation:req.body.designation
+    }
+    const findCompany=await Company.findById(companyId)
+    if(!findCompany){
+      return res.status(404).json({success:false,message:"company not found"})
+    }
+    if(findCompany.members.length>=4){
+      return res.status(404).json({success:false,message:"members already added"})
+    }  
+    findCompany.members.push(member)
+    await findCompany.save()
+    res.status(200).json({success:true,company:findCompany})
+
+  }
+  catch(err){
+    res.status(500).json({success:false,message:"Internal Server Error"})
+    console.log("errr---->",err.message)
+  }
+}
+/**
+ * update Member
+ * @param {object} req
+ * @param {object} res
+ */
+ exports.updateMember = async (req, res) => {
+  try {
+    const findCompany=await await Company.findOne(
+      { members: { $elemMatch: { _id:req.body.memberId} } },
+      { "members.$": 1}
+    );
+    if(!findCompany){
+      return res.status(404).json({success:false,message:"member not found"})
+    }
+    if(req.files){
+      req.body.photo =req.files.image[0].path
+    }
+    const company = await Company.findOneAndUpdate(
+      { members: { $elemMatch: { _id:req.body.memberId} }  },
+      {
+        $set: {
+          'members.$.name':req.body.name,
+          "members.$.designation":req.body.designation,
+          'members.$.photo':req?.body?.photo?req.body.photo:findCompany.members[0].photo
+        },
+      },
+      { new: true }
+    ); // Updating 
+    res.json({ success: true, company }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * Add Stage
+ * @param {object} req
+ * @param {object} res
+ */
+exports.addStage=async(req,res)=>{
+  try{
+   const {companyId}=req.body
+    if(req.files.image){
+      req.body.photo =req.files.image[0].path
+    }
+    const stage={
+      photo:req?.body?.photo?req.body.photo:"",
+      title:req.body.title,
+    }
+    const findCompany=await Company.findById(companyId)
+    if(!findCompany){
+      return res.status(404).json({success:false,message:"company not found"})
+    }
+    if(findCompany.stages.length>=4){
+      return res.status(404).json({success:false,message:"stages already added"})
+    }    
+    findCompany.stages.push(stage)
+    await findCompany.save()
+    res.status(200).json({success:true,company:findCompany})
+
+  }
+  catch(err){
+    res.status(500).json({success:false,message:"Internal Server Error"})
+    console.log("errr---->",err.message)
+  }
+}
+/**
+ * update Stage
+ * @param {object} req
+ * @param {object} res
+ */
+ exports.updateStage = async (req, res) => {
+  try {
+    const findCompany=await await Company.findOne(
+      { stages: { $elemMatch: { _id:req.body.stageId} } },
+      { "stages.$": 1}
+    );
+    if(!findCompany){
+      return res.status(404).json({success:false,message:"stage not found"})
+    }
+    if(req.files){
+      req.body.photo =req.files.image[0].path
+    }
+    const stage={
+      title:req.body.title,
+      photo:req?.body?.photo?req.body.photo:findCompany.stages[0].photo
+    }
+    const company = await Company.findOneAndUpdate(
+      { stages: { $elemMatch: { _id:req.body.stageId} }  },
+      {
+        $set: {
+          'stages.$.title':req.body.title,
+          'stages.$.photo':req?.body?.photo?req.body.photo:findCompany.stages[0].photo
+        },
+      },
+      { new: true }
+    ); // Updating 
+    res.json({ success: true, company }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * delete Member from company
+ * @param {object} req
+ * @param {object} res
+ */
+ exports.deleteMember = async (req, res) => {
+  try {
+    const comapnyId = req.params.comapnyId; // Getting calculation id from URL parameter
+    const company = await Company.findByIdAndUpdate(
+      comapnyId,
+      { $pull: { range: { _id: req.body.memberId } } },
+      { new: true }
+    ); // Updating the country
+    res.json({ success: true, company }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+
+
+
+/**
+ * delete Stage from company
+ * @param {object} req
+ * @param {object} res
+ */
+ exports.deleteStage = async (req, res) => {
+  try {
+    const comapnyId = req.params.comapnyId; // Getting calculation id from URL parameter
+    const company = await Company.findByIdAndUpdate(
+      comapnyId,
+      { $pull: { stages: { _id: req.body.stageId } } },
+      { new: true }
+    ); // Updating the country
+    res.json({ success: true, company }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};

@@ -19,12 +19,12 @@ class DealBreaker {
       jobs.map((item) => {
         const jobDate = moment(item.startDate, "YYYY-MM-DD");
         const result = Math.abs(studentStartingDate.diff(jobDate, "months"));
+        
         if (result <= 4) {
           filteredJobs.push(item);
         }
       });
       return filteredJobs;
-      // res.status(200).json({ Jobs: filteredJobs });
     } catch (err) {
       return res.status(200).json({ message: err.message });
     }
@@ -79,13 +79,14 @@ class MatchingCriteria extends DealBreaker {
       n = 0;
       userSoftSkills.map((item) => {
         job.softSkills.map((item1) => {
-          if (item.toString() == item1.toString()) {
+          if (item.toString() === item1.toString()) {
+           
             n++;
           }
         });
       });
       if (n == 0) {
-        score = 0;
+       score = 0.5;
       } else if (n == 1) {
         score = 0.5;
       } else if (n == 2) {
@@ -114,7 +115,7 @@ class MatchingCriteria extends DealBreaker {
         });
       });
       if (n == 0) {
-        score = 0;
+        score = 0.5;
       } else if (n == 1) {
         score = 0.5;
       } else if (n == 2) {
@@ -189,7 +190,6 @@ class MatchingCriteria extends DealBreaker {
       score = score * 5;
       return startDateArray.push({ id: job.id, score: score });
     });
-    // res.status(200).json({ Jobs: filteredJobs });
     return startDateArray;
   };
 
@@ -200,7 +200,7 @@ class MatchingCriteria extends DealBreaker {
     let score = 0;
 
     jobs.map((job) => {
-      const jobDuration = job.duration.split(" ");
+      const jobDuration = job?.duration?job?.duration?.split(" "):0;
       const result = studentDuration[0] - jobDuration[0];
 
       if (result == 0) {
@@ -224,12 +224,12 @@ class MatchingCriteria extends DealBreaker {
     var levelOfEducationArray = [];
     let score = 0;
     jobs.map((job) => {
-      const jobLevelOfEducation = job.levelOfEducation.toUpperCase();
+      const jobLevelOfEducation =job.levelOfEducation? job.levelOfEducation.toUpperCase():"";
       const result = studentEducation.localeCompare(jobLevelOfEducation);
       if (result === 0) {
         score = 1;
       } else {
-        score = 0;
+        score = 1;
       }
       score = score * 4;
       return levelOfEducationArray.push({ id: job.id, score: score });
@@ -245,14 +245,13 @@ class MatchingCriteria extends DealBreaker {
     let score = 0;
 
     jobs.map((job) => {
-      const jobAlternationRhythm = job.alternationRhythm.toUpperCase();
+      const jobAlternationRhythm = job?.alternationRhythm?job?.alternationRhythm.toUpperCase():"";
       const result =
         studentAlternationRhythm.localeCompare(jobAlternationRhythm);
-
       if (result == 0) {
         score = 1;
       } else {
-        score = 0;
+        score = 1;
       }
       score = score * 3;
 
@@ -313,18 +312,17 @@ class MatchingCriteria extends DealBreaker {
       const fieldResult = await this.field(user, jobs);
       const jobNameResult = await this.jobName(user, jobs);
       const startDateResult = await this.startDate(user, jobs);
+      console.log(startDateResult,"startDateResult")
       const lengthOfTheAlternateResult = await this.lengthOfTheAlternate(
         user,
         jobs
       );
+      
       const levelOfEducationResult = await this.levelOfEducation(user, jobs);
       const frequencyOfApprenticeshipResult =
         await this.frequencyOfApprenticeship(user, jobs);
       const ageRangeResult = await this.ageRange(user, jobs);
 
-      // console.log(locationResult, "location");
-      // console.log(softSkillsResult, "softSkillsResult");
-      // console.log(hardSkillsResult, "hardSkillsResult");
       // console.log(fieldResult, "fieldResult");
       // console.log(jobNameResult, "jobNameResult");
       // console.log(startDateResult, "startDateResult");
@@ -337,7 +335,6 @@ class MatchingCriteria extends DealBreaker {
       // console.log(ageRangeResult, "ageRangeResult");
 
       const newArray = [];
-
       jobs.map((job) => {
         let totalScore = 0;
         // Location Filter //
@@ -345,6 +342,7 @@ class MatchingCriteria extends DealBreaker {
           (loc) => loc.id === job.id
         );
         totalScore += locationResult[locationIndex].score / 100;
+        console.log(totalScore,"totalScore")
         // Soft Skills Filter //
         let softSkillIndex = softSkillsResult.findIndex(
           (softSkill) => softSkill.id === job.id
@@ -411,7 +409,8 @@ class MatchingCriteria extends DealBreaker {
       });
       return newArray;
     } catch (err) {
-      return res.status(200).json({ message: err.message });
+      console.log("err-------->",err )
+     
     }
   };
 
@@ -420,20 +419,24 @@ class MatchingCriteria extends DealBreaker {
       let output = [];
       const sortedArray = await this.search(req, res, next);
       if (sortedArray !== undefined) {
-        console.log(sortedArray, "Arr");
         await Promise.all(
           sortedArray.map(async (job) => {
             const newJob = await Job.findByIdAndUpdate(job.jobId, {
               score: job.score,
             }).populate("company");
+
+
+
+
+            
             output.push(newJob);
           })
         );
       }
-      return res.status(200).json({ jobs: output });
+      return res.status(200).json({ jobs:output });
     } catch (err) {
       console.log("err", err.message);
-      //return res.status(200).json({ message: err.message });
+      return res.status(404).json({ message: err.message });
     }
   };
 }
