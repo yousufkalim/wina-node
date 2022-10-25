@@ -233,9 +233,8 @@ exports.jobList = asyncHandler(async (req, res, next) => {
     const pageNumber = page * 1 || 1;
     const pagesize = pageSize * 1 || 100;
     const skip = (pageNumber - 1) * pagesize;
-    const listOfJobs = await find
-      .Job({ isDeleted: false })
-      .populate('populateQuery')
+    const listOfJobs = await Job.find({ isDeleted: false })
+      .populate(populateQuery)
       .skip(skip)
       .limit(pagesize);
     const recordLength = await Job.aggregate([
@@ -248,7 +247,7 @@ exports.jobList = asyncHandler(async (req, res, next) => {
     ]);
     return res.status(200).json({ count: recordLength[0].count, data: { listOfJobs } });
   } catch (error) {
-    return res.status(200).send({ message: error });
+    return res.status(500).send({ message: error });
 
     next(error);
   }
@@ -504,6 +503,7 @@ exports.companyList = asyncHandler(async (req, res, next) => {
     const skip = (pageNumber - 1) * pagesize;
     const listOfCompanies = await Company.find({ isDeleted: false })
       .populate('contactPerson.person')
+
       .skip(skip)
       .limit(pagesize);
     const recordLength = await Company.aggregate([
@@ -1319,14 +1319,28 @@ exports.deleteSchool = asyncHandler(async (req, res, next) => {
 
 exports.getAllAppointments = asyncHandler(async (req, res, next) => {
   try {
-    const appointments = await Appointment.find({ isDeleted: false }).populate('company');
-    if (!appointments) {
-      return res.status(200).json({
-        message: "Il n'y a pas de guichet automatique de rendez-vous"
-      });
-    } else {
-      return res.status(200).json({ message: Texts.success, Appointments: appointments });
-    }
+    const { page, pageSize } = req.params;
+    const pageNumber = page * 1 || 1;
+    const pagesize = pageSize * 1 || 100;
+    const skip = (pageNumber - 1) * pagesize;
+    const listOfAppointments = await Appointment.find({ isDeleted: false })
+      .populate('company')
+      .populate('jobID')
+      .populate({
+        path: 'student',
+        populate: { path: 'user' }
+      })
+      .skip(skip)
+      .limit(pagesize);
+    const recordLength = await Appointment.aggregate([
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    return res.status(200).json({ count: recordLength[0].count, data: { listOfAppointments } });
   } catch (err) {
     next(err);
   }

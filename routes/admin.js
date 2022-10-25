@@ -119,7 +119,7 @@ router.put('/edit-school/:id', [protect, authorize('admin')], editSchool);
 router.put('/delete-school/:id', [protect, authorize('admin')], deleteSchool);
 
 //Appointments list
-router.get('/appointment-list', [protect, authorize('admin')], getAllAppointments);
+router.get('/appointment-list/:page/:pageSize', getAllAppointments);
 //Pending Appointments list
 router.get('/pending-appointmnets', [protect, authorize('admin')], getAllPendingAppointments);
 
