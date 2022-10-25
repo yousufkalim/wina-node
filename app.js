@@ -301,7 +301,7 @@ app.get('/auth/linkedin/success', async (req, res) => {
       return res.redirect(process.env.REACT_URL + `?SignupBylinkedIn=true&&user=${token}`);
     }
   } catch (error) {
-    console.log('err', error);
+
     return res.redirect(process.env.REACT_URL);
   }
 });
