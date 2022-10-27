@@ -324,14 +324,14 @@ exports.addMember = async (req, res) => {
  */
 exports.updateMember = async (req, res) => {
   try {
-    const findCompany = await await Company.findOne(
+    const findCompany = await Company.findOne(
       { members: { $elemMatch: { _id: req.body.memberId } } },
       { 'members.$': 1 }
     );
     if (!findCompany) {
       return res.status(404).json({ success: false, message: 'member not found' });
     }
-    if (req.files) {
+    if (req.file) {
       req.body.photo = req.files.image[0].path;
     }
     const company = await Company.findOneAndUpdate(
@@ -390,14 +390,14 @@ exports.addStage = async (req, res) => {
  */
 exports.updateStage = async (req, res) => {
   try {
-    const findCompany = await await Company.findOne(
+    const findCompany = await Company.findOne(
       { stages: { $elemMatch: { _id: req.body.stageId } } },
       { 'stages.$': 1 }
     );
     if (!findCompany) {
       return res.status(404).json({ success: false, message: 'stage not found' });
     }
-    if (req.files) {
+    if (req.file) {
       req.body.photo = req.files.image[0].path;
     }
     const stage = {
