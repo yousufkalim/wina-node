@@ -60,7 +60,8 @@ const {
   postSoftSkills,
   addJob,
   check,
-  postHardSkills
+  postHardSkills,
+  chartDataSet
 } = require('../controllers/admin');
 
 // Middleware Functions //
@@ -145,5 +146,7 @@ router.post('/validate-appointmnet', [protect, authorize('admin')], validateAppo
 router.post('/addJob', upload, addJob);
 
 router.get('/count-list', countList);
+//chartDataSet
+router.get('/chartDataSet', chartDataSet);
 
 module.exports = router;

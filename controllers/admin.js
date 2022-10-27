@@ -19,6 +19,7 @@ const { socket, io } = require('../app');
 const { Texts } = require('../utils/texts');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const moment = require('moment');
 
 // Get List of Skills
 exports.skillList = asyncHandler(async (req, res, next) => {
@@ -1916,5 +1917,112 @@ exports.countList = async (req, res) => {
     res.status(200).json({ success: true, students, companies, appointments, jobs });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Internal  Server Error', err: err.message });
+  }
+};
+
+exports.chartDataSet = async (req, res) => {
+  try {
+    let end_day = new Date();
+    let start_day = end_day.getTime() - 2419200000; //28 days before
+    end_day = moment(end_day).format('YYYY-MM-DD'); //format
+    start_day = moment(start_day).format('YYYY-MM-DD'); //format
+    let Studentreport = await Student.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(start_day),
+            $lte: new Date(end_day)
+          },
+          isDeleted: false
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              date: '$createdAt',
+              format: '%Y-%m-%d'
+            }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    let Companiesreport = await Company.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(start_day),
+            $lte: new Date(end_day)
+          },
+          isDeleted: false
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              date: '$createdAt',
+              format: '%Y-%m-%d'
+            }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    let Jobsreport = await Job.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(start_day),
+            $lte: new Date(end_day)
+          },
+          isDeleted: false
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              date: '$createdAt',
+              format: '%Y-%m-%d'
+            }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    let Appointmentreport = await Appointment.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(start_day),
+            $lte: new Date(end_day)
+          },
+          isDeleted: false
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              date: '$createdAt',
+              format: '%Y-%m-%d'
+            }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    return res
+      .status(200)
+      .json({ success: true, Studentreport, Companiesreport, Jobsreport, Appointmentreport });
+  } catch (err) {
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
