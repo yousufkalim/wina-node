@@ -761,6 +761,8 @@ exports.getStdById = async (req, res) => {
       .populate('hardSkills')
       .populate('softSkills')
       .populate('languages');
+      .populate('languages')
+      .populate('user');
     res.json({ success: true, std });
   } catch (err) {
     res.json({ success: false, message: 'Internal server error' });
