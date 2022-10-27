@@ -3,7 +3,6 @@ const multer = require('multer');
 const router = express.Router();
 
 // MULTER Configuaration //
-
 const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -148,5 +147,6 @@ router.post('/addJob', upload, addJob);
 router.get('/count-list', countList);
 //chartDataSet
 router.get('/chartDataSet', chartDataSet);
+
 
 module.exports = router;
