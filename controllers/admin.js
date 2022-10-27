@@ -1906,3 +1906,15 @@ exports.postSoftSkills = async (req, res) => {
     res.status(500).send('Something Failed');
   }
 };
+
+exports.countList = async (req, res) => {
+  try {
+    const students = await Student.find({ isDeleted: false }).estimatedDocumentCount();
+    const companies = await Company.find({ isDeleted: false }).estimatedDocumentCount();
+    const appointments = await Appointment.find({ isDeleted: false }).estimatedDocumentCount();
+    const jobs = await Job.find({ isDeleted: false }).estimatedDocumentCount();
+    res.status(200).json({ success: true, students, companies, appointments, jobs });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Internal  Server Error', err: err.message });
+  }
+};

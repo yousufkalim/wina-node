@@ -26,6 +26,7 @@ const {
   domainList,
   editDomain,
   deleteDomain,
+  countList,
   // ******
   jobList,
   CreateJob,
@@ -142,5 +143,7 @@ router.put('/delete-appointment/:id', [protect, authorize('admin')], deleteAppoi
 //Validate Appointments
 router.post('/validate-appointmnet', [protect, authorize('admin')], validateAppointment);
 router.post('/addJob', upload, addJob);
+
+router.get('/count-list', countList);
 
 module.exports = router;
