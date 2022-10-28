@@ -3,7 +3,6 @@ const multer = require('multer');
 const router = express.Router();
 
 // MULTER Configuaration //
-
 const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -26,6 +25,7 @@ const {
   domainList,
   editDomain,
   deleteDomain,
+  countList,
   // ******
   jobList,
   CreateJob,
@@ -59,7 +59,8 @@ const {
   postSoftSkills,
   addJob,
   check,
-  postHardSkills
+  postHardSkills,
+  chartDataSet
 } = require('../controllers/admin');
 
 // Middleware Functions //
@@ -142,5 +143,10 @@ router.put('/delete-appointment/:id', [protect, authorize('admin')], deleteAppoi
 //Validate Appointments
 router.post('/validate-appointmnet', [protect, authorize('admin')], validateAppointment);
 router.post('/addJob', upload, addJob);
+
+router.get('/count-list', countList);
+//chartDataSet
+router.get('/chartDataSet', chartDataSet);
+
 
 module.exports = router;

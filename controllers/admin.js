@@ -19,6 +19,7 @@ const { socket, io } = require('../app');
 const { Texts } = require('../utils/texts');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const moment = require('moment');
 
 // Get List of Skills
 exports.skillList = asyncHandler(async (req, res, next) => {
@@ -1904,5 +1905,166 @@ exports.postSoftSkills = async (req, res) => {
     });
   } catch (error) {
     res.status(500).send('Something Failed');
+  }
+};
+
+exports.countList = async (req, res) => {
+  try {
+    const students = await Student.find({ isDeleted: false }).estimatedDocumentCount();
+    const companies = await Company.find({ isDeleted: false }).estimatedDocumentCount();
+    const appointments = await Appointment.find({ isDeleted: false }).estimatedDocumentCount();
+    const jobs = await Job.find({ isDeleted: false }).estimatedDocumentCount();
+    res.status(200).json({ success: true, students, companies, appointments, jobs });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Internal  Server Error', err: err.message });
+  }
+};
+
+exports.chartDataSet = async (req, res) => {
+  try {
+    let end_day = new Date();
+    let start_day = end_day.getTime() - 2419200000; //28 days before
+    end_day = moment(end_day).format('YYYY-MM-DD'); //format
+    start_day = moment(start_day).format('YYYY-MM-DD'); //format
+    let Studentreport = await Student.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(start_day),
+            $lte: new Date(end_day)
+          },
+          isDeleted: false
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              date: '$createdAt',
+              format: '%Y-%m-%d'
+            }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    let Companiesreport = await Company.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(start_day),
+            $lte: new Date(end_day)
+          },
+          isDeleted: false
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              date: '$createdAt',
+              format: '%Y-%m-%d'
+            }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    let Jobsreport = await Job.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(start_day),
+            $lte: new Date(end_day)
+          },
+          isDeleted: false
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              date: '$createdAt',
+              format: '%Y-%m-%d'
+            }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    let Appointmentreport = await Appointment.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(start_day),
+            $lte: new Date(end_day)
+          },
+          isDeleted: false
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              date: '$createdAt',
+              format: '%Y-%m-%d'
+            }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    //Get Array of last 28 days
+    let daysArr = [];
+    for (let i = 0; i < 28; i++) {
+      daysArr.push(moment(new Date() - i * 86400000).format('YYYY-MM-DD'));
+    }
+    let missingDates = daysArr.filter(o1 => !Studentreport.some(o2 => o1 === o2._id));
+    missingDates.map(e => {
+      Studentreport.push({
+        _id: e,
+        count: 0
+      });
+    });
+    missingDates = daysArr.filter(o1 => !Companiesreport.some(o2 => o1 === o2._id));
+    missingDates.map(e => {
+      Companiesreport.push({
+        _id: e,
+        count: 0
+      });
+    });
+    missingDates = daysArr.filter(o1 => !Jobsreport.some(o2 => o1 === o2._id));
+    missingDates.map(e => {
+      Jobsreport.push({
+        _id: e,
+        count: 0
+      });
+    });
+    missingDates = daysArr.filter(o1 => !Appointmentreport.some(o2 => o1 === o2._id));
+    missingDates.map(e => {
+      Appointmentreport.push({
+        _id: e,
+        count: 0
+      });
+    });
+    Studentreport = Studentreport.sort((a, b) => Number(new Date(a._id)) - Number(new Date(b._id)));
+    Companiesreport = Companiesreport.sort(
+      (a, b) => Number(new Date(a._id)) - Number(new Date(b._id))
+    );
+    Jobsreport = Jobsreport.sort((a, b) => Number(new Date(a._id)) - Number(new Date(b._id)));
+    Appointmentreport = Appointmentreport.sort(
+      (a, b) => Number(new Date(a._id)) - Number(new Date(b._id))
+    );
+
+    return res
+      .status(200)
+      .json({ success: true, Studentreport, Companiesreport, Appointmentreport, Jobsreport });
+  } catch (err) {
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };

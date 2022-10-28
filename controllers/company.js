@@ -1,14 +1,14 @@
-const Joi = require("joi");
-const asyncHandler = require("../middlewares/async");
-const User = require("../models/User");
-const Company = require("../models/Company");
-const Student = require("../models/Student");
-const { Texts } = require("../utils/texts");
+const Joi = require('joi');
+const asyncHandler = require('../middlewares/async');
+const User = require('../models/User');
+const Company = require('../models/Company');
+const Student = require('../models/Student');
+const { Texts } = require('../utils/texts');
 
-const Appointment = require("../models/Appointment");
-const matchingAlgo = require("../services/searchStudents");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const Appointment = require('../models/Appointment');
+const matchingAlgo = require('../services/searchStudents');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 var matchingCriteria = new matchingAlgo.MatchingCriteria();
 var dealBreaker = new matchingAlgo.DealBreaker();
@@ -276,271 +276,266 @@ exports.searchForStudents = asyncHandler(async (req, res, next) => {
     // matchingCriteria.search(req, res, next);
     matchingCriteria.display(req, res, next);
   } catch (err) {
-    console.log("Error---->", err.message);
+    console.log('Error---->', err.message);
     next(err);
   }
 });
-
 
 /**
  * ////////////////////////// Routes /////////////////////////
  * @author Shuja Naqvi
  */
 
-
 /**
  * Add Member
  * @param {object} req
  * @param {object} res
  */
-exports.addMember=async(req,res)=>{
-  try{
-   const {companyId}=req.body
-    if(req.files.image){
-      req.body.photo =req.files.image[0].path
+exports.addMember = async (req, res) => {
+  try {
+    const { companyId } = req.body;
+    if (req.files.image) {
+      req.body.photo = req.files.image[0].path;
     }
-    const member={
-      photo:req?.body?.photo?req.body.photo:"",
-      name:req.body.name,
-      designation:req.body.designation
+    const member = {
+      photo: req?.body?.photo ? req.body.photo : '',
+      name: req.body.name,
+      designation: req.body.designation
+    };
+    const findCompany = await Company.findById(companyId);
+    if (!findCompany) {
+      return res.status(404).json({ success: false, message: 'company not found' });
     }
-    const findCompany=await Company.findById(companyId)
-    if(!findCompany){
-      return res.status(404).json({success:false,message:"company not found"})
+    if (findCompany.members.length >= 4) {
+      return res.status(404).json({ success: false, message: 'members already added' });
     }
-    if(findCompany.members.length>=4){
-      return res.status(404).json({success:false,message:"members already added"})
-    }  
-    findCompany.members.push(member)
-    await findCompany.save()
-    res.status(200).json({success:true,company:findCompany})
-
+    findCompany.members.push(member);
+    await findCompany.save();
+    res.status(200).json({ success: true, company: findCompany });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+    console.log('errr---->', err.message);
   }
-  catch(err){
-    res.status(500).json({success:false,message:"Internal Server Error"})
-    console.log("errr---->",err.message)
-  }
-}
+};
 /**
  * update Member
  * @param {object} req
  * @param {object} res
  */
- exports.updateMember = async (req, res) => {
-   try {
-     const findCompany = await Company.findOne(
-       { members: { $elemMatch: { _id: req.body.memberId } } },
-       { 'members.$': 1 }
-     );
-     if (!findCompany) {
-       return res.status(404).json({ success: false, message: 'member not found' });
-     }
-     if (req.file) {
-       req.body.photo = req.files.image[0].path;
-     }
-     const company = await Company.findOneAndUpdate(
-       { members: { $elemMatch: { _id: req.body.memberId } } },
-       {
-         $set: {
-           'members.$.name': req.body.name,
-           'members.$.designation': req.body.designation,
-           'members.$.photo': req?.body?.photo ? req.body.photo : findCompany.members[0].photo
-         }
-       },
-       { new: true }
-     ); // Updating
-     res.json({ success: true, company }); // Success
-   } catch (err) {
-     // Error handling
-     console.log('Error ----> ', err);
-     res.status(500).json({ success: false, message: 'Internal server error' });
-   }
- };
+exports.updateMember = async (req, res) => {
+  try {
+    const findCompany = await Company.findOne(
+      { members: { $elemMatch: { _id: req.body.memberId } } },
+      { 'members.$': 1 }
+    );
+    if (!findCompany) {
+      return res.status(404).json({ success: false, message: 'member not found' });
+    }
+    if (req.file) {
+      req.body.photo = req.files.image[0].path;
+    }
+    const company = await Company.findOneAndUpdate(
+      { members: { $elemMatch: { _id: req.body.memberId } } },
+      {
+        $set: {
+          'members.$.name': req.body.name,
+          'members.$.designation': req.body.designation,
+          'members.$.photo': req?.body?.photo ? req.body.photo : findCompany.members[0].photo
+        }
+      },
+      { new: true }
+    ); // Updating
+    res.json({ success: true, company }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+/**
+ * Add Stage
+ * @param {object} req
+ * @param {object} res
+ */
+exports.addStage = async (req, res) => {
+  try {
+    const { companyId } = req.body;
+    if (req.files.image) {
+      req.body.photo = req.files.image[0].path;
+    }
+    const stage = {
+      photo: req?.body?.photo ? req.body.photo : '',
+      title: req.body.title
+    };
+    const findCompany = await Company.findById(companyId);
+    if (!findCompany) {
+      return res.status(404).json({ success: false, message: 'company not found' });
+    }
+    if (findCompany.stages.length >= 4) {
+      return res.status(404).json({ success: false, message: 'stages already added' });
+    }
+    findCompany.stages.push(stage);
+    await findCompany.save();
+    res.status(200).json({ success: true, company: findCompany });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+    console.log('errr---->', err.message);
+  }
+};
+/**
+ * update Stage
+ * @param {object} req
+ * @param {object} res
+ */
+exports.updateStage = async (req, res) => {
+  try {
+    const findCompany = await Company.findOne(
+      { stages: { $elemMatch: { _id: req.body.stageId } } },
+      { 'stages.$': 1 }
+    );
+    if (!findCompany) {
+      return res.status(404).json({ success: false, message: 'stage not found' });
+    }
+    if (req.file) {
+      req.body.photo = req.files.image[0].path;
+    }
+    const stage = {
+      title: req.body.title,
+      photo: req?.body?.photo ? req.body.photo : findCompany.stages[0].photo
+    };
+    const company = await Company.findOneAndUpdate(
+      { stages: { $elemMatch: { _id: req.body.stageId } } },
+      {
+        $set: {
+          'stages.$.title': req.body.title,
+          'stages.$.photo': req?.body?.photo ? req.body.photo : findCompany.stages[0].photo
+        }
+      },
+      { new: true }
+    ); // Updating
+    res.json({ success: true, company }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
 
- /**
-  * Add Stage
-  * @param {object} req
-  * @param {object} res
-  */
- exports.addStage = async (req, res) => {
-   try {
-     const { companyId } = req.body;
-     if (req.files.image) {
-       req.body.photo = req.files.image[0].path;
-     }
-     const stage = {
-       photo: req?.body?.photo ? req.body.photo : '',
-       title: req.body.title
-     };
-     const findCompany = await Company.findById(companyId);
-     if (!findCompany) {
-       return res.status(404).json({ success: false, message: 'company not found' });
-     }
-     if (findCompany.stages.length >= 4) {
-       return res.status(404).json({ success: false, message: 'stages already added' });
-     }
-     findCompany.stages.push(stage);
-     await findCompany.save();
-     res.status(200).json({ success: true, company: findCompany });
-   } catch (err) {
-     res.status(500).json({ success: false, message: 'Internal Server Error' });
-     console.log('errr---->', err.message);
-   }
- };
- /**
-  * update Stage
-  * @param {object} req
-  * @param {object} res
-  */
- exports.updateStage = async (req, res) => {
-   try {
-     const findCompany = await Company.findOne(
-       { stages: { $elemMatch: { _id: req.body.stageId } } },
-       { 'stages.$': 1 }
-     );
-     if (!findCompany) {
-       return res.status(404).json({ success: false, message: 'stage not found' });
-     }
-     if (req.file) {
-       req.body.photo = req.files.image[0].path;
-     }
-     const stage = {
-       title: req.body.title,
-       photo: req?.body?.photo ? req.body.photo : findCompany.stages[0].photo
-     };
-     const company = await Company.findOneAndUpdate(
-       { stages: { $elemMatch: { _id: req.body.stageId } } },
-       {
-         $set: {
-           'stages.$.title': req.body.title,
-           'stages.$.photo': req?.body?.photo ? req.body.photo : findCompany.stages[0].photo
-         }
-       },
-       { new: true }
-     ); // Updating
-     res.json({ success: true, company }); // Success
-   } catch (err) {
-     // Error handling
-     console.log('Error ----> ', err);
-     res.status(500).json({ success: false, message: 'Internal server error' });
-   }
- };
+/**
+ * delete Member from company
+ * @param {object} req
+ * @param {object} res
+ */
+exports.deleteMember = async (req, res) => {
+  try {
+    const comapnyId = req.params.comapnyId; // Getting calculation id from URL parameter
+    const company = await Company.findByIdAndUpdate(
+      comapnyId,
+      { $pull: { members: { _id: req.body.memberId } } },
+      { new: true }
+    ); // Updating the country
+    res.json({ success: true, company }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
 
- /**
-  * delete Member from company
-  * @param {object} req
-  * @param {object} res
-  */
- exports.deleteMember = async (req, res) => {
-   try {
-     const comapnyId = req.params.comapnyId; // Getting calculation id from URL parameter
-     const company = await Company.findByIdAndUpdate(
-       comapnyId,
-       { $pull: { members: { _id: req.body.memberId } } },
-       { new: true }
-     ); // Updating the country
-     res.json({ success: true, company }); // Success
-   } catch (err) {
-     // Error handling
-     console.log('Error ----> ', err);
-     res.status(500).json({ success: false, message: 'Internal server error' });
-   }
- };
+/**
+ * delete Stage from company
+ * @param {object} req
+ * @param {object} res
+ */
+exports.deleteStage = async (req, res) => {
+  try {
+    const comapnyId = req.params.comapnyId; // Getting calculation id from URL parameter
+    const company = await Company.findByIdAndUpdate(
+      comapnyId,
+      { $pull: { stages: { _id: req.body.stageId } } },
+      { new: true }
+    ); // Updating the country
+    res.json({ success: true, company }); // Success
+  } catch (err) {
+    // Error handling
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
 
- /**
-  * delete Stage from company
-  * @param {object} req
-  * @param {object} res
-  */
- exports.deleteStage = async (req, res) => {
-   try {
-     const comapnyId = req.params.comapnyId; // Getting calculation id from URL parameter
-     const company = await Company.findByIdAndUpdate(
-       comapnyId,
-       { $pull: { stages: { _id: req.body.stageId } } },
-       { new: true }
-     ); // Updating the country
-     res.json({ success: true, company }); // Success
-   } catch (err) {
-     // Error handling
-     console.log('Error ----> ', err);
-     res.status(500).json({ success: false, message: 'Internal server error' });
-   }
- };
+/**
+ * Update Company
+ * @param {object} req
+ * @param {object} res
+ */
+exports.updateCompany = async (req, res) => {
+  try {
+    if (req.files) {
+      if (req.files.video[0]) {
+        req.body.presentation_Video = req.files.video[0].path;
+      }
+      if (req.files.image[0]) {
+        req.body.professional_Picture = req.files.image[0].path;
+      }
+    }
+    const companyId = req.params.companyId;
+    const company = await Company.findByIdAndUpdate(companyId, req.body, { new: true });
+    res.status(200).json({ success: true, company, message: 'Company updated successfully' });
+  } catch (err) {
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
 
- /**
-  * Update Company
-  * @param {object} req
-  * @param {object} res
-  */
- exports.updateCompany = async (req, res) => {
-   try {
-     if (req.files) {
-       if (req.files.video[0]) {
-         req.body.presentation_Video = req.files.video[0].path;
-       }
-       if (req.files.image[0]) {
-         req.body.professional_Picture = req.files.image[0].path;
-       }
-     }
-     const companyId = req.params.companyId;
-     const company = await Company.findByIdAndUpdate(companyId, req.body, { new: true });
-     res.status(200).json({ success: true, company, message: 'Company updated successfully' });
-   } catch (err) {
-     console.log('Error ----> ', err);
-     res.status(500).json({ success: false, message: 'Internal server error' });
-   }
- };
+/**
+ * Update Company
+ * @param {object} req
+ * @param {object} res
+ */
 
- /**
-  * Update Company
-  * @param {object} req
-  * @param {object} res
-  */
+exports.companyProfile = async (req, res) => {
+  try {
+    const companyId = req.params.companyId;
+    const company = await Company.findById(companyId);
+    res.status(200).json({ success: true, company });
+  } catch (err) {
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
 
- exports.companyProfile = async (req, res) => {
-   try {
-     const companyId = req.params.companyId;
-     const company = await Company.findById(companyId);
-     res.status(200).json({ success: true, company });
-   } catch (err) {
-     console.log('Error ----> ', err);
-     res.status(500).json({ success: false, message: 'Internal server error' });
-   }
- };
+/**
+ * Update Company
+ * @param {object} req
+ * @param {object} res
+ */
+exports.updateTeamDescription = async (req, res) => {
+  try {
+    const companyId = req.params.companyId;
+    const company = await Company.findByIdAndUpdate(companyId, req.body, { new: true });
+    res
+      .status(200)
+      .json({ success: true, company, message: 'Team Description updated successfully' });
+  } catch (err) {
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
 
- /**
-  * Update Company
-  * @param {object} req
-  * @param {object} res
-  */
- exports.updateTeamDescription = async (req, res) => {
-   try {
-     const companyId = req.params.companyId;
-     const company = await Company.findByIdAndUpdate(companyId, req.body, { new: true });
-     res
-       .status(200)
-       .json({ success: true, company, message: 'Team Description updated successfully' });
-   } catch (err) {
-     console.log('Error ----> ', err);
-     res.status(500).json({ success: false, message: 'Internal server error' });
-   }
- };
-
- /**
-  * Update Company
-  * @param {object} req
-  * @param {object} res
-  */
- exports.updateStageDescription = async (req, res) => {
-   try {
-     const companyId = req.params.companyId;
-     const company = await Company.findByIdAndUpdate(companyId, req.body, { new: true });
-     res
-       .status(200)
-       .json({ success: true, company, message: 'Stage Description updated successfully' });
-   } catch (err) {
-     console.log('Error ----> ', err);
-     res.status(500).json({ success: false, message: 'Internal server error' });
-   }
- };
+/**
+ * Update Company
+ * @param {object} req
+ * @param {object} res
+ */
+exports.updateStageDescription = async (req, res) => {
+  try {
+    const companyId = req.params.companyId;
+    const company = await Company.findByIdAndUpdate(companyId, req.body, { new: true });
+    res
+      .status(200)
+      .json({ success: true, company, message: 'Stage Description updated successfully' });
+  } catch (err) {
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
