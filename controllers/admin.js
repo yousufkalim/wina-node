@@ -2018,9 +2018,51 @@ exports.chartDataSet = async (req, res) => {
       },
       { $sort: { _id: 1 } }
     ]);
+    //Get Array of last 28 days
+    let daysArr = [];
+    for (let i = 0; i < 28; i++) {
+      daysArr.push(moment(new Date() - i * 86400000).format('YYYY-MM-DD'));
+    }
+    let missingDates = daysArr.filter(o1 => !Studentreport.some(o2 => o1 === o2._id));
+    missingDates.map(e => {
+      Studentreport.push({
+        _id: e,
+        count: 0
+      });
+    });
+    missingDates = daysArr.filter(o1 => !Companiesreport.some(o2 => o1 === o2._id));
+    missingDates.map(e => {
+      Companiesreport.push({
+        _id: e,
+        count: 0
+      });
+    });
+    missingDates = daysArr.filter(o1 => !Jobsreport.some(o2 => o1 === o2._id));
+    missingDates.map(e => {
+      Jobsreport.push({
+        _id: e,
+        count: 0
+      });
+    });
+    missingDates = daysArr.filter(o1 => !Appointmentreport.some(o2 => o1 === o2._id));
+    missingDates.map(e => {
+      Appointmentreport.push({
+        _id: e,
+        count: 0
+      });
+    });
+    Studentreport = Studentreport.sort((a, b) => Number(new Date(a._id)) - Number(new Date(b._id)));
+    Companiesreport = Companiesreport.sort(
+      (a, b) => Number(new Date(a._id)) - Number(new Date(b._id))
+    );
+    Jobsreport = Jobsreport.sort((a, b) => Number(new Date(a._id)) - Number(new Date(b._id)));
+    Appointmentreport = Appointmentreport.sort(
+      (a, b) => Number(new Date(a._id)) - Number(new Date(b._id))
+    );
+
     return res
       .status(200)
-      .json({ success: true, Studentreport, Companiesreport, Jobsreport, Appointmentreport });
+      .json({ success: true, Studentreport, Companiesreport, Appointmentreport, Jobsreport });
   } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
