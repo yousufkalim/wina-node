@@ -760,7 +760,6 @@ exports.getStdById = async (req, res) => {
     const std = await Student.findById(stdId)
       .populate('hardSkills')
       .populate('softSkills')
-      .populate('languages');
       .populate('languages')
       .populate('user');
     res.json({ success: true, std });
