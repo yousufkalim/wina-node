@@ -47,10 +47,24 @@ exports.validateUpdateMember = [
   check('designation', 'Designation is required').notEmpty().trim(),
 ];
 
+//Update company info 
+exports.validateUpdateComapny = [
+  check('company_description', 'Company description is required').notEmpty().trim(),
+  check('website').trim().isURL().withMessage('Can only be a URL'),
+  check('linkedIn').trim().isURL().withMessage('Can only be a URL')
+];
 
 
+//Update Team Description
+exports.updateTeamDescription = [
+  check('teams_description', 'Teams description is required').notEmpty().trim(),
+];
 
- 
+//Update Stage Description 
+exports.updateStageDescription = [
+  check('stages_description', 'Stages description is required').notEmpty().trim(),
+];
+
  /*
  ======================
  Result
@@ -67,7 +81,7 @@ exports.validateUpdateMember = [
    const errors = validationResult(req); // Validating the request by previous middleware's strategy
    if (!errors.isEmpty()) {
      // On error
-     res.status(400).send({ success: false, message: errors.array()[0] }); // Sending first error to the client from array of errors
+     res.status(400).send({ success: false, message: errors.array() }); // Sending first error to the client from array of errors
    } else {
      // Validated successfully
      next(); // Pass the request to next middleware or controller
