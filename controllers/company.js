@@ -275,7 +275,7 @@ exports.searchForStudents = asyncHandler(async (req, res, next) => {
     // matchingCriteria.ageRange(req, res, next);
     // matchingCriteria.search(req, res, next);
     const students = await matchingCriteria.display(req, res, next);
-    res.json({ students: students });
+    res.json({ students: students.students });
   } catch (err) {
     console.log('Error---->', err.message);
     next(err);
