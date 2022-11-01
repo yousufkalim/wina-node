@@ -514,7 +514,8 @@ exports.searchForJob = asyncHandler(async (req, res, next) => {
     // matchingCriteria.frequencyOfApprenticeship(req, res, next);
     // matchingCriteria.ageRange(req, res, next);
     // matchingCriteria.search(req, res, next);
-    matchingCriteria.display(req, res, next);
+    const data = await matchingCriteria.display(req, res, next);
+    return res.status(200).json({ students: data.students });
   } catch (err) {
     return res.status(400).json({ message: err.message });
 

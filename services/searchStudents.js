@@ -145,13 +145,15 @@ class MatchingCriteria extends DealBreaker {
   };
 
   jobName = async (job, students) => {
-    const jobPosition = job.title.toUpperCase();
+    const jobPosition = job?.title ? job.title.toUpperCase() : '';
 
     let score = 0;
     let jobNameArray = [];
 
     students.map(student => {
-      const studentTitle = student.positionSought.position.toUpperCase();
+      const studentTitle = student?.positionSought?.position
+        ? student.positionSought.position.toUpperCase()
+        : '';
       const result = jobPosition.localeCompare(studentTitle);
       if (result === 0) {
         score = 1;
@@ -213,7 +215,7 @@ class MatchingCriteria extends DealBreaker {
   };
 
   levelOfEducation = async (job, students) => {
-    const jobEducation = job.levelOfEducation.toUpperCase();
+    const jobEducation = job?.levelOfEducation ? job?.levelOfEducation?.toUpperCase() : '';
     var levelOfEducationArray = [];
     let score = 0;
     students.map(student => {
@@ -231,13 +233,16 @@ class MatchingCriteria extends DealBreaker {
   };
 
   frequencyOfApprenticeship = async (job, students) => {
-    const jobAlternationRhythm = job.alternationRhythm.toUpperCase();
+    const jobAlternationRhythm = job?.alternationRhythm ? job.alternationRhythm.toUpperCase() : '';
 
     var frequencyOfApprenticeshipArray = [];
     let score = 0;
 
     students.map(student => {
-      const studentAlternationRhythm = student.positionSought.alternationRhythm.toUpperCase();
+      const studentAlternationRhythm = student?.positionSought?.alternationRhythm
+        ? student.positionSought.alternationRhythm.toUpperCase()
+        : '';
+
       const result = jobAlternationRhythm.localeCompare(studentAlternationRhythm);
       if (result == 0) {
         score = 1;
