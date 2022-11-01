@@ -1,3 +1,7 @@
+/**
+ * Aquarium Pro Service
+ * @author Yousuf Kalim
+ */
 const mongoose = require('mongoose');
 
 const SkillSchema = new mongoose.Schema({
