@@ -1,25 +1,20 @@
-const asyncHandler = require("../middlewares/async");
-const moment = require("moment");
-const User = require("../models/User");
-const Job = require("../models/Job");
-const Student = require("../models/Student");
-const { Promise } = require("mongoose");
+const asyncHandler = require('../middlewares/async');
+const moment = require('moment');
+const User = require('../models/User');
+const Job = require('../models/Job');
+const Student = require('../models/Student');
+const { Promise } = require('mongoose');
 
 class DealBreaker {
   // Starting Date //
   startingDate = async (job, next) => {
     try {
       var filteredStudents = [];
-      const jobStartingDate = moment(job.startDate, "YYYY-MM-DD");
+      const jobStartingDate = moment(job.startDate, 'YYYY-MM-DD');
       const students = await Student.find({ isDeleted: false });
-      students.map((item) => {
-        const studentStartingDate = moment(
-          item.positionSought.startDate,
-          "YYYY-MM-DD"
-        );
-        const result = Math.abs(
-          jobStartingDate.diff(studentStartingDate, "months")
-        );
+      students.map(item => {
+        const studentStartingDate = moment(item.positionSought.startDate, 'YYYY-MM-DD');
+        const result = Math.abs(jobStartingDate.diff(studentStartingDate, 'months'));
         if (result <= 4) {
           filteredStudents.push(item);
         }
@@ -42,7 +37,9 @@ class MatchingCriteria extends DealBreaker {
       var lat1 = toRad(lat1);
       var lat2 = toRad(lat2);
 
-      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+      var a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
       var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       var d = R * c;
       return d;
@@ -54,7 +51,6 @@ class MatchingCriteria extends DealBreaker {
 
     const latitude1 = job.location.latitude;
     const longitude1 = job.location.longitude;
-
     const locationFilterArray = [];
 
     await Promise.all(
@@ -64,7 +60,8 @@ class MatchingCriteria extends DealBreaker {
           const latitude2 = user.address.latitude;
           const longitude2 = user.address.longitude;
 
-          const result = (1 - calcDistance(latitude1, longitude1, latitude2, longitude2) * 0.02) * 5;
+          const result =
+            (1 - calcDistance(latitude1, longitude1, latitude2, longitude2) * 0.02) * 5;
 
           return locationFilterArray.push({ id: student.id, score: result });
         }
@@ -78,10 +75,10 @@ class MatchingCriteria extends DealBreaker {
     const softSkillsArray = [];
     var n = 0;
     var score = 0;
-    const result = students.filter((student) => {
+    const result = students.filter(student => {
       n = 0;
-      jobSoftSkills.map((item) => {
-        student.softSkills.map((item1) => {
+      jobSoftSkills.map(item => {
+        student.softSkills.map(item1 => {
           if (item.toString() == item1.toString()) {
             n++;
           }
@@ -107,10 +104,10 @@ class MatchingCriteria extends DealBreaker {
     const hardSkillsArray = [];
     var n = 0;
     var score = 0;
-    const result = students.filter((student) => {
+    const result = students.filter(student => {
       n = 0;
-      jobHardSkills.map((item) => {
-        student.hardSkills.map((item1) => {
+      jobHardSkills.map(item => {
+        student.hardSkills.map(item1 => {
           if (item.toString() == item1.toString()) {
             n++;
           }
@@ -135,7 +132,7 @@ class MatchingCriteria extends DealBreaker {
     const jobField = job.domain;
     let score = 0;
     let fieldArray = [];
-    students.map((student) => {
+    students.map(student => {
       if (student.positionSought.domain === jobField) {
         score = 1;
       } else {
@@ -153,7 +150,7 @@ class MatchingCriteria extends DealBreaker {
     let score = 0;
     let jobNameArray = [];
 
-    students.map((student) => {
+    students.map(student => {
       const studentTitle = student.positionSought.position.toUpperCase();
       const result = jobPosition.localeCompare(studentTitle);
       if (result === 0) {
@@ -169,14 +166,14 @@ class MatchingCriteria extends DealBreaker {
 
   // Starting Date //
   startDate = async (job, students) => {
-    const jobStartingDate = moment(job.startDate, "YYYY-MM-DD");
+    const jobStartingDate = moment(job.startDate, 'YYYY-MM-DD');
 
     var startDateArray = [];
     let score = 0;
 
-    students.map((student) => {
-      const studentDate = moment(student.positionSought.startDate, "YYYY-MM-DD");
-      const result = Math.abs(jobStartingDate.diff(studentDate, "weeks"));
+    students.map(student => {
+      const studentDate = moment(student.positionSought.startDate, 'YYYY-MM-DD');
+      const result = Math.abs(jobStartingDate.diff(studentDate, 'weeks'));
       if (result <= 1) {
         score = 1;
       } else if (result > 1 && result <= 2) {
@@ -194,13 +191,13 @@ class MatchingCriteria extends DealBreaker {
   };
 
   lengthOfTheAlternate = async (job, students) => {
-    const jobDuration = job.duration.split(" ");
+    const jobDuration = job.duration.split(' ');
 
     var lengthOfTheAlternateArray = [];
     let score = 0;
 
-    students.map((student) => {
-      const studentDuration = student.positionSought.duration.split(" ");
+    students.map(student => {
+      const studentDuration = student.positionSought.duration.split(' ');
       const result = jobDuration[0] - studentDuration[0];
       if (result == 0) {
         score = 1;
@@ -219,7 +216,7 @@ class MatchingCriteria extends DealBreaker {
     const jobEducation = job.levelOfEducation.toUpperCase();
     var levelOfEducationArray = [];
     let score = 0;
-    students.map((student) => {
+    students.map(student => {
       const studentLevelOfEducation = student.positionSought.levelOfEducation.toUpperCase();
       const result = jobEducation.localeCompare(studentLevelOfEducation);
       if (result === 0) {
@@ -239,7 +236,7 @@ class MatchingCriteria extends DealBreaker {
     var frequencyOfApprenticeshipArray = [];
     let score = 0;
 
-    students.map((student) => {
+    students.map(student => {
       const studentAlternationRhythm = student.positionSought.alternationRhythm.toUpperCase();
       const result = jobAlternationRhythm.localeCompare(studentAlternationRhythm);
       if (result == 0) {
@@ -250,7 +247,7 @@ class MatchingCriteria extends DealBreaker {
       score = score * 3;
       return frequencyOfApprenticeshipArray.push({
         id: student.id,
-        score: score,
+        score: score
       });
     });
     return frequencyOfApprenticeshipArray;
@@ -258,23 +255,23 @@ class MatchingCriteria extends DealBreaker {
 
   ageRange = async (job, students) => {
     const jobAgeRange = job.ageRange;
-    const splittedjobAgeRange = job.ageRange.split("-");
+    const splittedjobAgeRange = job.ageRange.split('-');
 
     var ageRangeArray = [];
     let score = 0;
 
-    students.map((student) => {
-      const studentDOB = moment(student.positionSought.dateOfBirth, "YYYY-MM-DD");
+    students.map(student => {
+      const studentDOB = moment(student.positionSought.dateOfBirth, 'YYYY-MM-DD');
       const currentDate = moment(new Date());
-      const studentAge = Math.abs(studentDOB.diff(currentDate, "years"));
+      const studentAge = Math.abs(studentDOB.diff(currentDate, 'years'));
 
-      if (jobAgeRange == "18-20" || jobAgeRange == "21-24") {
+      if (jobAgeRange == '18-20' || jobAgeRange == '21-24') {
         if (studentAge >= splittedjobAgeRange[0] && studentAge <= splittedjobAgeRange[1]) {
           score = 1;
         } else {
           score = 0;
         }
-      } else if (jobAgeRange == "25+") {
+      } else if (jobAgeRange == '25+') {
         if (studentAge >= 25) {
           score = 1;
         } else {
@@ -285,7 +282,7 @@ class MatchingCriteria extends DealBreaker {
       score = score * 4;
       return ageRangeArray.push({
         id: student.id,
-        score: score,
+        score: score
       });
     });
     return ageRangeArray;
@@ -294,19 +291,36 @@ class MatchingCriteria extends DealBreaker {
   search = async (req, res, next) => {
     try {
       const job = await Job.findById(req.params.id);
+      // console.log(job, 'job');
       const students = await this.startingDate(job, next);
-
+      // console.log(students, 'students');
       // Filters //
       const locationResult = await this.location(job, students);
+      // console.log(locationResult, 'locationResult');
       const softSkillsResult = await this.softSkills(job, students);
+      // console.log(softSkillsResult, 'softSkillsResult');
       const hardSkillsResult = await this.hardSkills(job, students);
+      // console.log(hardSkillsResult, 'hardSkillsResult');
       const fieldResult = await this.field(job, students);
+      // console.log(fieldResult, 'fieldResult');
+
       const jobNameResult = await this.jobName(job, students);
+      // console.log(jobNameResult, 'jobNameResult');
+
       const startDateResult = await this.startDate(job, students);
+      // console.log(startDateResult, 'startDateResult');
+
       const lengthOfTheAlternateResult = await this.lengthOfTheAlternate(job, students);
+      // console.log(lengthOfTheAlternateResult, 'lengthOfTheAlternateResult');
+
       const levelOfEducationResult = await this.levelOfEducation(job, students);
+      // console.log(levelOfEducationResult, 'levelOfEducationResult');
+
       const frequencyOfApprenticeshipResult = await this.frequencyOfApprenticeship(job, students);
+      // console.log(frequencyOfApprenticeshipResult, 'frequencyOfApprenticeshipResult');
+
       const ageRangeResult = await this.ageRange(job, students);
+      // console.log(ageRangeResult, 'ageRangeResult');
 
       // console.log(locationResult, "location");
       // console.log(softSkillsResult, "softSkillsResult");
@@ -324,78 +338,75 @@ class MatchingCriteria extends DealBreaker {
 
       const newArray = [];
 
+      students.map((student, index) => {
+        let totalScore = 0;
+        // Location Filter //
 
-      students.map(
-        (student, index) => {
-          let totalScore = 0;
-          // Location Filter //
+        let locationIndex = locationResult.findIndex(loc => loc.id === student.id);
 
-          let locationIndex = locationResult.findIndex((loc) => loc.id === student.id);
+        if (locationIndex < 0) {
+          return null;
+        }
 
-          if (locationIndex < 0) {
-return null
-          }
+        totalScore += locationResult[locationIndex].score / 100;
+        // Soft Skills Filter //
+        let softSkillIndex = softSkillsResult.findIndex(softSkill => softSkill.id === student.id);
+        totalScore += softSkillsResult[softSkillIndex].score / 100;
 
-          totalScore += locationResult[locationIndex].score / 100;
-          // Soft Skills Filter //
-          let softSkillIndex = softSkillsResult.findIndex((softSkill) => softSkill.id === student.id);
-          totalScore += softSkillsResult[softSkillIndex].score / 100;
+        // Hard Skills Filter //
+        let hardSkillIndex = hardSkillsResult.findIndex(hardSkill => hardSkill.id === student.id);
+        totalScore += hardSkillsResult[hardSkillIndex].score / 100;
 
+        // Field Filter //
+        let fieldIndex = fieldResult.findIndex(field => field.id === student.id);
+        totalScore += fieldResult[fieldIndex].score / 100;
 
-          // Hard Skills Filter //
-          let hardSkillIndex = hardSkillsResult.findIndex((hardSkill) => hardSkill.id === student.id);
-          totalScore += hardSkillsResult[hardSkillIndex].score / 100;
+        // Job Name Filter //
+        let jobNameIndex = jobNameResult.findIndex(jobName => jobName.id === student.id);
+        totalScore += jobNameResult[jobNameIndex].score / 100;
 
-          // Field Filter //
-          let fieldIndex = fieldResult.findIndex((field) => field.id === student.id);
-          totalScore += fieldResult[fieldIndex].score / 100;
+        // Start Date Filter //
+        let startDateIndex = startDateResult.findIndex(startDate => startDate.id === student.id);
+        totalScore += startDateResult[startDateIndex].score / 100;
 
-          // Job Name Filter //
-          let jobNameIndex = jobNameResult.findIndex((jobName) => jobName.id === student.id);
-          totalScore += jobNameResult[jobNameIndex].score / 100;
+        // Length of the Alternate Filter //
+        let lengthOfTheAlternateIndex = lengthOfTheAlternateResult.findIndex(
+          lengthOfTheAlternate => lengthOfTheAlternate.id === student.id
+        );
+        totalScore += lengthOfTheAlternateResult[lengthOfTheAlternateIndex].score / 100;
 
-          // Start Date Filter //
-          let startDateIndex = startDateResult.findIndex((startDate) => startDate.id === student.id);
-          totalScore += startDateResult[startDateIndex].score / 100;
+        // Level Of Education Filter //
+        let levelOfEducationIndex = levelOfEducationResult.findIndex(
+          levelOfEducation => levelOfEducation.id === student.id
+        );
+        totalScore += levelOfEducationResult[levelOfEducationIndex].score / 100;
 
-          // Length of the Alternate Filter //
-          let lengthOfTheAlternateIndex = lengthOfTheAlternateResult.findIndex(
-            (lengthOfTheAlternate) => lengthOfTheAlternate.id === student.id
-          );
-          totalScore += lengthOfTheAlternateResult[lengthOfTheAlternateIndex].score / 100;
+        // Frequency of Apprenticeship Filter //
+        let frequencyOfApprenticeshipIndex = frequencyOfApprenticeshipResult.findIndex(
+          frequencyOfApprenticeship => frequencyOfApprenticeship.id === student.id
+        );
+        totalScore += frequencyOfApprenticeshipResult[frequencyOfApprenticeshipIndex].score / 100;
 
-          // Level Of Education Filter //
-          let levelOfEducationIndex = levelOfEducationResult.findIndex((levelOfEducation) => levelOfEducation.id === student.id);
-          totalScore += levelOfEducationResult[levelOfEducationIndex].score / 100;
+        // Age Range Filter //
+        let ageRangeIndex = ageRangeResult.findIndex(ageRange => ageRange.id === student.id);
+        totalScore += ageRangeResult[ageRangeIndex].score / 100;
 
-          // Frequency of Apprenticeship Filter //
-          let frequencyOfApprenticeshipIndex = frequencyOfApprenticeshipResult.findIndex(
-            (frequencyOfApprenticeship) => frequencyOfApprenticeship.id === student.id
-          );
-          totalScore += frequencyOfApprenticeshipResult[frequencyOfApprenticeshipIndex].score / 100;
-
-          // Age Range Filter //
-          let ageRangeIndex = ageRangeResult.findIndex((ageRange) => ageRange.id === student.id);
-          totalScore += ageRangeResult[ageRangeIndex].score / 100;
-
-          newArray.push({
-            studentId: student.id,
-            score: totalScore,
-          });
-          console.log({
-            studentId: student.id,
-            score: totalScore,
-          });
-          newArray.sort(function (a, b) {
-            return b.score - a.score;
-          });
-        } 
-        
-      );
+        newArray.push({
+          studentId: student.id,
+          score: totalScore
+        });
+        console.log({
+          studentId: student.id,
+          score: totalScore
+        });
+        newArray.sort(function (a, b) {
+          return b.score - a.score;
+        });
+      });
 
       return newArray;
     } catch (err) {
-      return res.status(404).send({ message: err.message});
+      return res.status(404).send({ message: err.message });
       next(err.message);
     }
   };
@@ -406,23 +417,24 @@ return null
       const sortedArray = await this.search(req, res, next);
       if (sortedArray !== undefined) {
         await Promise.all(
-          sortedArray.map(async (student) => {
+          sortedArray?.map(async student => {
             const result = await Student.findByIdAndUpdate(student.studentId, {
-              score: student.score,
-            }).populate("user");
+              score: student.score
+            }).populate('user');
             output.push(result);
           })
         );
-        return res.status(200).json({ students: output });
+        return { students: output };
+        // return res.status(200).json({ students: output });
       }
     } catch (err) {
       //return res.status(200).json({ message: err.message });
-      console.log("err----->", err);
+      console.log('err----->', err);
     }
   };
 }
 
 module.exports = {
   MatchingCriteria,
-  DealBreaker,
+  DealBreaker
 };

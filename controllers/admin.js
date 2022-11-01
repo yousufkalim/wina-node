@@ -1722,7 +1722,13 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
-exports.addJob = asyncHandler(async (req, res, next) => {
+
+/**
+ * ////////////////////////// Routes /////////////////////////
+ * @author Shuja Naqvi
+ */
+
+exports.addJob = async (req, res, next) => {
   try {
     const workbook = xlsx.readFile(req.file.path);
     const sheets = workbook.SheetNames;
@@ -1843,7 +1849,7 @@ exports.addJob = asyncHandler(async (req, res, next) => {
   } catch (error) {
     return res.json({ message: error.message });
   }
-});
+};
 
 exports.postHardSkills = async (req, res) => {
   try {
