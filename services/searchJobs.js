@@ -422,13 +422,8 @@ class MatchingCriteria extends DealBreaker {
         await Promise.all(
           sortedArray.map(async (job) => {
             const newJob = await Job.findByIdAndUpdate(job.jobId, {
-              score: job.score,
-            }).populate("company");
-
-
-
-
-            
+              score: job.score
+            }).populate('company');
             output.push(newJob);
           })
         );
