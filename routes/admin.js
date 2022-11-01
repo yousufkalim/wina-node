@@ -72,8 +72,6 @@ const { protect, authorize } = require('../middlewares/auth');
 router.get('/skill-list', protect, skillList);
 router.get('/all-skillslist/:id', allSkillList);
 router.post('/create-skill', createSkill);
-router.post('/postHardSkills', upload, postHardSkills);
-router.post('/postSoftSkills', upload, postSoftSkills);
 router.put('/edit-skill/:id', [protect, authorize('admin')], editSkill);
 router.put('/delete-skill/:id', [protect, authorize('admin')], deleteSkill);
 
@@ -142,11 +140,16 @@ router.get(
 router.put('/delete-appointment/:id', [protect, authorize('admin')], deleteAppointment);
 //Validate Appointments
 router.post('/validate-appointmnet', [protect, authorize('admin')], validateAppointment);
+
+/**
+ * ////////////////////////// Routes /////////////////////////
+ * @author Shuja Naqvi
+ */
+
 router.post('/addJob', upload, addJob);
-
 router.get('/count-list', countList);
-//chartDataSet
 router.get('/chartDataSet', chartDataSet);
-
+router.post('/postHardSkills', upload, postHardSkills);
+router.post('/postSoftSkills', upload, postSoftSkills);
 
 module.exports = router;
