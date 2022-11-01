@@ -1,12 +1,14 @@
-const Joi = require("joi");
-const asyncHandler = require("../middlewares/async");
-const User = require("../models/User");
-const Company = require("../models/Company");
-const Job = require("../models/Job");
-const Student = require("../models/Student");
-const socket = require("../app");
-const { Texts } = require("../utils/texts");
-const Appointment = require("../models/Appointment");
+const Joi = require('joi');
+const asyncHandler = require('../middlewares/async');
+const User = require('../models/User');
+const Company = require('../models/Company');
+const Job = require('../models/Job');
+const Student = require('../models/Student');
+const socket = require('../app');
+const { Texts } = require('../utils/texts');
+const Appointment = require('../models/Appointment');
+const matchingAlgo = require('../services/searchStudents');
+var matchingCriteria = new matchingAlgo.MatchingCriteria();
 
 //// Create Job ////
 exports.CreateJob = asyncHandler(async (req, res, next) => {
@@ -14,7 +16,7 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.company) {
       return res.status(400).json({
-        message: Texts.notAuthorized,
+        message: Texts.notAuthorized
       });
     }
     const companyID = requestedUser.company;
@@ -32,9 +34,9 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       levelOfEducation,
       ageRange,
       photo,
-      description,
+      description
     } = req.body;
-    if (typeof softSkills === typeof "") {
+    if (typeof softSkills === typeof '') {
       req.body.location = JSON.parse(location);
       req.body.softSkills = JSON.parse(softSkills);
       req.body.hardSkills = JSON.parse(hardSkills);
@@ -45,14 +47,14 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       city: Joi.string().required(),
       zip: Joi.string().required(),
       latitude: Joi.number().required(),
-      longitude: Joi.number().required(),
+      longitude: Joi.number().required()
     });
     const schema = Joi.object().keys({
-      title: Joi.string().optional().allow(""),
-      status: Joi.string().valid("open", "filled"),
+      title: Joi.string().optional().allow(''),
+      status: Joi.string().valid('open', 'filled'),
       domain: Joi.string(),
       description: Joi.string(),
-      photo: Joi.string().optional().allow(""),
+      photo: Joi.string().optional().allow(''),
       position: Joi.string(),
       startDate: Joi.string(),
       duration: Joi.string(),
@@ -60,30 +62,28 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       alternationRhythm: Joi.string(),
       softSkills: Joi.array(),
       hardSkills: Joi.array(),
-      ageRange: Joi.number().valid("18-20", "21-24", "25+"),
+      ageRange: Joi.number().valid('18-20', '21-24', '25+'),
       levelOfEducation: Joi.string().valid(
-        "Brevet",
-        "CAP",
-        "BEP",
-        "MC",
-        "BacGénéral",
-        "BacProfessionel",
-        "BTS",
-        "DUT",
-        "Licence",
-        "Master",
-        "Doctorat"
-      ),
+        'Brevet',
+        'CAP',
+        'BEP',
+        'MC',
+        'BacGénéral',
+        'BacProfessionel',
+        'BTS',
+        'DUT',
+        'Licence',
+        'Master',
+        'Doctorat'
+      )
     });
     const results = schema.validate(req.body);
     if (results.error) {
-      return res
-        .status(400)
-        .send({ message: results.error.details[0].message });
+      return res.status(400).send({ message: results.error.details[0].message });
     }
     let UploadedPicture = {
       image: photo,
-      status: "Validated",
+      status: 'Validated'
     };
     // Creating new student in Database //
     const newJob = new Job({
@@ -96,26 +96,26 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
       duration: duration,
       location: location,
       alternationRhythm: alternationRhythm,
-      photo: UploadedPicture || "",
+      photo: UploadedPicture || '',
       softSkills: softSkills,
       hardSkills: hardSkills,
       levelOfEducation: levelOfEducation,
       ageRange: ageRange,
-      company: companyID,
+      company: companyID
     });
     await newJob.save();
     // Assigning new job ID to company //
     await Company.findByIdAndUpdate(companyID, {
-      $push: { job: newJob._id },
+      $push: { job: newJob._id }
     });
     return res.status(200).json({
       message: Texts.success + Texts.jobCreated,
       job: newJob,
-      user: requestedUser,
+      user: requestedUser
     });
   } catch (err) {
     return res.status(400).json({
-      message: err.message,
+      message: err.message
     });
   }
 });
@@ -133,15 +133,15 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
       city: Joi.string().required(),
       zip: Joi.string().required(),
       latitude: Joi.number().required(),
-      longitude: Joi.number().required(),
+      longitude: Joi.number().required()
     });
 
     const schema = Joi.object().keys({
-      title: Joi.string().optional().allow(""),
-      status: Joi.string().valid("open", "filled"),
+      title: Joi.string().optional().allow(''),
+      status: Joi.string().valid('open', 'filled'),
       domain: Joi.string(),
       description: Joi.string().max(250),
-      photo: Joi.string().optional().allow(""),
+      photo: Joi.string().optional().allow(''),
       position: Joi.string(),
       startDate: Joi.string(),
       duration: Joi.string(),
@@ -149,26 +149,24 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
       alternationRhythm: Joi.string(),
       softSkills: Joi.array(),
       hardSkills: Joi.array(),
-      ageRange: Joi.number().valid("18-20", "21-24", "25+"),
+      ageRange: Joi.number().valid('18-20', '21-24', '25+'),
       levelOfEducation: Joi.string().valid(
-        "Brevet",
-        "CAP",
-        "BEP",
-        "MC",
-        "BacGénéral",
-        "BacProfessionel",
-        "BTS",
-        "DUT",
-        "Licence",
-        "Master",
-        "Doctorat"
-      ),
+        'Brevet',
+        'CAP',
+        'BEP',
+        'MC',
+        'BacGénéral',
+        'BacProfessionel',
+        'BTS',
+        'DUT',
+        'Licence',
+        'Master',
+        'Doctorat'
+      )
     });
     const results = schema.validate(req.body);
     if (results.error) {
-      return res
-        .status(400)
-        .send({ message: results.error.details[0].message });
+      return res.status(400).send({ message: results.error.details[0].message });
     }
     const {
       title,
@@ -183,19 +181,19 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
       levelOfEducation,
       ageRange,
       description,
-      photo,
+      photo
     } = req.body;
     let UploadedPicture;
     const prevJob = await Job.findById(req.params.id);
     if (!photo && prevJob) {
       UploadedPicture = {
         image: prevJob.photo.image,
-        status: "Validated",
+        status: 'Validated'
       };
     } else {
       UploadedPicture = {
         image: photo,
-        status: "Validated",
+        status: 'Validated'
       };
     }
     const updatedJob = await Job.findByIdAndUpdate(
@@ -213,15 +211,13 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
         softSkills: softSkills,
         hardSkills: hardSkills,
         levelOfEducation: levelOfEducation,
-        ageRange: ageRange,
+        ageRange: ageRange
       },
       {
-        new: true,
+        new: true
       }
     );
-    return res
-      .status(200)
-      .json({ message: Texts.success + Texts.jobUpdated, Job: updatedJob });
+    return res.status(200).json({ message: Texts.success + Texts.jobUpdated, Job: updatedJob });
   } catch (err) {
     return res.status(400).json({ message: err.message });
     next(err);
@@ -240,10 +236,10 @@ exports.DeleteJob = asyncHandler(async (req, res, next) => {
       const result = company.job.includes(jobID);
       if (result) {
         await Job.findByIdAndUpdate(jobID, {
-          isDeleted: true,
+          isDeleted: true
         }).then(async () => {
           const company = await Company.findByIdAndUpdate(companyID, {
-            $pull: { job: jobID },
+            $pull: { job: jobID }
           });
         });
         return res.status(200).json({ message: Texts.jobDeleted });
@@ -263,14 +259,14 @@ exports.GetJob = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
-        path: "company",
+        path: 'company'
       },
       {
-        path: "softSkills",
+        path: 'softSkills'
       },
       {
-        path: "hardSkills",
-      },
+        path: 'hardSkills'
+      }
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
@@ -279,9 +275,7 @@ exports.GetJob = asyncHandler(async (req, res, next) => {
     const jobID = req.params.id;
     const job = await Job.findById(jobID).populate(populateQuery);
     if (job) {
-      return res
-        .status(200)
-        .send({ job: job, message: "Travail récupéré avec succès" });
+      return res.status(200).send({ job: job, message: 'Travail récupéré avec succès' });
     }
   } catch (error) {
     return res.status(200).send({ message: error.message });
@@ -294,32 +288,34 @@ exports.GetJobs = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
-        path: "company",
+        path: 'company'
       },
       {
-        path: "softSkills",
+        path: 'softSkills'
       },
       {
-        path: "hardSkills",
+        path: 'hardSkills'
       },
       {
-        path: "company_requests.student",
+        path: 'company_requests.student',
         populate: {
-          path: "user",
-          model: "User",
-        },
-      },
+          path: 'user',
+          model: 'User'
+        }
+      }
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
       return res.status(400).send({ message: Texts.notAuthorized });
     } else {
       const jobs = await Job.find({ company: requestedUser.company }).populate(populateQuery);
+
       if (jobs) {
-        return res.status(200).send({ jobs: jobs, message: "Travail récupéré avec succès" });
+        return res.status(200).send({ jobs: jobs, message: 'Travail récupéré avec succès' });
       }
     }
   } catch (error) {
+    console.log(error);
     return res.status(200).send({ message: error });
 
     next(error);
@@ -331,28 +327,28 @@ exports.GetStudentAppliedJobs = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
-        path: "company",
+        path: 'company',
         populate: [
           {
-            path: "contactPerson",
+            path: 'contactPerson',
             populate: [
               {
-                path: "person",
+                path: 'person',
                 populate: [
                   {
-                    path: "appointments",
-                  },
-                ],
-              },
-            ],
-          },
-        ],
+                    path: 'appointments'
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
-      { path: "softSkills" },
-      { path: "hardSkills" },
+      { path: 'softSkills' },
+      { path: 'hardSkills' },
       {
-        path: "student",
-      },
+        path: 'student'
+      }
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
@@ -365,10 +361,10 @@ exports.GetStudentAppliedJobs = asyncHandler(async (req, res, next) => {
           res.status(404).send({ message: err.message });
         } else {
           let results = [];
-          data.map((dt) => {
+          data.map(dt => {
             if (dt.student_requests && dt.student_requests.length > 0) {
               let check = dt.student_requests.some(
-                (ft) => `${ft.student}` === `${requestedUser.student}` && ft.status !== "rejected"
+                ft => `${ft.student}` === `${requestedUser.student}` && ft.status !== 'rejected'
               );
               if (check) {
                 results.push(dt);
@@ -377,7 +373,7 @@ exports.GetStudentAppliedJobs = asyncHandler(async (req, res, next) => {
             return data;
           });
           if (results && results.length > 0) {
-            res.status(200).send({ jobs: results, message: "Travail récupéré avec succès" });
+            res.status(200).send({ jobs: results, message: 'Travail récupéré avec succès' });
           } else {
             res.status(400).send({ jobs: [], message: Texts.error });
           }
@@ -393,14 +389,14 @@ exports.GetStudentRejectedJobs = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
-        path: "company",
+        path: 'company'
       },
-      { path: "softSkills" },
-      { path: "hardSkills" },
+      { path: 'softSkills' },
+      { path: 'hardSkills' },
 
       {
-        path: "student",
-      },
+        path: 'student'
+      }
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
@@ -413,10 +409,10 @@ exports.GetStudentRejectedJobs = asyncHandler(async (req, res, next) => {
           res.status(404).send({ message: err.message });
         } else {
           let results = [];
-          data.map((dt) => {
+          data.map(dt => {
             if (dt.company_requests && dt.company_requests.length > 0) {
               let check = dt.company_requests.some(
-                (ft) => `${ft.student}` === `${requestedUser.student}` && ft.status === "rejected"
+                ft => `${ft.student}` === `${requestedUser.student}` && ft.status === 'rejected'
               );
               if (check) {
                 results.push(dt);
@@ -424,7 +420,7 @@ exports.GetStudentRejectedJobs = asyncHandler(async (req, res, next) => {
             }
           });
           if (results && results.length > 0) {
-            res.status(200).send({ jobs: results, message: "Travail récupéré avec succès" });
+            res.status(200).send({ jobs: results, message: 'Travail récupéré avec succès' });
           } else {
             res.status(200).send({ jobs: results, message: Texts.error });
           }
@@ -441,14 +437,14 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
-        path: "company",
+        path: 'company'
       },
       {
-        path: "softSkills",
+        path: 'softSkills'
       },
       {
-        path: "hardSkills",
-      },
+        path: 'hardSkills'
+      }
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
@@ -460,34 +456,34 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
     const SENDER_ID = requestedUser.student;
     const RECIEVER_ID = job.company;
     const schema = Joi.object().keys({
-      status: Joi.string().valid("requested", "rejected"),
+      status: Joi.string().valid('requested', 'rejected')
     });
     let results = schema.validate(req.body);
     if (results.error) {
       return res.status(400).send({ message: results.error.details[0].message });
     }
-    if (status === "requested") {
+    if (status === 'requested') {
       await Job.aggregate([
         {
           $project: {
             student_requests: {
               $filter: {
-                input: "$student_requests",
-                as: "item",
+                input: '$student_requests',
+                as: 'item',
                 cond: {
-                  $gte: ["$$item.status", "requested"],
-                },
-              },
-            },
-          },
-        },
+                  $gte: ['$$item.status', 'requested']
+                }
+              }
+            }
+          }
+        }
       ]).exec(async (err, data) => {
         if (err) {
           res.status(404).send({ message: err.message });
         } else {
-          let fill = data.find((fl) => JOB_ID === `${fl._id}`);
+          let fill = data.find(fl => JOB_ID === `${fl._id}`);
           if (fill && fill.student_requests && fill.student_requests.length > 0) {
-            let check = fill.student_requests.some((sr) => `${sr.student}` === `${SENDER_ID}`);
+            let check = fill.student_requests.some(sr => `${sr.student}` === `${SENDER_ID}`);
             if (check === true) {
               res.status(404).send({ message: Texts.You_have_already_sent_a_request });
             } else {
@@ -496,9 +492,9 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                   student_requests: {
                     student: SENDER_ID,
                     jobID: JOB_ID,
-                    status: req.body.status,
-                  },
-                },
+                    status: req.body.status
+                  }
+                }
               });
 
               await Company.findByIdAndUpdate(
@@ -508,11 +504,11 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                     notifications: {
                       title: Texts.student_is_applied_on_your_job,
                       jobID: JOB_ID,
-                      description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName} ${
+                      description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
                         Texts.student_is_applied_on_your_job
-                      }`,
-                    },
-                  },
+                      }`
+                    }
+                  }
                 },
                 { new: true }
               );
@@ -521,7 +517,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
               if (jobs) {
                 res.status(200).send({
                   jobs: jobs,
-                  message: Texts.Applied_on_job_successfully,
+                  message: Texts.Applied_on_job_successfully
                 });
               }
             }
@@ -531,9 +527,9 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                 student_requests: {
                   student: SENDER_ID,
                   jobID: JOB_ID,
-                  status: req.body.status,
-                },
-              },
+                  status: req.body.status
+                }
+              }
             });
 
             await Company.findByIdAndUpdate(
@@ -543,11 +539,11 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                   notifications: {
                     title: Texts.student_is_applied_on_your_job,
                     jobID: JOB_ID,
-                    description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName} ${
+                    description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
                       Texts.student_is_applied_on_your_job
-                    }`,
-                  },
-                },
+                    }`
+                  }
+                }
               },
               { new: true }
             );
@@ -555,7 +551,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
             if (jobs) {
               res.status(200).send({
                 jobs: jobs,
-                message: Texts.Applied_on_job_successfully,
+                message: Texts.Applied_on_job_successfully
               });
             }
           }
@@ -567,25 +563,25 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
           $project: {
             student_requests: {
               $filter: {
-                input: "$student_requests",
-                as: "item",
+                input: '$student_requests',
+                as: 'item',
                 cond: {
-                  $gte: ["$$item.status", "rejected"],
-                },
-              },
-            },
-          },
-        },
+                  $gte: ['$$item.status', 'rejected']
+                }
+              }
+            }
+          }
+        }
       ]).exec(async (err, data) => {
         if (err) {
           res.status(404).send({ message: err.message });
         } else {
-          let fill = data.find((fl) => JOB_ID === `${fl._id}`);
+          let fill = data.find(fl => JOB_ID === `${fl._id}`);
           if (fill && fill.student_requests && fill.student_requests.length > 0) {
-            let check = fill.student_requests.some((sr) => `${sr.student}` === `${SENDER_ID}`);
+            let check = fill.student_requests.some(sr => `${sr.student}` === `${SENDER_ID}`);
             if (check === true) {
               res.status(404).send({
-                message: Texts.You_have_already_rejected_this_request,
+                message: Texts.You_have_already_rejected_this_request
               });
             } else {
               await Job.findByIdAndUpdate(JOB_ID, {
@@ -593,9 +589,9 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                   student_requests: {
                     student: SENDER_ID,
                     jobID: JOB_ID,
-                    status: req.body.status,
-                  },
-                },
+                    status: req.body.status
+                  }
+                }
               });
 
               await Company.findByIdAndUpdate(
@@ -603,11 +599,15 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                 {
                   $push: {
                     notifications: {
-                      title: `${requestedUser.firstName} ${" "} ${requestedUser.lastName} ${Texts.has_rejected_your_job}`,
+                      title: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
+                        Texts.has_rejected_your_job
+                      }`,
                       jobID: JOB_ID,
-                      description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName} ${Texts.has_rejected_your_job}`,
-                    },
-                  },
+                      description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
+                        Texts.has_rejected_your_job
+                      }`
+                    }
+                  }
                 },
                 { new: true }
               );
@@ -616,7 +616,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
               if (jobs) {
                 res.status(200).send({
                   jobs: jobs,
-                  message: Texts.Rejected_job_successfully,
+                  message: Texts.Rejected_job_successfully
                 });
               }
             }
@@ -626,9 +626,9 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                 student_requests: {
                   student: SENDER_ID,
                   jobID: JOB_ID,
-                  status: req.body.status,
-                },
-              },
+                  status: req.body.status
+                }
+              }
             });
 
             await Company.findByIdAndUpdate(
@@ -636,11 +636,15 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
               {
                 $push: {
                   notifications: {
-                    title: `${requestedUser.firstName} ${" "} ${requestedUser.lastName} ${Texts.has_rejected_your_job}`,
+                    title: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
+                      Texts.has_rejected_your_job
+                    }`,
                     jobID: JOB_ID,
-                    description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName} ${Texts.has_rejected_your_job}`,
-                  },
-                },
+                    description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
+                      Texts.has_rejected_your_job
+                    }`
+                  }
+                }
               },
               { new: true }
             );
@@ -649,7 +653,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
             if (jobs) {
               res.status(200).send({
                 jobs: jobs,
-                message: Texts.Rejected_job_successfully,
+                message: Texts.Rejected_job_successfully
               });
             }
           }
@@ -667,14 +671,14 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(async (req, res, next) =>
   try {
     const populateQuery = [
       {
-        path: "company",
+        path: 'company'
       },
       {
-        path: "softSkills",
+        path: 'softSkills'
       },
       {
-        path: "hardSkills",
-      },
+        path: 'hardSkills'
+      }
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
@@ -685,7 +689,7 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(async (req, res, next) =>
     const SENDER_ID = requestedUser.student;
     const RECIEVER_ID = job.company;
     const schema = Joi.object().keys({
-      status: Joi.string().valid("accepted", "rejected"),
+      status: Joi.string().valid('accepted', 'rejected')
     });
     let results = schema.validate(req.body);
     if (results.error) {
@@ -693,23 +697,27 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(async (req, res, next) =>
     }
     await Job.findOneAndUpdate(
       { _id: JOB_ID },
-      { $set: { "company_requests.$[el].status": req.body.status } },
+      { $set: { 'company_requests.$[el].status': req.body.status } },
       {
-        arrayFilters: [{ "el.student": `${SENDER_ID}` }],
-        new: true,
+        arrayFilters: [{ 'el.student': `${SENDER_ID}` }],
+        new: true
       }
     );
-    if (req.body.status === "accepted") {
+    if (req.body.status === 'accepted') {
       await Company.findByIdAndUpdate(
         RECIEVER_ID,
         {
           $push: {
             notifications: {
-              title: `${requestedUser.firstName} ${" "} ${requestedUser.lastName} ${Texts.has_accepted_your_offer}`,
+              title: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
+                Texts.has_accepted_your_offer
+              }`,
               jobID: JOB_ID,
-              description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName} ${Texts.has_accepted_your_offer}`,
-            },
-          },
+              description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
+                Texts.has_accepted_your_offer
+              }`
+            }
+          }
         },
         { new: true }
       );
@@ -718,7 +726,7 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(async (req, res, next) =>
       if (jobs) {
         res.status(200).send({
           jobs: jobs,
-          message: Texts.Request_has_been_accepted_successfully,
+          message: Texts.Request_has_been_accepted_successfully
         });
       }
     } else {
@@ -727,11 +735,15 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(async (req, res, next) =>
         {
           $push: {
             notifications: {
-              title: `${requestedUser.firstName} ${" "} ${requestedUser.lastName} ${Texts.has_rejected_your_offer}`,
+              title: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
+                Texts.has_rejected_your_offer
+              }`,
               jobID: JOB_ID,
-              description: `${requestedUser.firstName} ${" "} ${requestedUser.lastName} ${Texts.has_rejected_your_offer}`,
-            },
-          },
+              description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
+                Texts.has_rejected_your_offer
+              }`
+            }
+          }
         },
         { new: true }
       );
@@ -739,7 +751,7 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(async (req, res, next) =>
       if (jobs) {
         res.status(200).send({
           jobs: jobs,
-          message: Texts.Request_has_been_accepted_successfully,
+          message: Texts.Request_has_been_accepted_successfully
         });
       }
     }
@@ -754,14 +766,14 @@ exports.CancelOfferDecisionByStudent = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
-        path: "company",
+        path: 'company'
       },
       {
-        path: "softSkills",
+        path: 'softSkills'
       },
       {
-        path: "hardSkills",
-      },
+        path: 'hardSkills'
+      }
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
@@ -772,16 +784,16 @@ exports.CancelOfferDecisionByStudent = asyncHandler(async (req, res, next) => {
     await Job.findByIdAndUpdate(JOB_ID, {
       $pull: {
         student_requests: {
-          $and: [{ status: "requested", student: SENDER_ID }],
-        },
-      },
+          $and: [{ status: 'requested', student: SENDER_ID }]
+        }
+      }
     });
 
     const jobs = await Job.find().populate(populateQuery);
     if (jobs) {
       res.status(200).send({
         // jobs: jobs,
-        message: Texts.Request_has_been_deleted_successfully,
+        message: Texts.Request_has_been_deleted_successfully
       });
     }
   } catch (error) {
@@ -794,42 +806,42 @@ exports.CancelOfferDecisionByCompany = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
-        path: "company",
+        path: 'company'
       },
       {
-        path: "softSkills",
+        path: 'softSkills'
       },
       {
-        path: "hardSkills",
-      },
+        path: 'hardSkills'
+      }
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
       res.status(400).send({ message: Texts.notAuthorized });
     }
     const schema = Joi.object().keys({
-      id: Joi.string().required(),
+      id: Joi.string().required()
     });
     let results = schema.validate(req.body);
     if (results.error) {
       return res.status(400).send({ message: results.error.details[0].message });
     }
     const JOB_ID = req.body.id;
-    console.log("job", JOB_ID);
+    console.log('job', JOB_ID);
     const SENDER_ID = req.params.id;
     await Job.findByIdAndUpdate(JOB_ID, {
       $pull: {
         company_requests: {
-          $and: [{ status: "requested", student: SENDER_ID }],
-        },
-      },
+          $and: [{ status: 'requested', student: SENDER_ID }]
+        }
+      }
     });
 
     const jobs = await Job.find().populate(populateQuery);
     if (jobs) {
       res.status(200).send({
         // jobs: jobs,
-        message: Texts.Request_has_been_deleted_successfully,
+        message: Texts.Request_has_been_deleted_successfully
       });
     }
   } catch (error) {
@@ -842,28 +854,28 @@ exports.GetCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
-        path: "company",
+        path: 'company',
         populate: [
           {
-            path: "contactPerson",
+            path: 'contactPerson',
             populate: [
               {
-                path: "person",
+                path: 'person',
                 populate: [
                   {
-                    path: "appointments",
-                  },
-                ],
-              },
-            ],
-          },
-        ],
+                    path: 'appointments'
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
-      { path: "softSkills" },
-      { path: "hardSkills" },
+      { path: 'softSkills' },
+      { path: 'hardSkills' },
       {
-        path: "student",
-      },
+        path: 'student'
+      }
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
@@ -876,10 +888,11 @@ exports.GetCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
           res.status(404).send({ message: err.message });
         } else {
           let results = [];
-          data.map((dt) => {
+          data.map(dt => {
             if (dt.company_requests && dt.company_requests.length > 0) {
               let check = dt.company_requests.some(
-                (ft) => `${ft.student}` === `${requestedUser.student}` && `${ft.status}` !== "rejected"
+                ft =>
+                  `${ft.student}` === `${requestedUser.student}` && `${ft.status}` !== 'rejected'
               );
               if (check) {
                 results.push(dt);
@@ -888,7 +901,7 @@ exports.GetCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
             return data;
           });
           if (results && results.length > 0) {
-            res.status(200).send({ jobs: results, message: "Travail récupéré avec succès" });
+            res.status(200).send({ jobs: results, message: 'Travail récupéré avec succès' });
           } else {
             res.status(200).send({ jobs: [], message: Texts.error });
           }
@@ -905,20 +918,20 @@ exports.GetStudentAppliedSuccessJobs = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
-        path: "company",
-        path: "student_requests.student",
+        path: 'company',
+        path: 'student_requests.student',
         populate: [
           {
-            path: "softSkills",
+            path: 'softSkills'
           },
           {
-            path: "hardSkills",
+            path: 'hardSkills'
           },
           {
-            path: "user",
-          },
-        ],
-      },
+            path: 'user'
+          }
+        ]
+      }
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
@@ -929,21 +942,21 @@ exports.GetStudentAppliedSuccessJobs = asyncHandler(async (req, res, next) => {
         student_requests: {
           $elemMatch: {
             $and: [
-              { status: "accepted" },
+              { status: 'accepted' },
               {
-                student: requestedUser.student,
-              },
-            ],
-          },
-        },
+                student: requestedUser.student
+              }
+            ]
+          }
+        }
       })
       .populate(populateQuery);
-    console.log(results, "re");
+    console.log(results, 're');
     // .populate(populateQuery);
     if (results) {
       res.status(200).send({
         jobs: results,
-        message: "Travail récupéré avec succès",
+        message: 'Travail récupéré avec succès'
       });
     }
   } catch (error) {
@@ -957,19 +970,19 @@ exports.GetAllStudentAppliedJobs = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
-        path: "student_requests.student",
+        path: 'student_requests.student',
         populate: [
           {
-            path: "softSkills",
+            path: 'softSkills'
           },
           {
-            path: "hardSkills",
+            path: 'hardSkills'
           },
           {
-            path: "user",
-          },
-        ],
-      },
+            path: 'user'
+          }
+        ]
+      }
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
@@ -981,15 +994,15 @@ exports.GetAllStudentAppliedJobs = asyncHandler(async (req, res, next) => {
         _id: true,
         student_requests: {
           $elemMatch: {
-            $or: [{ status: "requested" }, { status: "accepted" }],
-          },
-        },
+            $or: [{ status: 'requested' }, { status: 'accepted' }]
+          }
+        }
       })
       .populate(populateQuery);
     if (results) {
       res.status(200).send({
         jobs: results.student_requests,
-        message: "Travail récupéré avec succès",
+        message: 'Travail récupéré avec succès'
       });
     }
   } catch (error) {
@@ -1003,19 +1016,19 @@ exports.GetAllCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
-        path: "company_requests.student",
+        path: 'company_requests.student',
         populate: [
           {
-            path: "softSkills",
+            path: 'softSkills'
           },
           {
-            path: "hardSkills",
+            path: 'hardSkills'
           },
           {
-            path: "user",
-          },
-        ],
-      },
+            path: 'user'
+          }
+        ]
+      }
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
@@ -1026,16 +1039,16 @@ exports.GetAllCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
       .select({
         company_requests: {
           $elemMatch: {
-            $or: [{ status: "requested" }, { status: "accepted" }],
-          },
-        },
+            $or: [{ status: 'requested' }, { status: 'accepted' }]
+          }
+        }
       })
       .populate(populateQuery);
-    console.log("results", results);
+    console.log('results', results);
     if (results) {
       res.status(200).send({
         jobs: results.company_requests,
-        message: "Travail récupéré avec succès",
+        message: 'Travail récupéré avec succès'
       });
     }
   } catch (error) {
@@ -1049,17 +1062,17 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
-        path: "company",
+        path: 'company'
       },
       {
-        path: "softSkills",
+        path: 'softSkills'
       },
       {
-        path: "hardSkills",
-      },
+        path: 'hardSkills'
+      }
     ];
     const requestedUser = await User.findById(req.user.id);
-    console.log(requestedUser, "User");
+    console.log(requestedUser, 'User');
     if (!requestedUser.type) {
       return res.status(400).send({ message: Texts.notAuthorized });
     }
@@ -1070,63 +1083,57 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
     const company = await Company.findById(SENDER_ID);
     const RECIEVER_ID = req.params.id;
     const schema = Joi.object().keys({
-      status: Joi.string().valid("requested", "rejected"),
-      offerID: Joi.string().required(),
+      status: Joi.string().valid('requested', 'rejected'),
+      offerID: Joi.string().required()
     });
     let results = schema.validate(req.body);
-    console.log(results, "Result");
+    console.log(results, 'Result');
     if (results.error) {
-      return res
-        .status(400)
-        .send({ message: results.error.details[0].message });
+      return res.status(400).send({ message: results.error.details[0].message });
     }
     let temp = await Appointment.find({
-      $and: [{ student: RECIEVER_ID }, { jobID: JOB_ID }],
+      $and: [{ student: RECIEVER_ID }, { jobID: JOB_ID }]
     });
-    console.log(temp, "Temp");
+    console.log(temp, 'Temp');
     if (temp && temp.length) {
-      return res
-        .status(400)
-        .json({ message: Texts.Appointment_is_already_existed });
+      return res.status(400).json({ message: Texts.Appointment_is_already_existed });
     }
     await Job.aggregate([
       {
         $project: {
           company_requests: {
             $filter: {
-              input: "$company_requests",
-              as: "item",
+              input: '$company_requests',
+              as: 'item',
               cond: {
-                $gte: ["$$item.status", status],
-              },
-            },
-          },
-        },
-      },
+                $gte: ['$$item.status', status]
+              }
+            }
+          }
+        }
+      }
     ]).exec(async (err, data) => {
       if (err) {
         //console.log(err[0].message, "Hi");
         return res.status(404).send({ message: err.message });
       } else {
-        let fill = data.find((fl) => JOB_ID === `${fl._id}`);
+        let fill = data.find(fl => JOB_ID === `${fl._id}`);
         if (fill && fill.company_requests && fill.company_requests.length > 0) {
           let check = fill.company_requests.some(
-            (sr) => sr.status === "requested" && `${sr.student}` === RECIEVER_ID
+            sr => sr.status === 'requested' && `${sr.student}` === RECIEVER_ID
           );
           if (check === true) {
-            console.log(check, "CHECK");
-            return res
-              .status(404)
-              .send({ message: Texts.You_have_already_sent_a_request });
+            console.log(check, 'CHECK');
+            return res.status(404).send({ message: Texts.You_have_already_sent_a_request });
           } else {
             await Job.findByIdAndUpdate(JOB_ID, {
               $push: {
                 company_requests: {
                   student: RECIEVER_ID,
                   jobID: JOB_ID,
-                  status: req.body.status,
-                },
-              },
+                  status: req.body.status
+                }
+              }
             });
 
             await Student.findByIdAndUpdate(
@@ -1136,9 +1143,9 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
                   notifications: {
                     title: `${company.name} ${Texts.is_sent_request_you_on_a_job}`,
                     jobID: JOB_ID,
-                    description: `${company.name} ${Texts.is_sent_request_you_on_a_job}`,
-                  },
-                },
+                    description: `${company.name} ${Texts.is_sent_request_you_on_a_job}`
+                  }
+                }
               },
               { new: true }
             );
@@ -1146,7 +1153,7 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
             if (jobs) {
               res.status(200).send({
                 jobs: jobs,
-                message: Texts.Request_has_been_sent_successfully,
+                message: Texts.Request_has_been_sent_successfully
               });
             }
           }
@@ -1156,9 +1163,9 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
               company_requests: {
                 student: RECIEVER_ID,
                 jobID: JOB_ID,
-                status: req.body.status,
-              },
-            },
+                status: req.body.status
+              }
+            }
           });
 
           await Student.findByIdAndUpdate(
@@ -1168,9 +1175,9 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
                 notifications: {
                   title: `${company.name} ${Texts.is_sent_request_you_on_a_job}`,
                   jobID: JOB_ID,
-                  description: `${company.name} ${Texts.is_sent_request_you_on_a_job}`,
-                },
-              },
+                  description: `${company.name} ${Texts.is_sent_request_you_on_a_job}`
+                }
+              }
             },
             { new: true }
           );
@@ -1178,7 +1185,7 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
           if (jobs) {
             res.status(200).send({
               jobs: jobs,
-              message: Texts.Request_has_been_sent_successfully,
+              message: Texts.Request_has_been_sent_successfully
             });
           }
         }
@@ -1191,104 +1198,151 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
 });
 
 // recieved offer decision by company
-exports.OffersRecievedDecisionByCompany = asyncHandler(
-  async (req, res, next) => {
-    try {
-      const populateQuery = [
-        {
-          path: "company",
-        },
-        {
-          path: "softSkills",
-        },
-        {
-          path: "hardSkills",
-        },
-      ];
-      const requestedUser = await User.findById(req.user.id);
-      if (!requestedUser.type) {
-        res.status(400).send({ message: Texts.notAuthorized });
+exports.OffersRecievedDecisionByCompany = asyncHandler(async (req, res, next) => {
+  try {
+    const populateQuery = [
+      {
+        path: 'company'
+      },
+      {
+        path: 'softSkills'
+      },
+      {
+        path: 'hardSkills'
       }
-      const { status } = req.body;
-      const JOB_ID = req.body.id;
-      const job = await Job.findById(JOB_ID);
-      const SENDER_ID = job.company;
-      const company = await Company.findById(SENDER_ID);
-      const RECIEVER_ID = req.params.id;
-      const schema = Joi.object().keys({
-        status: Joi.string().valid("accepted", "rejected"),
-        id: Joi.string().required(),
-      });
-      let results = schema.validate(req.body);
-      if (results.error) {
-        return res
-          .status(400)
-          .send({ message: results.error.details[0].message });
-      }
-      if (status === "accepted") {
-        await Job.findOneAndUpdate(
-          { _id: JOB_ID },
-          { $set: { "student_requests.$[el].status": req.body.status } },
-          {
-            arrayFilters: [{ "el.student": `${RECIEVER_ID}` }],
-            new: true,
-          }
-        );
-
-        await Student.findByIdAndUpdate(
-          RECIEVER_ID,
-          {
-            $push: {
-              notifications: {
-                title: `${company.name} ${Texts.has_accepted_your_offer}`,
-                jobID: JOB_ID,
-                description: `${company.name} ${Texts.has_accepted_your_offer}`,
-              },
-            },
-          },
-          { new: true }
-        );
-        const jobs = await Job.find().populate(populateQuery);
-        if (jobs) {
-          res.status(200).send({
-            jobs: jobs,
-            message: Texts.Request_has_been_accepted_successfully,
-          });
-        }
-      } else {
-        await Job.findOneAndUpdate(
-          { _id: JOB_ID },
-          { $set: { "student_requests.$[el].status": req.body.status } },
-          {
-            arrayFilters: [{ "el.student": `${RECIEVER_ID}` }],
-            new: true,
-          }
-        );
-
-        await Student.findByIdAndUpdate(
-          RECIEVER_ID,
-          {
-            $push: {
-              notifications: {
-                title: `${company.name} ${Texts.has_rejected_your_offer}`,
-                jobID: JOB_ID,
-                description: `${company.name} ${Texts.has_rejected_your_offer}`,
-              },
-            },
-          },
-          { new: true }
-        );
-        const jobs = await Job.find().populate(populateQuery);
-        if (jobs) {
-          res.status(200).send({
-            jobs: jobs,
-            message: Texts.Request_has_been_accepted_successfully,
-          });
-        }
-      }
-    } catch (error) {
-      res.status(404).send({ message: error.message });
-      next(error);
+    ];
+    const requestedUser = await User.findById(req.user.id);
+    if (!requestedUser.type) {
+      res.status(400).send({ message: Texts.notAuthorized });
     }
+    const { status } = req.body;
+    const JOB_ID = req.body.id;
+    const job = await Job.findById(JOB_ID);
+    const SENDER_ID = job.company;
+    const company = await Company.findById(SENDER_ID);
+    const RECIEVER_ID = req.params.id;
+    const schema = Joi.object().keys({
+      status: Joi.string().valid('accepted', 'rejected'),
+      id: Joi.string().required()
+    });
+    let results = schema.validate(req.body);
+    if (results.error) {
+      return res.status(400).send({ message: results.error.details[0].message });
+    }
+    if (status === 'accepted') {
+      await Job.findOneAndUpdate(
+        { _id: JOB_ID },
+        { $set: { 'student_requests.$[el].status': req.body.status } },
+        {
+          arrayFilters: [{ 'el.student': `${RECIEVER_ID}` }],
+          new: true
+        }
+      );
+
+      await Student.findByIdAndUpdate(
+        RECIEVER_ID,
+        {
+          $push: {
+            notifications: {
+              title: `${company.name} ${Texts.has_accepted_your_offer}`,
+              jobID: JOB_ID,
+              description: `${company.name} ${Texts.has_accepted_your_offer}`
+            }
+          }
+        },
+        { new: true }
+      );
+      const jobs = await Job.find().populate(populateQuery);
+      if (jobs) {
+        res.status(200).send({
+          jobs: jobs,
+          message: Texts.Request_has_been_accepted_successfully
+        });
+      }
+    } else {
+      await Job.findOneAndUpdate(
+        { _id: JOB_ID },
+        { $set: { 'student_requests.$[el].status': req.body.status } },
+        {
+          arrayFilters: [{ 'el.student': `${RECIEVER_ID}` }],
+          new: true
+        }
+      );
+
+      await Student.findByIdAndUpdate(
+        RECIEVER_ID,
+        {
+          $push: {
+            notifications: {
+              title: `${company.name} ${Texts.has_rejected_your_offer}`,
+              jobID: JOB_ID,
+              description: `${company.name} ${Texts.has_rejected_your_offer}`
+            }
+          }
+        },
+        { new: true }
+      );
+      const jobs = await Job.find().populate(populateQuery);
+      if (jobs) {
+        res.status(200).send({
+          jobs: jobs,
+          message: Texts.Request_has_been_accepted_successfully
+        });
+      }
+    }
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+    next(error);
   }
-);
+});
+
+/**
+ * ////////////////////////// Routes /////////////////////////
+ * @author Shuja Naqvi
+ */
+exports.GetJobswithStudents = asyncHandler(async (req, res, next) => {
+  try {
+    const populateQuery = [
+      {
+        path: 'company'
+      },
+      {
+        path: 'softSkills'
+      },
+      {
+        path: 'hardSkills'
+      },
+      {
+        path: 'company_requests.student',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      }
+    ];
+    const requestedUser = await User.findById(req.user.id);
+    if (!requestedUser.type) {
+      return res.status(400).send({ message: Texts.notAuthorized });
+    } else {
+      const jobs = await Job.find({ company: requestedUser.company }).populate(populateQuery);
+
+      if (jobs) {
+        var newData = [];
+        console.log(jobs.length, 'l');
+        for (let i = 0; i < jobs.length; i++) {
+          req.params.id = jobs[i]._id;
+          const job = { ...jobs[i]._doc };
+          const matchedStudents = await matchingCriteria.display(req, res, next);
+          job.matchedStudents = matchedStudents.students;
+          newData.push(job);
+        }
+        return res.status(200).send({ jobs: newData, message: 'Travail récupéré avec succès' });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(200).send({ message: error });
+
+    next(error);
+  }
+});

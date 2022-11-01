@@ -1,25 +1,20 @@
-const asyncHandler = require("../middlewares/async");
-const moment = require("moment");
-const User = require("../models/User");
-const Job = require("../models/Job");
-const Student = require("../models/Student");
-const { Promise } = require("mongoose");
+const asyncHandler = require('../middlewares/async');
+const moment = require('moment');
+const User = require('../models/User');
+const Job = require('../models/Job');
+const Student = require('../models/Student');
+const { Promise } = require('mongoose');
 
 class DealBreaker {
   // Starting Date //
   startingDate = async (job, next) => {
     try {
       var filteredStudents = [];
-      const jobStartingDate = moment(job.startDate, "YYYY-MM-DD");
+      const jobStartingDate = moment(job.startDate, 'YYYY-MM-DD');
       const students = await Student.find({ isDeleted: false });
-      students.map((item) => {
-        const studentStartingDate = moment(
-          item.positionSought.startDate,
-          "YYYY-MM-DD"
-        );
-        const result = Math.abs(
-          jobStartingDate.diff(studentStartingDate, "months")
-        );
+      students.map(item => {
+        const studentStartingDate = moment(item.positionSought.startDate, 'YYYY-MM-DD');
+        const result = Math.abs(jobStartingDate.diff(studentStartingDate, 'months'));
         if (result <= 4) {
           filteredStudents.push(item);
         }
@@ -42,7 +37,9 @@ class MatchingCriteria extends DealBreaker {
       var lat1 = toRad(lat1);
       var lat2 = toRad(lat2);
 
-      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+      var a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
       var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       var d = R * c;
       return d;
@@ -54,7 +51,6 @@ class MatchingCriteria extends DealBreaker {
 
     const latitude1 = job.location.latitude;
     const longitude1 = job.location.longitude;
-
     const locationFilterArray = [];
 
     await Promise.all(
@@ -64,7 +60,8 @@ class MatchingCriteria extends DealBreaker {
           const latitude2 = user.address.latitude;
           const longitude2 = user.address.longitude;
 
-          const result = (1 - calcDistance(latitude1, longitude1, latitude2, longitude2) * 0.02) * 5;
+          const result =
+            (1 - calcDistance(latitude1, longitude1, latitude2, longitude2) * 0.02) * 5;
 
           return locationFilterArray.push({ id: student.id, score: result });
         }
@@ -78,10 +75,10 @@ class MatchingCriteria extends DealBreaker {
     const softSkillsArray = [];
     var n = 0;
     var score = 0;
-    const result = students.filter((student) => {
+    const result = students.filter(student => {
       n = 0;
-      jobSoftSkills.map((item) => {
-        student.softSkills.map((item1) => {
+      jobSoftSkills.map(item => {
+        student.softSkills.map(item1 => {
           if (item.toString() == item1.toString()) {
             n++;
           }
@@ -107,10 +104,10 @@ class MatchingCriteria extends DealBreaker {
     const hardSkillsArray = [];
     var n = 0;
     var score = 0;
-    const result = students.filter((student) => {
+    const result = students.filter(student => {
       n = 0;
-      jobHardSkills.map((item) => {
-        student.hardSkills.map((item1) => {
+      jobHardSkills.map(item => {
+        student.hardSkills.map(item1 => {
           if (item.toString() == item1.toString()) {
             n++;
           }
@@ -135,7 +132,7 @@ class MatchingCriteria extends DealBreaker {
     const jobField = job.domain;
     let score = 0;
     let fieldArray = [];
-    students.map((student) => {
+    students.map(student => {
       if (student.positionSought.domain === jobField) {
         score = 1;
       } else {
@@ -245,6 +242,7 @@ class MatchingCriteria extends DealBreaker {
       const studentAlternationRhythm = student?.positionSought?.alternationRhythm
         ? student.positionSought.alternationRhythm.toUpperCase()
         : '';
+
       const result = jobAlternationRhythm.localeCompare(studentAlternationRhythm);
       if (result == 0) {
         score = 1;
@@ -298,19 +296,36 @@ class MatchingCriteria extends DealBreaker {
   search = async (req, res, next) => {
     try {
       const job = await Job.findById(req.params.id);
+      // console.log(job, 'job');
       const students = await this.startingDate(job, next);
-
+      // console.log(students, 'students');
       // Filters //
       const locationResult = await this.location(job, students);
+      // console.log(locationResult, 'locationResult');
       const softSkillsResult = await this.softSkills(job, students);
+      // console.log(softSkillsResult, 'softSkillsResult');
       const hardSkillsResult = await this.hardSkills(job, students);
+      // console.log(hardSkillsResult, 'hardSkillsResult');
       const fieldResult = await this.field(job, students);
+      // console.log(fieldResult, 'fieldResult');
+
       const jobNameResult = await this.jobName(job, students);
+      // console.log(jobNameResult, 'jobNameResult');
+
       const startDateResult = await this.startDate(job, students);
+      // console.log(startDateResult, 'startDateResult');
+
       const lengthOfTheAlternateResult = await this.lengthOfTheAlternate(job, students);
+      // console.log(lengthOfTheAlternateResult, 'lengthOfTheAlternateResult');
+
       const levelOfEducationResult = await this.levelOfEducation(job, students);
+      // console.log(levelOfEducationResult, 'levelOfEducationResult');
+
       const frequencyOfApprenticeshipResult = await this.frequencyOfApprenticeship(job, students);
+      // console.log(frequencyOfApprenticeshipResult, 'frequencyOfApprenticeshipResult');
+
       const ageRangeResult = await this.ageRange(job, students);
+      // console.log(ageRangeResult, 'ageRangeResult');
 
       // console.log(locationResult, "location");
       // console.log(softSkillsResult, "softSkillsResult");
@@ -407,23 +422,24 @@ class MatchingCriteria extends DealBreaker {
       const sortedArray = await this.search(req, res, next);
       if (sortedArray !== undefined) {
         await Promise.all(
-          sortedArray.map(async (student) => {
+          sortedArray?.map(async student => {
             const result = await Student.findByIdAndUpdate(student.studentId, {
-              score: student.score,
-            }).populate("user");
+              score: student.score
+            }).populate('user');
             output.push(result);
           })
         );
-        return res.status(200).json({ students: output });
+        return { students: output };
+        // return res.status(200).json({ students: output });
       }
     } catch (err) {
       //return res.status(200).json({ message: err.message });
-      console.log("err----->", err);
+      console.log('err----->', err);
     }
   };
 }
 
 module.exports = {
   MatchingCriteria,
-  DealBreaker,
+  DealBreaker
 };
