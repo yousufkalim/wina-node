@@ -16,7 +16,7 @@ const { interviewInvitation } = require('../utils/sendEmail');
  */
 exports.virtualInterview = async (req, res) => {
   try {
-    const { description, student, company } = req.body;
+    const { description, student, company, start_date } = req.body;
     const existingStudent = await Student.findById(student).populate('user');
     if (!existingStudent) {
       return res.status(404).json({ success: false, message: 'Student not found' });
