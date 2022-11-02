@@ -16,7 +16,7 @@ const { interviewInvitation } = require('../utils/sendEmail');
  */
 exports.virtualInterview = async (req, res) => {
   try {
-    const { start_date, student, company } = req.body;
+    const { description, student, company } = req.body;
     const existingStudent = await Student.findById(student).populate('user');
     if (!existingStudent) {
       return res.status(404).json({ success: false, message: 'Student not found' });
@@ -34,7 +34,7 @@ exports.virtualInterview = async (req, res) => {
       method: 'POST',
       uri: 'https://api.zoom.us/v2/users/' + process.env.ZOOM_EMAIL + '/meetings',
       body: {
-        topic: 'Zoom Meeting on ' + start_date + ' with ' + existingStudent.user.firstName, //meeting title
+        topic: description, //meeting title
         type: 2,
         settings: {
           host_video: 'true',
@@ -53,11 +53,11 @@ exports.virtualInterview = async (req, res) => {
     requestPromise(options)
       .then(function (response) {
         // res.json(response);
-        req.body.title = response.topic;
+
         req.body.host_link = response.start_url;
         req.body.guest_link = response.join_url;
         const mail = {
-          title: response.topic,
+          description: description,
           guest: existingStudent.user.email,
           host: existingCompany.contactPerson.person.email,
           host_link: response.start_url,

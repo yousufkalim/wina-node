@@ -35,13 +35,13 @@ exports.interviewInvitation = payload => {
       {
         from: sendEmail,
         to: payload.host,
-        subject: payload.title,
+        subject: payload.description,
         text: 'Please Join the meeting using this link :' + payload.host_link
       },
       {
         from: sendEmail,
         to: payload.guest,
-        subject: payload.title,
+        subject: payload.description,
         text: 'Please Join the meeting using this link :' + payload.guest_link
       }
     ];

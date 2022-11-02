@@ -5,12 +5,12 @@
 const mongoose = require('mongoose');
 
 const InterviewSchema = new mongoose.Schema({
-  title: String,
   student: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student',
     required: false
   },
+  description: String,
   company: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Company',
