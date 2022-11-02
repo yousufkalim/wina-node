@@ -256,6 +256,7 @@ exports.DeleteJob = asyncHandler(async (req, res, next) => {
 
 // GET single Job
 exports.GetJob = asyncHandler(async (req, res, next) => {
+  
   try {
     const populateQuery = [
       {
@@ -269,6 +270,7 @@ exports.GetJob = asyncHandler(async (req, res, next) => {
       }
     ];
     const requestedUser = await User.findById(req.user.id);
+    console.log('🚀 ~ requestedUser', requestedUser);
     if (!requestedUser.type) {
       return res.status(400).send({ message: Texts.notAuthorized });
     }
