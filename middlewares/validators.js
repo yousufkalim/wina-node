@@ -45,6 +45,7 @@ exports.validateUpdateMember = [
 
 //create interview
 exports.validateInterview = [
+  check('description', 'description is required').notEmpty().trim(),
   check('company', 'Company Id is required').notEmpty().trim(),
   check('student', 'Student Id is required').notEmpty().trim(),
   check('type', 'Interview required virtual or physical(acceptable)')
@@ -56,6 +57,8 @@ exports.validateInterview = [
 
 //create interview
 exports.validateupdateInterview = [
+  //description
+  check('description', 'description is required').notEmpty().trim(),
   check('company', 'Company Id is required').notEmpty().trim(),
   check('student', 'Student Id is required').notEmpty().trim(),
   check('status', 'status  is required')
