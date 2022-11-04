@@ -122,8 +122,20 @@ exports.getInterviews = async (req, res) => {
   try {
     const { studentId, companyId } = req.params;
     const interviews = await Interviews.find({ student: studentId, company: companyId })
-      .populate('student')
-      .populate('company');
+      .populate({
+        path: 'student',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      })
+      .populate({
+        path: 'company',
+        populate: {
+          path: 'contactPerson.person',
+          model: 'User'
+        }
+      });
     res.status(200).json({ success: true, interviews });
   } catch (err) {
     // Error handling
@@ -143,8 +155,21 @@ exports.getById = async (req, res) => {
   try {
     const { interviewId } = req.params;
     const interview = await Interviews.findById(interviewId)
-      .populate('student')
-      .populate('company');
+      .populate({
+        path: 'student',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      })
+      .populate({
+        path: 'company',
+        populate: {
+          path: 'contactPerson.person',
+          model: 'User'
+        }
+      });
+    // .populate('company');
     res.status(200).json({ success: true, interview });
   } catch (err) {
     // Error handling
@@ -164,8 +189,20 @@ exports.getByCompany = async (req, res) => {
   try {
     const { companyId } = req.params;
     const interviews = await Interviews.find({ company: companyId })
-      .populate('student')
-      .populate('company');
+      .populate({
+        path: 'student',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      })
+      .populate({
+        path: 'company',
+        populate: {
+          path: 'contactPerson.person',
+          model: 'User'
+        }
+      });
     res.status(200).json({ success: true, interviews });
   } catch (err) {
     // Error handling
@@ -185,8 +222,20 @@ exports.getByStudent = async (req, res) => {
   try {
     const { studentId } = req.params;
     const interviews = await Interviews.find({ student: studentId })
-      .populate('student')
-      .populate('company');
+      .populate({
+        path: 'student',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      })
+      .populate({
+        path: 'company',
+        populate: {
+          path: 'contactPerson.person',
+          model: 'User'
+        }
+      });
     res.status(200).json({ success: true, interviews });
   } catch (err) {
     // Error handling
@@ -209,8 +258,20 @@ exports.update = async (req, res) => {
     }
     const { interviewId } = req.params;
     const interview = await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
-      .populate('student')
-      .populate('company');
+      .populate({
+        path: 'student',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      })
+      .populate({
+        path: 'company',
+        populate: {
+          path: 'contactPerson.person',
+          model: 'User'
+        }
+      });
     res.status(200).json({ success: true, interview });
   } catch (err) {
     // Error handling
