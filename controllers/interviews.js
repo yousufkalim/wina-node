@@ -92,7 +92,7 @@ exports.virtualInterview = async (req, res) => {
 
 exports.physicalInterview = async (req, res) => {
   try {
-    const { student, company } = req.body;
+    const { student, company, description, start_date } = req.body;
     const existingStudent = await Student.findById(student).populate('user');
     if (!existingStudent) {
       return res.status(404).json({ success: false, message: 'Student not found' });
@@ -101,8 +101,17 @@ exports.physicalInterview = async (req, res) => {
     if (!existingCompany) {
       return res.status(404).json({ success: false, message: 'company not found' });
     }
+
     Interviews.create(req.body).then(interview => {
-      res.status(200).json({ success: true, message: 'Interview has been schedule', interview });
+      const mail = {
+        description: description,
+        guest: existingStudent.user.email,
+        host: existingCompany.contactPerson.person.email,
+        date: start_date
+      };
+      interviewInvitation(mail).then(() => {
+        res.status(200).json({ success: true, message: 'Interview has been schedule', interview });
+      });
     });
   } catch (err) {
     // Error handling

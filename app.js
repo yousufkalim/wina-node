@@ -113,6 +113,7 @@ const job = require('./routes/job');
 const FileUpload = require('./routes/FileUpload');
 const adminAuth = require('./routes/adminAuth');
 const interview = require('./routes/interview');
+const package = require('./routes/packages');
 
 //// Mount Routers ////
 
@@ -125,18 +126,22 @@ app.use('/api/v1/profile', profile);
 app.use('/api/v1/admin', admin);
 app.use('/api/v1/job', job);
 app.use('/api/v1', FileUpload);
+/// V2 Company route ///
+
+// app.use('/api/v2/company', companyV2);
+
+// app.use("/api/v1/admin", admin);
 /**
  * Interview controllers
  * @author Shuja Naqvi
  */
 app.use('/api/v1/adminAuth', adminAuth);
 app.use('/api/v1/interview', interview);
-/// V2 Company route ///
-
-// app.use('/api/v2/company', companyV2);
-
-// app.use("/api/v1/admin", admin);
-
+app.use('/api/v1/package', package);
+/**
+ * End
+ * @author Shuja Naqvi
+ */
 //// Error Handler
 app.use((error, req, res, next) => {
   console.log('Main Error =>', error);

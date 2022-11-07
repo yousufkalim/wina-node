@@ -6,8 +6,7 @@ var nodemailer = require('nodemailer');
 const senderName = process.env.MAILER_DOMAIN;
 const sendEmail = process.env.MailingId;
 const senderPassword = process.env.MailingPassword;
-// MailingId=contact@winaa.fr
-// MailingPassword=Winaa***2021
+
 /**
  * sendEmail
  * @param {string} email
@@ -36,13 +35,17 @@ exports.interviewInvitation = payload => {
         from: sendEmail,
         to: payload.host,
         subject: payload.description,
-        text: 'Please Join the meeting using this link :' + payload.host_link
+        text: payload?.host_link
+          ? 'Please Join the meeting using this link :' + payload.host_link
+          : 'Invitation for interview'
       },
       {
         from: sendEmail,
         to: payload.guest,
         subject: payload.description,
-        text: 'Please Join the meeting using this link :' + payload.guest_link
+        text: payload?.guest_link
+          ? 'Please Join the meeting using this link :' + payload.guest_link
+          : 'Invitation for interview'
       }
     ];
     for (let i = 0; i < mailOptions.length; i++) {
