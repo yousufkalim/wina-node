@@ -112,6 +112,8 @@ const admin = require('./routes/admin');
 const job = require('./routes/job');
 const FileUpload = require('./routes/FileUpload');
 const adminAuth = require('./routes/adminAuth');
+const interview = require('./routes/interview');
+const package = require('./routes/packages');
 
 //// Mount Routers ////
 
@@ -124,14 +126,22 @@ app.use('/api/v1/profile', profile);
 app.use('/api/v1/admin', admin);
 app.use('/api/v1/job', job);
 app.use('/api/v1', FileUpload);
-app.use('/api/v1/adminAuth', adminAuth);
-
 /// V2 Company route ///
 
 // app.use('/api/v2/company', companyV2);
 
 // app.use("/api/v1/admin", admin);
-
+/**
+ * Interview controllers
+ * @author Shuja Naqvi
+ */
+app.use('/api/v1/adminAuth', adminAuth);
+app.use('/api/v1/interview', interview);
+app.use('/api/v1/package', package);
+/**
+ * End
+ * @author Shuja Naqvi
+ */
 //// Error Handler
 app.use((error, req, res, next) => {
   console.log('Main Error =>', error);
@@ -215,7 +225,7 @@ app.get(
 app.get('/api/v1/auth/google', passport.authenticate('google', { scope: ['email', 'profile'] }));
 
 app.get(
-  '/api/v1/auth/google/callback',
+  process.env.Google_Callback,
   passport.authenticate('google', {
     successReturnToOrRedirect: '/auth/google/success',
     failureRedirect: '/auth/google/failure'
@@ -265,8 +275,9 @@ app.get(
     scope: ['r_liteprofile', 'r_emailaddress']
   })
 );
+
 app.get(
-  '/api/v1/auth/linkedin/callback',
+  process.env.linkedIn_Callback,
   passport.authenticate('linkedin', {
     successReturnToOrRedirect: '/auth/linkedin/success',
     failureRedirect: '/auth/linkedin/failure'

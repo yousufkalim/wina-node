@@ -40,7 +40,9 @@
     "passport-linkedin-oauth2": "^2.0.0",
     "read-excel-file": "^5.2.25",
     "socket.io": "^3.0.5",
-    "xlsx": "^0.17.4"
+    "xlsx": "^0.17.4",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6"
   },
   "devDependencies": {
     "husky": "^8.0.0",
