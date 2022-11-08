@@ -265,23 +265,127 @@ exports.update = async (req, res) => {
     if (req.body.type) {
       return res.status(404).json({ success: false, message: 'You cant update interview type' });
     }
+    const { description, student, company, start_date } = req.body;
     const { interviewId } = req.params;
-    const interview = await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
-      .populate({
-        path: 'student',
-        populate: {
-          path: 'user',
-          model: 'User'
-        }
-      })
-      .populate({
-        path: 'company',
-        populate: {
-          path: 'contactPerson.person',
-          model: 'User'
-        }
+    const interview = await Interviews.findById(interviewId);
+    if (!interview) {
+      return res.status(404).json({ success: false, message: 'Interview not found' });
+    }
+    const existingStudent = await Student.findById(student).populate('user');
+    if (!existingStudent) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
+    }
+    const existingCompany = await Company.findById(company).populate('contactPerson.person');
+    if (!existingCompany) {
+      return res.status(404).json({ success: false, message: 'company not found' });
+    }
+    if (new Date(start_date) === new Date(interview)) {
+      const interview = await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
+        .populate({
+          path: 'student',
+          populate: {
+            path: 'user',
+            model: 'User'
+          }
+        })
+        .populate({
+          path: 'company',
+          populate: {
+            path: 'contactPerson.person',
+            model: 'User'
+          }
+        });
+      return res
+        .status(200)
+        .json({ success: true, message: 'Interview has been updated', interview });
+    }
+    if (interview.type === 'virtual') {
+      const payload = {
+        iss: process.env.ZOOM_KEY, //your API KEY
+        exp: new Date(start_date).getTime()
+      };
+      const token = jwt.sign(payload, process.env.ZOOM_SECRET); //your API SECRET HERE
+      var options = {
+        method: 'POST',
+        uri: 'https://api.zoom.us/v2/users/' + process.env.ZOOM_EMAIL + '/meetings',
+        body: {
+          topic: description, //meeting title
+          type: 2,
+          settings: {
+            host_video: 'true',
+            participant_video: 'true'
+          }
+        },
+        auth: {
+          bearer: token
+        },
+        headers: {
+          'User-Agent': 'Zoom-api-Jwt-Request',
+          'content-type': 'application/json'
+        },
+        json: true
+      };
+      requestPromise(options).then(async function (response) {
+        // res.json(response);
+        req.body.host_link = response.start_url;
+        req.body.guest_link = response.join_url;
+        const mail = {
+          description: description,
+          guest: existingStudent.user.email,
+          host: existingCompany.contactPerson.person.email,
+          host_link: response.start_url,
+          guest_link: response.join_url,
+          date: start_date
+        };
+        const { interviewId } = req.params;
+        const interview = await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
+          .populate({
+            path: 'student',
+            populate: {
+              path: 'user',
+              model: 'User'
+            }
+          })
+          .populate({
+            path: 'company',
+            populate: {
+              path: 'contactPerson.person',
+              model: 'User'
+            }
+          });
+        interviewInvitation(mail).then(() => {
+          return res
+            .status(200)
+            .json({ success: true, message: 'Interview has been updated', interview });
+        });
       });
-    res.status(200).json({ success: true, interview });
+    } else if (interview.type === 'physical') {
+      const { interviewId } = req.params;
+      const interview = await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
+        .populate({
+          path: 'student',
+          populate: {
+            path: 'user',
+            model: 'User'
+          }
+        })
+        .populate({
+          path: 'company',
+          populate: {
+            path: 'contactPerson.person',
+            model: 'User'
+          }
+        });
+      const mail = {
+        description: description,
+        guest: existingStudent.user.email,
+        host: existingCompany.contactPerson.person.email,
+        date: start_date
+      };
+      interviewInvitation(mail).then(() => {
+        res.status(200).json({ success: true, message: 'Interview has been schedule', interview });
+      });
+    }
   } catch (err) {
     // Error handling
     // eslint-disable-next-line no-console
