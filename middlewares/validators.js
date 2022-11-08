@@ -85,6 +85,16 @@ exports.updateStageDescription = [
   check('stages_description', 'Stages description is required').notEmpty().trim()
 ];
 
+//create Package
+exports.validatePackage = [
+  check('title', 'title is required').notEmpty().trim(),
+  check('price', 'price  is required').notEmpty().trim(),
+  check('type', 'Package type is required')
+    .notEmpty()
+    .trim()
+    .isIn(['1 Month', '3 Months', '6 Months', '12 Months']),
+  check('detail', 'detail date is required').notEmpty().trim()
+];
 /*
  ======================
  Result
