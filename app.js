@@ -277,7 +277,7 @@ app.get(
 );
 
 app.get(
-  '/api/v1/auth/google/linkedin',
+  '/api/v1/auth/linkedin/callback',
   passport.authenticate('linkedin', {
     successReturnToOrRedirect: '/auth/linkedin/success',
     failureRedirect: '/auth/linkedin/failure'
