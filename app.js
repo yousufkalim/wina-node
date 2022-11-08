@@ -225,7 +225,7 @@ app.get(
 app.get('/api/v1/auth/google', passport.authenticate('google', { scope: ['email', 'profile'] }));
 
 app.get(
-  process.env.Google_Callback,
+  '/api/v1/auth/google/callback',
   passport.authenticate('google', {
     successReturnToOrRedirect: '/auth/google/success',
     failureRedirect: '/auth/google/failure'
@@ -277,7 +277,7 @@ app.get(
 );
 
 app.get(
-  process.env.linkedIn_Callback,
+  '/api/v1/auth/google/linkedin',
   passport.authenticate('linkedin', {
     successReturnToOrRedirect: '/auth/linkedin/success',
     failureRedirect: '/auth/linkedin/failure'
