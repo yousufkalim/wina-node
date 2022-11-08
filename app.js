@@ -275,6 +275,7 @@ app.get(
     scope: ['r_liteprofile', 'r_emailaddress']
   })
 );
+
 app.get(
   process.env.linkedIn_Callback,
   passport.authenticate('linkedin', {

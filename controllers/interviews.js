@@ -65,10 +65,29 @@ exports.virtualInterview = async (req, res) => {
           date: start_date
         };
         Interviews.create(req.body).then(interview => {
-          interviewInvitation(mail).then(() => {
+          interviewInvitation(mail).then(async () => {
+            const interviews = await Interviews.find()
+              .populate({
+                path: 'student',
+                populate: {
+                  path: 'user',
+                  model: 'User'
+                }
+              })
+              .populate({
+                path: 'company',
+                populate: {
+                  path: 'contactPerson.person',
+                  model: 'User'
+                }
+              });
             res
               .status(200)
-              .json({ success: true, message: 'Interview has been schedule', interview });
+              .json({
+                success: true,
+                message: 'Interview has been schedule',
+                interview: interviews
+              });
           });
         });
       })
@@ -109,8 +128,25 @@ exports.physicalInterview = async (req, res) => {
         host: existingCompany.contactPerson.person.email,
         date: start_date
       };
-      interviewInvitation(mail).then(() => {
-        res.status(200).json({ success: true, message: 'Interview has been schedule', interview });
+      interviewInvitation(mail).then(async () => {
+        const interviews = await Interviews.find()
+          .populate({
+            path: 'student',
+            populate: {
+              path: 'user',
+              model: 'User'
+            }
+          })
+          .populate({
+            path: 'company',
+            populate: {
+              path: 'contactPerson.person',
+              model: 'User'
+            }
+          });
+        res
+          .status(200)
+          .json({ success: true, message: 'Interview has been schedule', interview: interviews });
       });
     });
   } catch (err) {
@@ -295,9 +331,24 @@ exports.update = async (req, res) => {
             model: 'User'
           }
         });
+      const interviews = await Interviews.find()
+        .populate({
+          path: 'student',
+          populate: {
+            path: 'user',
+            model: 'User'
+          }
+        })
+        .populate({
+          path: 'company',
+          populate: {
+            path: 'contactPerson.person',
+            model: 'User'
+          }
+        });
       return res
         .status(200)
-        .json({ success: true, message: 'Interview has been updated', interview });
+        .json({ success: true, message: 'Interview has been updated', interview: interviews });
     }
     if (interview.type === 'virtual') {
       const payload = {
@@ -353,10 +404,25 @@ exports.update = async (req, res) => {
               model: 'User'
             }
           });
-        interviewInvitation(mail).then(() => {
+        interviewInvitation(mail).then(async () => {
+          const interviews = await Interviews.find()
+            .populate({
+              path: 'student',
+              populate: {
+                path: 'user',
+                model: 'User'
+              }
+            })
+            .populate({
+              path: 'company',
+              populate: {
+                path: 'contactPerson.person',
+                model: 'User'
+              }
+            });
           return res
             .status(200)
-            .json({ success: true, message: 'Interview has been updated', interview });
+            .json({ success: true, message: 'Interview has been updated', interview: interviews });
         });
       });
     } else if (interview.type === 'physical') {
@@ -382,8 +448,25 @@ exports.update = async (req, res) => {
         host: existingCompany.contactPerson.person.email,
         date: start_date
       };
-      interviewInvitation(mail).then(() => {
-        res.status(200).json({ success: true, message: 'Interview has been schedule', interview });
+      interviewInvitation(mail).then(async () => {
+        const interviews = await Interviews.find()
+          .populate({
+            path: 'student',
+            populate: {
+              path: 'user',
+              model: 'User'
+            }
+          })
+          .populate({
+            path: 'company',
+            populate: {
+              path: 'contactPerson.person',
+              model: 'User'
+            }
+          });
+        res
+          .status(200)
+          .json({ success: true, message: 'Interview has been schedule', interview: interviews });
       });
     }
   } catch (err) {
