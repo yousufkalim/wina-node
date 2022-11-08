@@ -5,7 +5,7 @@
 
 const requestPromise = require('request-promise');
 const jwt = require('jsonwebtoken');
-const Interviews = require('../models/Interview');
+const Interviews = require('../models/interview');
 const Company = require('../models/Company');
 const Student = require('../models/Student');
 const { interviewInvitation } = require('../utils/sendEmail');
@@ -81,13 +81,11 @@ exports.virtualInterview = async (req, res) => {
                   model: 'User'
                 }
               });
-            res
-              .status(200)
-              .json({
-                success: true,
-                message: 'Interview has been schedule',
-                interview: interviews
-              });
+            res.status(200).json({
+              success: true,
+              message: 'Interview has been schedule',
+              interview: interviews
+            });
           });
         });
       })
