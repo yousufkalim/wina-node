@@ -400,10 +400,6 @@ class MatchingCriteria extends DealBreaker {
           studentId: student.id,
           score: totalScore
         });
-        console.log({
-          studentId: student.id,
-          score: totalScore
-        });
         newArray.sort(function (a, b) {
           return b.score - a.score;
         });

@@ -67,7 +67,7 @@ router.put('/deleteMember/:comapnyId', validateMemberDel, isValidated, deleteMem
  * @author Rana Ameer Hamza
  */
 router.get('/profile/:companyId', companyProfile);
-router.post('/updateCompany/:companyId', upload, validateUpdateComapny, isValidated, updateCompany);
+router.post('/updateCompany/:companyId', upload, updateCompany);
 router.put(
   '/updateTeam/description/:companyId',
   updateTeamDescription,
