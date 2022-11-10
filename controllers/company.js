@@ -472,10 +472,10 @@ exports.deleteStage = async (req, res) => {
 exports.updateCompany = async (req, res) => {
   try {
     if (req.files) {
-      if (req.files.video[0]) {
+      if (req.files.video) {
         req.body.presentation_Video = req.files.video[0].path;
       }
-      if (req.files.image[0]) {
+      if (req.files.image) {
         req.body.professional_Picture = req.files.image[0].path;
       }
     }
