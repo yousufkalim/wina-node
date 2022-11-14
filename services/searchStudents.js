@@ -400,7 +400,10 @@ class MatchingCriteria extends DealBreaker {
           studentId: student.id,
           score: totalScore
         });
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7c5ca69fa63646317096e99e2d8f48662cb6dee8
         newArray.sort(function (a, b) {
           return b.score - a.score;
         });
