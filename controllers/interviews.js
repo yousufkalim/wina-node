@@ -8,7 +8,10 @@ const jwt = require('jsonwebtoken');
 const Interviews = require('../models/interview');
 const Company = require('../models/Company');
 const Student = require('../models/Student');
+const Job = require('../models/Job');
+const Appointment = require('../models/Appointment');
 const { interviewInvitation } = require('../utils/sendEmail');
+const { Texts } = require('../utils/texts');
 /**
  * Create Virtual Interview
  * @param {object} req
@@ -16,7 +19,7 @@ const { interviewInvitation } = require('../utils/sendEmail');
  */
 exports.virtualInterview = async (req, res) => {
   try {
-    const { description, student, company, start_date } = req.body;
+    const { description, student, job, company, start_date } = req.body;
     const existingStudent = await Student.findById(student).populate('user');
     if (!existingStudent) {
       return res.status(404).json({ success: false, message: 'Student not found' });
@@ -52,8 +55,6 @@ exports.virtualInterview = async (req, res) => {
     };
     requestPromise(options)
       .then(function (response) {
-        // res.json(response);
-
         req.body.host_link = response.start_url;
         req.body.guest_link = response.join_url;
         const mail = {
@@ -66,26 +67,36 @@ exports.virtualInterview = async (req, res) => {
         };
         Interviews.create(req.body).then(interview => {
           interviewInvitation(mail).then(async () => {
-            const interviews = await Interviews.find()
-              .populate({
-                path: 'student',
-                populate: {
-                  path: 'user',
-                  model: 'User'
-                }
+            //to add company request and to send notification to user for interview
+            companyRequest(student, job, existingCompany, existingStudent)
+              .then(async data => {
+                const interviews = await Interviews.find()
+                  .populate({
+                    path: 'student',
+                    populate: {
+                      path: 'user',
+                      model: 'User'
+                    }
+                  })
+                  .populate({
+                    path: 'company',
+                    populate: {
+                      path: 'contactPerson.person',
+                      model: 'User'
+                    }
+                  })
+                  .populate('job');
+                res.status(200).json({
+                  success: true,
+                  message: 'Interview has been schedule',
+                  notification: data.message,
+                  interview: interviews
+                });
               })
-              .populate({
-                path: 'company',
-                populate: {
-                  path: 'contactPerson.person',
-                  model: 'User'
-                }
+              .catch(err => {
+                console.log('Error ----> ', err);
+                res.status(500).json({ success: false, message: err.message });
               });
-            res.status(200).json({
-              success: true,
-              message: 'Interview has been schedule',
-              interview: interviews
-            });
           });
         });
       })
@@ -109,7 +120,7 @@ exports.virtualInterview = async (req, res) => {
 
 exports.physicalInterview = async (req, res) => {
   try {
-    const { student, company, description, start_date } = req.body;
+    const { student, company, job, description, start_date } = req.body;
     const existingStudent = await Student.findById(student).populate('user');
     if (!existingStudent) {
       return res.status(404).json({ success: false, message: 'Student not found' });
@@ -127,24 +138,35 @@ exports.physicalInterview = async (req, res) => {
         date: start_date
       };
       interviewInvitation(mail).then(async () => {
-        const interviews = await Interviews.find()
-          .populate({
-            path: 'student',
-            populate: {
-              path: 'user',
-              model: 'User'
-            }
+        //to add company request and to send notification to user for interview
+        await companyRequest(student, job, existingCompany, existingStudent)
+          .then(async data => {
+            const interviews = await Interviews.find()
+              .populate({
+                path: 'student',
+                populate: {
+                  path: 'user',
+                  model: 'User'
+                }
+              })
+              .populate({
+                path: 'company',
+                populate: {
+                  path: 'contactPerson.person',
+                  model: 'User'
+                }
+              })
+              .populate('job');
+            res.status(200).json({
+              success: true,
+              message: 'Interview has been schedule',
+              notification: data.message,
+              interview: interviews
+            });
           })
-          .populate({
-            path: 'company',
-            populate: {
-              path: 'contactPerson.person',
-              model: 'User'
-            }
+          .catch(err => {
+            res.status(500).json({ success: false, message: err.message });
           });
-        res
-          .status(200)
-          .json({ success: true, message: 'Interview has been schedule', interview: interviews });
       });
     });
   } catch (err) {
@@ -178,7 +200,8 @@ exports.getInterviews = async (req, res) => {
           path: 'contactPerson.person',
           model: 'User'
         }
-      });
+      })
+      .populate('job');
     res.status(200).json({ success: true, interviews });
   } catch (err) {
     // Error handling
@@ -211,7 +234,8 @@ exports.getById = async (req, res) => {
           path: 'contactPerson.person',
           model: 'User'
         }
-      });
+      })
+      .populate('job');
     // .populate('company');
     res.status(200).json({ success: true, interview });
   } catch (err) {
@@ -245,7 +269,8 @@ exports.getByCompany = async (req, res) => {
           path: 'contactPerson.person',
           model: 'User'
         }
-      });
+      })
+      .populate('job');
     res.status(200).json({ success: true, interviews });
   } catch (err) {
     // Error handling
@@ -278,7 +303,8 @@ exports.getByStudent = async (req, res) => {
           path: 'contactPerson.person',
           model: 'User'
         }
-      });
+      })
+      .populate('job');
     res.status(200).json({ success: true, interviews });
   } catch (err) {
     // Error handling
@@ -473,4 +499,88 @@ exports.update = async (req, res) => {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
+};
+
+const companyRequest = (RECIEVER_ID, JOB_ID, companyData, studentData) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const status = 'requested';
+      let temp = await Appointment.find({
+        $and: [{ student: RECIEVER_ID }, { jobID: JOB_ID }]
+      });
+
+      if (temp && temp.length) {
+        reject({ success: false, message: Texts.Appointment_is_already_existed });
+      }
+
+      await Job.aggregate([
+        {
+          $project: {
+            company_requests: {
+              $filter: {
+                input: '$company_requests',
+                as: 'item',
+                cond: {
+                  $gte: ['$$item.status', status]
+                }
+              }
+            }
+          }
+        }
+      ]).exec(async (err, data) => {
+        if (err) {
+          reject({ success: false, message: err.message });
+        } else {
+          let fill = data.find(fl => JOB_ID === `${fl._id}`);
+          if (fill && fill.company_requests && fill.company_requests.length > 0) {
+            let check = fill.company_requests.some(
+              sr => sr.status === 'requested' && `${sr.student}` === RECIEVER_ID
+            );
+            if (check) {
+              reject({ success: false, message: Texts.You_have_already_sent_a_request });
+            } else {
+              const notifications = {
+                title: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`,
+                jobID: JOB_ID,
+                description: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`
+              };
+              await Job.findByIdAndUpdate(JOB_ID, {
+                $push: {
+                  company_requests: {
+                    student: RECIEVER_ID,
+                    jobID: JOB_ID,
+                    status: req.body.status
+                  }
+                }
+              });
+
+              studentData.notifications.push(notifications);
+              await studentData.save();
+              resolve({ success: true, message: 'Requested Successfully' });
+            }
+          } else {
+            await Job.findByIdAndUpdate(JOB_ID, {
+              $push: {
+                company_requests: {
+                  student: RECIEVER_ID,
+                  jobID: JOB_ID,
+                  status: status
+                }
+              }
+            });
+            const notifications = {
+              title: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`,
+              jobID: JOB_ID,
+              description: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`
+            };
+            studentData.notifications.push(notifications);
+            await studentData.save();
+            resolve({ success: true, message: 'Requested Successfully' });
+          }
+        }
+      });
+    } catch (err) {
+      reject({ success: false, message: 'Interval Server error' });
+    }
+  });
 };
