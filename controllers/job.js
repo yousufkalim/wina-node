@@ -1119,7 +1119,7 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
         let fill = data.find(fl => JOB_ID === `${fl._id}`);
         if (fill && fill.company_requests && fill.company_requests.length > 0) {
           let check = fill.company_requests.some(
-            sr => sr.status === 'requested' && `${sr.student}` === RECIEVER_ID
+            sr => sr.status === 'rejected' && `${sr.student}` === RECIEVER_ID
           );
           if (check) {
             return res.status(404).send({ message: Texts.You_have_already_sent_a_request });
@@ -1326,27 +1326,12 @@ exports.GetJobswithStudents = asyncHandler(async (req, res, next) => {
 
       if (jobs) {
         var newData = [];
+        console.log(jobs.length, 'l');
         for (let i = 0; i < jobs.length; i++) {
           req.params.id = jobs[i]._id;
           const job = { ...jobs[i]._doc };
           const matchedStudents = await matchingCriteria.display(req, res, next);
-          if (job.company_requests.length > 0) {
-            const filterStudents = [];
-            for (let i = 0; i < matchedStudents.students.length; i++) {
-              const Algostd = matchedStudents.students[i]._id;
-              console.log(Algostd, 'Algostd');
-              for (let j = 0; j < job.company_requests.length; j++) {
-                const Requestedstd = job.company_requests[j].student._id;
-                console.log(Requestedstd, 'Requestedstd');
-                if (Algostd.toString() !== Requestedstd.toString()) {
-                  filterStudents.push(matchedStudents.students[i]);
-                }
-              }
-            }
-            job.matchedStudents = filterStudents;
-          } else {
-            job.matchedStudents = matchedStudents.students;
-          }
+          job.matchedStudents = matchedStudents.students;
           newData.push(job);
         }
         return res.status(200).send({ jobs: newData, message: 'Travail récupéré avec succès' });
