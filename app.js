@@ -35,8 +35,6 @@ app.use(
   })
 );
 
-console.log(process.env.MailingPassword, 'process.env.MailingPassword');
-
 //// Body Parser Middleware ////
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
