@@ -8,7 +8,12 @@ const InterviewSchema = new mongoose.Schema({
   student: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student',
-    required: false
+    required: true
+  },
+  job: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Job',
+    required: true
   },
   description: String,
   company: {
