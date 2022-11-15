@@ -462,7 +462,7 @@ exports.update = async (req, res) => {
       });
     } else if (interview.type === 'physical') {
       const { interviewId } = req.params;
-      const interview = await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
+      await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
         .populate({
           path: 'student',
           populate: {
@@ -560,7 +560,7 @@ const companyRequest = (RECIEVER_ID, JOB_ID, companyData, studentData) => {
                   company_requests: {
                     student: RECIEVER_ID,
                     jobID: JOB_ID,
-                    status: req.body.status
+                    status: status
                   }
                 }
               });

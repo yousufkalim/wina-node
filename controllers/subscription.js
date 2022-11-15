@@ -96,7 +96,10 @@ exports.getById = async (req, res) => {
 
 exports.getByUser = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { userId, type } = req.query;
+    if (!type && !userId) {
+      return res.status(404).json({ success: false, message: 'Type and UserId required' });
+    }
     const subscriptions = await Subscription.find({ 'user.uId': userId });
     res.status(200).json({ success: true, subscriptions });
   } catch (err) {
