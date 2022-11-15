@@ -4,7 +4,7 @@ const User = require('../models/User');
 const Company = require('../models/Company');
 const Job = require('../models/Job');
 const Student = require('../models/Student');
-const socket = require('../app');
+
 const { Texts } = require('../utils/texts');
 const Appointment = require('../models/Appointment');
 const matchingAlgo = require('../services/searchStudents');
@@ -108,10 +108,30 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
     await Company.findByIdAndUpdate(companyID, {
       $push: { job: newJob._id }
     });
+    const populateQuery = [
+      {
+        path: 'company'
+      },
+      {
+        path: 'softSkills'
+      },
+      {
+        path: 'hardSkills'
+      },
+      {
+        path: 'company_requests.student',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      }
+    ];
+    const jobs = await Job.find({ company: companyID }).populate(populateQuery);
     return res.status(200).json({
       message: Texts.success + Texts.jobCreated,
       job: newJob,
-      user: requestedUser
+      user: requestedUser,
+      jobs: jobs
     });
   } catch (err) {
     return res.status(400).json({
@@ -1326,13 +1346,27 @@ exports.GetJobswithStudents = asyncHandler(async (req, res, next) => {
 
       if (jobs) {
         var newData = [];
-        console.log(jobs.length, 'l');
         for (let i = 0; i < jobs.length; i++) {
           req.params.id = jobs[i]._id;
           const job = { ...jobs[i]._doc };
           const matchedStudents = await matchingCriteria.display(req, res, next);
-          job.matchedStudents = matchedStudents.students;
-          newData.push(job);
+          if (job.company_requests.length > 0) {
+            const filterStds = [];
+            for (let i = 0; i < matchedStudents.students.length; i++) {
+              const matchId = matchedStudents.students[i]._id;
+              for (let j = 0; j < job.company_requests.length; j++) {
+                const reqId = job.company_requests[j].student._id;
+                if (matchId != reqId) {
+                  filterStds.push(matchedStudents.students[i]);
+                }
+              }
+            }
+            job.matchedStudents = filterStds;
+            newData.push(job);
+          } else {
+            job.matchedStudents = matchedStudents.students;
+            newData.push(job);
+          }
         }
         return res.status(200).send({ jobs: newData, message: 'Travail récupéré avec succès' });
       }
@@ -1340,7 +1374,5 @@ exports.GetJobswithStudents = asyncHandler(async (req, res, next) => {
   } catch (error) {
     console.log(error);
     return res.status(200).send({ message: error });
-
-    next(error);
   }
 });

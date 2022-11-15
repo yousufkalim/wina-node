@@ -116,6 +116,7 @@ const FileUpload = require('./routes/FileUpload');
 const adminAuth = require('./routes/adminAuth');
 const interview = require('./routes/interview');
 const package = require('./routes/packages');
+const subscription = require('./routes/subscriptions');
 
 //// Mount Routers ////
 
@@ -140,6 +141,7 @@ app.use('/api/v1', FileUpload);
 app.use('/api/v1/adminAuth', adminAuth);
 app.use('/api/v1/interview', interview);
 app.use('/api/v1/package', package);
+app.use('/api/v1/subscription', subscription);
 /**
  * End
  * @author Shuja Naqvi
@@ -161,8 +163,8 @@ server.listen(PORT, () => {
 
 // Socket configuration //
 io.on('connection', socket => {
-  console.log('User Connected');
-
+  exports.io = io;
+  exports.socket = socket;
   socket.on('sendnotification', data => {
     socket.broadcast.emit('sendnotification', data);
   });
