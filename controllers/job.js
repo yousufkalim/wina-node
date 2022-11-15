@@ -1350,23 +1350,8 @@ exports.GetJobswithStudents = asyncHandler(async (req, res, next) => {
           req.params.id = jobs[i]._id;
           const job = { ...jobs[i]._doc };
           const matchedStudents = await matchingCriteria.display(req, res, next);
-          if (job.company_requests.length > 0) {
-            const filterStds = [];
-            for (let i = 0; i < matchedStudents.students.length; i++) {
-              const matchId = matchedStudents.students[i]._id;
-              for (let j = 0; j < job.company_requests.length; j++) {
-                const reqId = job.company_requests[j].student._id;
-                if (matchId != reqId) {
-                  filterStds.push(matchedStudents.students[i]);
-                }
-              }
-            }
-            job.matchedStudents = filterStds;
-            newData.push(job);
-          } else {
-            job.matchedStudents = matchedStudents.students;
-            newData.push(job);
-          }
+          job.matchedStudents = matchedStudents.students;
+          newData.push(job);
         }
         return res.status(200).send({ jobs: newData, message: 'Travail récupéré avec succès' });
       }
