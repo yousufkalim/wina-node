@@ -48,6 +48,7 @@ exports.validateInterview = [
   check('description', 'description is required').notEmpty().trim(),
   check('company', 'Company Id is required').notEmpty().trim(),
   check('student', 'Student Id is required').notEmpty().trim(),
+  check('job', 'job Id is required').notEmpty().trim(),
   check('type', 'Interview required virtual or physical(acceptable)')
     .notEmpty()
     .trim()

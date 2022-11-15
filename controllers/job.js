@@ -256,7 +256,6 @@ exports.DeleteJob = asyncHandler(async (req, res, next) => {
 
 // GET single Job
 exports.GetJob = asyncHandler(async (req, res, next) => {
-  
   try {
     const populateQuery = [
       {
@@ -1074,12 +1073,11 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
       }
     ];
     const requestedUser = await User.findById(req.user.id);
-    console.log(requestedUser, 'User');
     if (!requestedUser.type) {
       return res.status(400).send({ message: Texts.notAuthorized });
     }
     const { status, offerID } = req.body;
-    console.log(req.body);
+
     const JOB_ID = offerID;
     const SENDER_ID = requestedUser.company;
     const company = await Company.findById(SENDER_ID);
@@ -1089,14 +1087,14 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
       offerID: Joi.string().required()
     });
     let results = schema.validate(req.body);
-    console.log(results, 'Result');
+
     if (results.error) {
       return res.status(400).send({ message: results.error.details[0].message });
     }
     let temp = await Appointment.find({
       $and: [{ student: RECIEVER_ID }, { jobID: JOB_ID }]
     });
-    console.log(temp, 'Temp');
+
     if (temp && temp.length) {
       return res.status(400).json({ message: Texts.Appointment_is_already_existed });
     }
@@ -1116,16 +1114,14 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
       }
     ]).exec(async (err, data) => {
       if (err) {
-        //console.log(err[0].message, "Hi");
         return res.status(404).send({ message: err.message });
       } else {
         let fill = data.find(fl => JOB_ID === `${fl._id}`);
         if (fill && fill.company_requests && fill.company_requests.length > 0) {
           let check = fill.company_requests.some(
-            sr => sr.status === 'requested' && `${sr.student}` === RECIEVER_ID
+            sr => sr.status === 'rejected' && `${sr.student}` === RECIEVER_ID
           );
-          if (check === true) {
-            console.log(check, 'CHECK');
+          if (check) {
             return res.status(404).send({ message: Texts.You_have_already_sent_a_request });
           } else {
             await Job.findByIdAndUpdate(JOB_ID, {

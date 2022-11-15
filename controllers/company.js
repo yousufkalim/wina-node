@@ -397,15 +397,9 @@ exports.updateStage = async (req, res) => {
     if (!findCompany) {
       return res.status(404).json({ success: false, message: 'stage not found' });
     }
-    
-    if (req.files?.image) {
-      req.body.photo = req?.files?.image[0]?.path
+    if (req?.files?.image) {
+      req.body.photo = req.files.image[0].path;
     }
-    const stage = {
-      title: req.body.title,
-      photo: req?.body?.photo ? req.body.photo : findCompany.stages[0].photo
-    };
-   
     const company = await Company.findOneAndUpdate(
       { stages: { $elemMatch: { _id: req.body.stageId } } },
       {
@@ -416,7 +410,7 @@ exports.updateStage = async (req, res) => {
       },
       { new: true }
     ); // Updating
-    console.log(company.stages,"company.stages")
+    console.log(company.stages, 'company.stages');
     res.json({ success: true, company }); // Success
   } catch (err) {
     // Error handling
