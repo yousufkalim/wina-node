@@ -4,7 +4,7 @@ const User = require('../models/User');
 const Company = require('../models/Company');
 const Job = require('../models/Job');
 const Student = require('../models/Student');
-const socket = require('../app');
+
 const { Texts } = require('../utils/texts');
 const Appointment = require('../models/Appointment');
 const matchingAlgo = require('../services/searchStudents');
@@ -108,10 +108,30 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
     await Company.findByIdAndUpdate(companyID, {
       $push: { job: newJob._id }
     });
+    const populateQuery = [
+      {
+        path: 'company'
+      },
+      {
+        path: 'softSkills'
+      },
+      {
+        path: 'hardSkills'
+      },
+      {
+        path: 'company_requests.student',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      }
+    ];
+    const jobs = await Job.find({ company: companyID }).populate(populateQuery);
     return res.status(200).json({
       message: Texts.success + Texts.jobCreated,
       job: newJob,
-      user: requestedUser
+      user: requestedUser,
+      jobs: jobs
     });
   } catch (err) {
     return res.status(400).json({
@@ -1326,7 +1346,6 @@ exports.GetJobswithStudents = asyncHandler(async (req, res, next) => {
 
       if (jobs) {
         var newData = [];
-        console.log(jobs.length, 'l');
         for (let i = 0; i < jobs.length; i++) {
           req.params.id = jobs[i]._id;
           const job = { ...jobs[i]._doc };
@@ -1340,7 +1359,5 @@ exports.GetJobswithStudents = asyncHandler(async (req, res, next) => {
   } catch (error) {
     console.log(error);
     return res.status(200).send({ message: error });
-
-    next(error);
   }
 });

@@ -9,7 +9,7 @@ const Appointment = require('../models/Appointment');
 const matchingAlgo = require('../services/searchStudents');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
+const io = require('../app.js');
 var matchingCriteria = new matchingAlgo.MatchingCriteria();
 var dealBreaker = new matchingAlgo.DealBreaker();
 

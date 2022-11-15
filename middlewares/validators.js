@@ -96,6 +96,19 @@ exports.validatePackage = [
     .isIn(['1 Month', '3 Months', '6 Months', '12 Months']),
   check('detail', 'detail date is required').notEmpty().trim()
 ];
+
+//Subscription
+exports.validateSubscription = [
+  check('package', 'packageId is required').notEmpty().trim(),
+  check('user.type', 'user type required  is required (student/company)acceptable')
+    .notEmpty()
+    .trim()
+    .isIn(['student', 'company']),
+  check('user.uId', 'user id required  is required').notEmpty().trim(),
+  check('expire_on', 'package expiry date required').notEmpty().trim(),
+  check('price', 'price date is required').notEmpty().trim()
+];
+
 /*
  ======================
  Result
