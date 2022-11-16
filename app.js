@@ -35,8 +35,6 @@ app.use(
   })
 );
 
-console.log(process.env.MailingPassword, 'process.env.MailingPassword');
-
 //// Body Parser Middleware ////
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -116,6 +114,7 @@ const FileUpload = require('./routes/FileUpload');
 const adminAuth = require('./routes/adminAuth');
 const interview = require('./routes/interview');
 const package = require('./routes/packages');
+const subscription = require('./routes/subscriptions');
 
 //// Mount Routers ////
 
@@ -140,6 +139,7 @@ app.use('/api/v1', FileUpload);
 app.use('/api/v1/adminAuth', adminAuth);
 app.use('/api/v1/interview', interview);
 app.use('/api/v1/package', package);
+app.use('/api/v1/subscription', subscription);
 /**
  * End
  * @author Shuja Naqvi
@@ -161,8 +161,8 @@ server.listen(PORT, () => {
 
 // Socket configuration //
 io.on('connection', socket => {
-  console.log('User Connected');
-
+  exports.io = io;
+  exports.socket = socket;
   socket.on('sendnotification', data => {
     socket.broadcast.emit('sendnotification', data);
   });
@@ -245,7 +245,7 @@ app.get('/auth/google/success', async (req, res) => {
       if (user.status === 'googleSignup') {
         return res.redirect(process.env.REACT_URL + `?SignupByGoogle=true&&user=${token}`);
       } else {
-        return res.redirect(process.env.REACT_URL + `goolgeLogin?token=${token}`);
+        return res.redirect(process.env.REACT_URL + `?goolgeLogin&&token=${token}`);
       }
     } else {
       let newUser = await User.create({
@@ -298,7 +298,7 @@ app.get('/auth/linkedin/success', async (req, res) => {
       if (user.status === 'linkedInSignup') {
         return res.redirect(process.env.REACT_URL + `?SignupBylinkedIn=true&&user=${token}`);
       } else {
-        return res.redirect(process.env.REACT_URL + `linkedInLogin?token=${token}`);
+        return res.redirect(process.env.REACT_URL + `?linkedInLogin&&token=${token}`);
       }
     } else {
       let newUser = await User.create({

@@ -12,6 +12,7 @@ const Job = require('../models/Job');
 const Appointment = require('../models/Appointment');
 const { interviewInvitation } = require('../utils/sendEmail');
 const { Texts } = require('../utils/texts');
+const io = require('../app');
 /**
  * Create Virtual Interview
  * @param {object} req
@@ -70,6 +71,11 @@ exports.virtualInterview = async (req, res) => {
             //to add company request and to send notification to user for interview
             companyRequest(student, job, existingCompany, existingStudent)
               .then(async data => {
+                if (io?.socket) {
+                  io?.socket?.emit(`interviewSchedule${student}`, {
+                    message: `You have been invited for an online interview by ${existingCompany.name} on ${start_date} joining-link is: ${guest_link}`
+                  });
+                }
                 const interviews = await Interviews.find()
                   .populate({
                     path: 'student',
@@ -141,6 +147,11 @@ exports.physicalInterview = async (req, res) => {
         //to add company request and to send notification to user for interview
         await companyRequest(student, job, existingCompany, existingStudent)
           .then(async data => {
+            if (io?.socket) {
+              io?.socket?.emit(`interviewSchedule${student}`, {
+                message: `You have been invited for an onsite interview by ${existingCompany.name} on ${start_date}`
+              });
+            }
             const interviews = await Interviews.find()
               .populate({
                 path: 'student',
@@ -451,7 +462,7 @@ exports.update = async (req, res) => {
       });
     } else if (interview.type === 'physical') {
       const { interviewId } = req.params;
-      const interview = await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
+      await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
         .populate({
           path: 'student',
           populate: {
@@ -549,7 +560,7 @@ const companyRequest = (RECIEVER_ID, JOB_ID, companyData, studentData) => {
                   company_requests: {
                     student: RECIEVER_ID,
                     jobID: JOB_ID,
-                    status: req.body.status
+                    status: status
                   }
                 }
               });
