@@ -305,10 +305,10 @@ exports.addMember = async (req, res) => {
     };
     const findCompany = await Company.findById(companyId);
     if (!findCompany) {
-      return res.status(404).json({ success: false, message: 'company not found' });
+      return res.status(404).json({ success: false, message: Texts.company_not_found });
     }
     if (findCompany.members.length >= 4) {
-      return res.status(404).json({ success: false, message: 'members already added' });
+      return res.status(404).json({ success: false, message: Texts.members_already_added });
     }
     findCompany.members.push(member);
     await findCompany.save();
@@ -330,7 +330,7 @@ exports.updateMember = async (req, res) => {
       { 'members.$': 1 }
     );
     if (!findCompany) {
-      return res.status(404).json({ success: false, message: 'member not found' });
+      return res.status(404).json({ success: false, message: Texts.member_not_found });
     }
     if (req?.files?.image) {
       req.body.photo = req.files.image[0].path;
@@ -370,10 +370,10 @@ exports.addStage = async (req, res) => {
     };
     const findCompany = await Company.findById(companyId);
     if (!findCompany) {
-      return res.status(404).json({ success: false, message: 'company not found' });
+      return res.status(404).json({ success: false, message: Texts.company_not_found });
     }
     if (findCompany.stages.length >= 4) {
-      return res.status(404).json({ success: false, message: 'stages already added' });
+      return res.status(404).json({ success: false, message: Texts.stages_already_added });
     }
     findCompany.stages.push(stage);
     await findCompany.save();
@@ -395,7 +395,7 @@ exports.updateStage = async (req, res) => {
       { 'stages.$': 1 }
     );
     if (!findCompany) {
-      return res.status(404).json({ success: false, message: 'stage not found' });
+      return res.status(404).json({ success: false, message: Texts.stage_not_found });
     }
     if (req?.files?.image) {
       req.body.photo = req.files.image[0].path;
@@ -410,7 +410,6 @@ exports.updateStage = async (req, res) => {
       },
       { new: true }
     ); // Updating
-    console.log(company.stages, 'company.stages');
     res.json({ success: true, company }); // Success
   } catch (err) {
     // Error handling
@@ -478,7 +477,7 @@ exports.updateCompany = async (req, res) => {
     }
     const companyId = req.params.companyId;
     const company = await Company.findByIdAndUpdate(companyId, req.body, { new: true });
-    res.status(200).json({ success: true, company, message: 'Company updated successfully' });
+    res.status(200).json({ success: true, company, message: Texts.Company_updated_successfully });
   } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -513,7 +512,7 @@ exports.updateTeamDescription = async (req, res) => {
     const company = await Company.findByIdAndUpdate(companyId, req.body, { new: true });
     res
       .status(200)
-      .json({ success: true, company, message: 'Team Description updated successfully' });
+      .json({ success: true, company, message: Texts.Team_Description_updated_successfully });
   } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -531,7 +530,7 @@ exports.updateStageDescription = async (req, res) => {
     const company = await Company.findByIdAndUpdate(companyId, req.body, { new: true });
     res
       .status(200)
-      .json({ success: true, company, message: 'Stage Description updated successfully' });
+      .json({ success: true, company, message: Texts.Stage_Description_updated_successfully });
   } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
