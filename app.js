@@ -245,7 +245,7 @@ app.get('/auth/google/success', async (req, res) => {
       if (user.status === 'googleSignup') {
         return res.redirect(process.env.REACT_URL + `?SignupByGoogle=true&&user=${token}`);
       } else {
-        return res.redirect(process.env.REACT_URL + `goolgeLogin?token=${token}`);
+        return res.redirect(process.env.REACT_URL + `?goolgeLogin&&token=${token}`);
       }
     } else {
       let newUser = await User.create({
@@ -298,7 +298,7 @@ app.get('/auth/linkedin/success', async (req, res) => {
       if (user.status === 'linkedInSignup') {
         return res.redirect(process.env.REACT_URL + `?SignupBylinkedIn=true&&user=${token}`);
       } else {
-        return res.redirect(process.env.REACT_URL + `linkedInLogin?token=${token}`);
+        return res.redirect(process.env.REACT_URL + `?linkedInLogin&&token=${token}`);
       }
     } else {
       let newUser = await User.create({
