@@ -73,7 +73,7 @@ exports.virtualInterview = async (req, res) => {
               .then(async data => {
                 if (io?.socket) {
                   io?.socket?.emit(`interviewSchedule${student}`, {
-                    message: `You have been invited for an online interview by ${existingCompany.name} on ${start_date} joining-link is: ${guest_link}`
+                    message: `You have been invited for an online interview by ${existingCompany.name} on ${start_date} joining-link is: ${mail.guest_link}`
                   });
                 }
                 const interviews = await Interviews.find()
@@ -544,31 +544,31 @@ const companyRequest = (RECIEVER_ID, JOB_ID, companyData, studentData) => {
         } else {
           let fill = data.find(fl => JOB_ID === `${fl._id}`);
           if (fill && fill.company_requests && fill.company_requests.length > 0) {
-            let check = fill.company_requests.some(
-              sr => sr.status === 'requested' && `${sr.student}` === RECIEVER_ID
-            );
-            if (check) {
-              reject({ success: false, message: Texts.You_have_already_sent_a_request });
-            } else {
-              const notifications = {
-                title: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`,
-                jobID: JOB_ID,
-                description: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`
-              };
-              await Job.findByIdAndUpdate(JOB_ID, {
-                $push: {
-                  company_requests: {
-                    student: RECIEVER_ID,
-                    jobID: JOB_ID,
-                    status: status
-                  }
+            // let check = fill.company_requests.some(
+            //   sr => sr.status === 'requested' && `${sr.student}` === RECIEVER_ID
+            // );
+            // if (check) {
+            // reject({ success: false, message: Texts.You_have_already_sent_a_request });
+            // } else {
+            const notifications = {
+              title: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`,
+              jobID: JOB_ID,
+              description: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`
+            };
+            await Job.findByIdAndUpdate(JOB_ID, {
+              $push: {
+                company_requests: {
+                  student: RECIEVER_ID,
+                  jobID: JOB_ID,
+                  status: status
                 }
-              });
+              }
+            });
 
-              studentData.notifications.push(notifications);
-              await studentData.save();
-              resolve({ success: true, message: 'Requested Successfully' });
-            }
+            studentData.notifications.push(notifications);
+            await studentData.save();
+            resolve({ success: true, message: 'Requested Successfully' });
+            // }
           } else {
             await Job.findByIdAndUpdate(JOB_ID, {
               $push: {
