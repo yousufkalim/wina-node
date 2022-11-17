@@ -36,7 +36,6 @@ exports.create = async (req, res) => {
 
 exports.getAll = async (req, res) => {
   try {
-    console.log(req.query, 'req.query');
     const { page, pageSize } = req.query;
     const pageNumber = page * 1 || 1;
     const pagesize = pageSize * 1 || 100;

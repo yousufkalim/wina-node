@@ -64,6 +64,10 @@ exports.create = async (req, res) => {
 
 exports.getAll = async (req, res) => {
   try {
+    const { page, pageSize } = req.query;
+    const pageNumber = page * 1 || 1;
+    const pagesize = pageSize * 1 || 100;
+    const skip = (pageNumber - 1) * pagesize;
     const subscriptions = await Subscription.aggregate([
       {
         $lookup: {
@@ -137,7 +141,7 @@ exports.getAll = async (req, res) => {
       },
       {
         $group: {
-          _id: '$user.type',
+          _id: null,
           result: {
             $push: {
               package: '$package',
@@ -147,8 +151,20 @@ exports.getAll = async (req, res) => {
           }
         }
       }
+    ])
+      .skip(skip)
+      .limit(pagesize);
+    const subscribersLength = await Subscription.aggregate([
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 }
+        }
+      }
     ]);
-    res.status(200).json({ success: true, subscriptions });
+    return res
+      .status(200)
+      .json({ success: true, count: subscribersLength[0].count, data: { subscriptions } });
   } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -294,6 +310,119 @@ exports.getByUser = async (req, res) => {
     } else {
       return res.status(404).json({ success: false, message: 'Invalid Type' });
     }
+  } catch (err) {
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+exports.packageSubscriber = async (req, res) => {
+  try {
+    const package = mongoose.Types.ObjectId(req.params.packageId);
+    const { page, pageSize } = req.query;
+    const pageNumber = page * 1 || 1;
+    const pagesize = pageSize * 1 || 100;
+    const skip = (pageNumber - 1) * pagesize;
+    const subscriptions = await Subscription.aggregate([
+      { $match: { package: package } },
+      {
+        $lookup: {
+          from: 'packages',
+          localField: 'package',
+          foreignField: '_id',
+          as: 'package'
+        }
+      },
+      {
+        $unwind: {
+          path: '$package',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'students',
+          localField: 'user.uId',
+          foreignField: '_id',
+          as: 'student'
+        }
+      },
+      {
+        $unwind: {
+          path: '$student',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'student.user',
+          foreignField: '_id',
+          as: 'student.user'
+        }
+      },
+      {
+        $unwind: {
+          path: '$student.user',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'companies',
+          localField: 'user.uId',
+          foreignField: '_id',
+          as: 'company'
+        }
+      },
+      {
+        $unwind: {
+          path: '$company',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'company.contactPerson.person',
+          foreignField: '_id',
+          as: 'company.contactPerson.person'
+        }
+      },
+      {
+        $unwind: {
+          path: '$company.contactPerson.person',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          result: {
+            $push: {
+              package: '$package',
+              details: '$$ROOT',
+              company: '$company',
+              student: '$student'
+            }
+          }
+        }
+      }
+    ])
+      .skip(skip)
+      .limit(pagesize);
+    const subscribersLength = await Subscription.aggregate([
+      { $match: { package: package } },
+      {
+        $group: {
+          _id: '$package._id',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    return res
+      .status(200)
+      .json({ success: true, count: subscribersLength[0].count, data: { subscriptions } });
   } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
