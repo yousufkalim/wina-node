@@ -74,12 +74,23 @@ exports.virtualInterview = async (req, res) => {
             companyRequest(student, job, existingCompany, existingStudent)
               .then(async data => {
                 if (socket?.socket) {
-                  socket.io.emit(`interviewSchedule${student}`, {
+                  socket.io.emit(`interviewSchedule${existingStudent.user._id}`, {
                     title: 'interview invitation',
                     message: `You have been invited for an onsite interview by ${existingCompany.name} on ${start_date} joining link: ${mail.guest_link}`
                   });
                 }
-
+                await User.findByIdAndUpdate(
+                  existingStudent.user._id,
+                  {
+                    $push: {
+                      notifications: {
+                        title: 'interview invitation',
+                        description: `You have been invited for an onsite interview by ${existingCompany.name} on ${start_date} joining link: ${mail.guest_link}`
+                      }
+                    }
+                  },
+                  { new: true }
+                );
                 const interviews = await Interviews.find()
                   .populate({
                     path: 'student',
@@ -152,11 +163,23 @@ exports.physicalInterview = async (req, res) => {
         await companyRequest(student, job, existingCompany, existingStudent)
           .then(async data => {
             if (socket?.socket) {
-              socket.io.emit(`interviewSchedule${student}`, {
+              socket.io.emit(`interviewSchedule${existingStudent.user._id}`, {
                 title: 'interview invitation',
                 message: `You have been invited for an onsite interview by ${existingCompany.name} on ${start_date}`
               });
             }
+            await User.findByIdAndUpdate(
+              existingStudent.user._id,
+              {
+                $push: {
+                  notifications: {
+                    title: 'interview invitation',
+                    description: `You have been invited for an onsite interview by ${existingCompany.name} on ${start_date}`
+                  }
+                }
+              },
+              { new: true }
+            );
             const interviews = await Interviews.find()
               .populate({
                 path: 'student',
@@ -444,7 +467,26 @@ exports.update = async (req, res) => {
               model: 'User'
             }
           });
+
         interviewInvitation(mail).then(async () => {
+          if (socket?.socket) {
+            socket.io.emit(`interviewSchedule${existingStudent.user._id}`, {
+              title: 'interview invitation',
+              message: `You have been invited for online interview by ${existingCompany.name} on ${start_date} joining link: ${mail.guest_link}`
+            });
+          }
+          await User.findByIdAndUpdate(
+            existingStudent.user._id,
+            {
+              $push: {
+                notifications: {
+                  title: 'interview invitation',
+                  description: `You have been invited for an online interview by ${existingCompany.name} on ${start_date} joining link: ${mail.guest_link}`
+                }
+              }
+            },
+            { new: true }
+          );
           const interviews = await Interviews.find()
             .populate({
               path: 'student',
@@ -489,6 +531,24 @@ exports.update = async (req, res) => {
         date: start_date
       };
       interviewInvitation(mail).then(async () => {
+        if (socket?.socket) {
+          socket.io.emit(`interviewSchedule${existingStudent.user._id}`, {
+            title: 'interview invitation',
+            message: `You have been invited for onsite interview by ${existingCompany.name} on ${start_date}`
+          });
+        }
+        await User.findByIdAndUpdate(
+          existingStudent.user._id,
+          {
+            $push: {
+              notifications: {
+                title: 'interview invitation',
+                description: `You have been invited for an online interview by ${existingCompany.name} on ${start_date} `
+              }
+            }
+          },
+          { new: true }
+        );
         const interviews = await Interviews.find()
           .populate({
             path: 'student',
