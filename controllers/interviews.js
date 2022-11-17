@@ -85,6 +85,7 @@ exports.virtualInterview = async (req, res) => {
                   {
                     $push: {
                       notifications: {
+                        statusNew: true,
                         title: 'invitation à un entretien',
                         description: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
                       }
@@ -174,6 +175,7 @@ exports.physicalInterview = async (req, res) => {
               {
                 $push: {
                   notifications: {
+                    statusNew: true,
                     title: 'invitation à un entretien',
                     description: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
                   }
@@ -481,6 +483,7 @@ exports.update = async (req, res) => {
             {
               $push: {
                 notifications: {
+                  statusNew: true,
                   title: 'invitation à un entretien',
                   description: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
                 }
@@ -543,6 +546,7 @@ exports.update = async (req, res) => {
           {
             $push: {
               notifications: {
+                statusNew: true,
                 title: 'invitation à un entretien',
                 description: `You have been invited for an online interview by ${existingCompany.name} on ${start_date} `
               }
