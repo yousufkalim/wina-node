@@ -12,7 +12,8 @@ const Job = require('../models/Job');
 const Appointment = require('../models/Appointment');
 const { interviewInvitation } = require('../utils/sendEmail');
 const { Texts } = require('../utils/texts');
-const io = require('../app');
+const socket = require('../app');
+
 /**
  * Create Virtual Interview
  * @param {object} req
@@ -21,6 +22,7 @@ const io = require('../app');
 exports.virtualInterview = async (req, res) => {
   try {
     const { description, student, job, company, start_date } = req.body;
+
     const existingStudent = await Student.findById(student).populate('user');
     if (!existingStudent) {
       return res.status(404).json({ success: false, message: 'Student not found' });
@@ -71,11 +73,13 @@ exports.virtualInterview = async (req, res) => {
             //to add company request and to send notification to user for interview
             companyRequest(student, job, existingCompany, existingStudent)
               .then(async data => {
-                if (io?.socket) {
-                  io?.socket?.emit(`interviewSchedule${student}`, {
-                    message: `You have been invited for an online interview by ${existingCompany.name} on ${start_date} joining-link is: ${mail.guest_link}`
+                if (socket?.socket) {
+                  socket.io.emit(`interviewSchedule${student}`, {
+                    title: 'interview invitation',
+                    message: `You have been invited for an onsite interview by ${existingCompany.name} on ${start_date} joining link: ${mail.guest_link}`
                   });
                 }
+
                 const interviews = await Interviews.find()
                   .populate({
                     path: 'student',
@@ -147,8 +151,9 @@ exports.physicalInterview = async (req, res) => {
         //to add company request and to send notification to user for interview
         await companyRequest(student, job, existingCompany, existingStudent)
           .then(async data => {
-            if (io?.socket) {
-              io?.socket?.emit(`interviewSchedule${student}`, {
+            if (socket?.socket) {
+              socket.io.emit(`interviewSchedule${student}`, {
+                title: 'interview invitation',
                 message: `You have been invited for an onsite interview by ${existingCompany.name} on ${start_date}`
               });
             }
