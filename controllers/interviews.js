@@ -80,8 +80,8 @@ exports.virtualInterview = async (req, res) => {
                     message: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
                   });
                 }
-                await User.findByIdAndUpdate(
-                  existingStudent.user._id,
+                await Student.findByIdAndUpdate(
+                  existingStudent._id,
                   {
                     $push: {
                       notifications: {
@@ -170,8 +170,8 @@ exports.physicalInterview = async (req, res) => {
                 message: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
               });
             }
-            await User.findByIdAndUpdate(
-              existingStudent.user._id,
+            await Student.findByIdAndUpdate(
+              existingStudent._id,
               {
                 $push: {
                   notifications: {
@@ -478,8 +478,8 @@ exports.update = async (req, res) => {
               message: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
             });
           }
-          await User.findByIdAndUpdate(
-            existingStudent.user._id,
+          await Student.findByIdAndUpdate(
+            existingStudent._id,
             {
               $push: {
                 notifications: {
@@ -541,8 +541,8 @@ exports.update = async (req, res) => {
             message: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
           });
         }
-        await User.findByIdAndUpdate(
-          existingStudent.user._id,
+        await Student.findByIdAndUpdate(
+          existingStudent._id,
           {
             $push: {
               notifications: {
