@@ -8,6 +8,7 @@ const Company = require('../models/Company');
 const Student = require('../models/Student');
 const Package = require('../models/packages');
 const cron = require('node-cron');
+const mongoose = require('mongoose');
 /**
  * Create New  Subscription
  * @param {object} req
@@ -63,7 +64,90 @@ exports.create = async (req, res) => {
 
 exports.getAll = async (req, res) => {
   try {
-    const subscriptions = await Subscription.find();
+    const subscriptions = await Subscription.aggregate([
+      {
+        $lookup: {
+          from: 'packages',
+          localField: 'package',
+          foreignField: '_id',
+          as: 'package'
+        }
+      },
+      {
+        $unwind: {
+          path: '$package',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'students',
+          localField: 'user.uId',
+          foreignField: '_id',
+          as: 'student'
+        }
+      },
+      {
+        $unwind: {
+          path: '$student',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'student.user',
+          foreignField: '_id',
+          as: 'student.user'
+        }
+      },
+      {
+        $unwind: {
+          path: '$student.user',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'companies',
+          localField: 'user.uId',
+          foreignField: '_id',
+          as: 'company'
+        }
+      },
+      {
+        $unwind: {
+          path: '$company',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'company.contactPerson.person',
+          foreignField: '_id',
+          as: 'company.contactPerson.person'
+        }
+      },
+      {
+        $unwind: {
+          path: '$company.contactPerson.person',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $group: {
+          _id: '$user.type',
+          result: {
+            $push: {
+              package: '$package',
+              company: '$company',
+              student: '$student'
+            }
+          }
+        }
+      }
+    ]);
     res.status(200).json({ success: true, subscriptions });
   } catch (err) {
     console.log('Error ----> ', err);
@@ -79,9 +163,21 @@ exports.getAll = async (req, res) => {
 
 exports.getById = async (req, res) => {
   try {
-    const { subscriptionId } = req.params;
-    const subscription = await Subscription.findById(subscriptionId);
-    res.status(200).json({ success: true, subscription });
+    let { subscriptionId } = req.params;
+    subscriptionId = mongoose.Types.ObjectId(subscriptionId);
+    let data = await Subscription.findById(subscriptionId).populate('package');
+    if (data) {
+      data = { ...data._doc };
+      if (data.user.type === 'company') {
+        data.company = await Company.findById(data.user.uId).populate('contactPerson.person');
+        return res.status(200).json({ success: true, subscription: data });
+      } else if (data.user.type === 'student') {
+        data.student = await Student.findById(data.user.uId).populate('user');
+        return res.status(200).json({ success: true, subscription: data });
+      }
+    } else {
+      return res.status(200).json({ success: true, subscription: {} });
+    }
   } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -100,8 +196,104 @@ exports.getByUser = async (req, res) => {
     if (!type && !userId) {
       return res.status(404).json({ success: false, message: 'Type and UserId required' });
     }
-    const subscriptions = await Subscription.find({ 'user.uId': userId });
-    res.status(200).json({ success: true, subscriptions });
+    const user = mongoose.Types.ObjectId(userId);
+    if (type === 'company') {
+      const data = await Subscription.aggregate([
+        { $match: { 'user.uId': user } },
+        {
+          $lookup: {
+            from: 'packages',
+            localField: 'package',
+            foreignField: '_id',
+            as: 'package'
+          }
+        },
+        {
+          $unwind: {
+            path: '$package',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $lookup: {
+            from: 'companies',
+            localField: 'user.uId',
+            foreignField: '_id',
+            as: 'company'
+          }
+        },
+        {
+          $unwind: {
+            path: '$company',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'company.contactPerson.person',
+            foreignField: '_id',
+            as: 'company.contactPerson.person'
+          }
+        },
+        {
+          $unwind: {
+            path: '$company.contactPerson.person',
+            preserveNullAndEmptyArrays: true
+          }
+        }
+      ]);
+      res.status(200).json({ success: true, subscription: data });
+    } else if (type === 'student') {
+      const data = await Subscription.aggregate([
+        { $match: { 'user.uId': user } },
+        {
+          $lookup: {
+            from: 'packages',
+            localField: 'package',
+            foreignField: '_id',
+            as: 'package'
+          }
+        },
+        {
+          $unwind: {
+            path: '$package',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $lookup: {
+            from: 'students',
+            localField: 'user.uId',
+            foreignField: '_id',
+            as: 'student'
+          }
+        },
+        {
+          $unwind: {
+            path: '$student',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'student.user',
+            foreignField: '_id',
+            as: 'student.user'
+          }
+        },
+        {
+          $unwind: {
+            path: '$student.user',
+            preserveNullAndEmptyArrays: true
+          }
+        }
+      ]);
+      res.status(200).json({ success: true, subscription: data });
+    } else {
+      return res.status(404).json({ success: false, message: 'Invalid Type' });
+    }
   } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
