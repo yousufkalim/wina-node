@@ -12,6 +12,7 @@ const Job = require('../models/Job');
 const Appointment = require('../models/Appointment');
 const { interviewInvitation } = require('../utils/sendEmail');
 const { Texts } = require('../utils/texts');
+const User = require('../models/User');
 const socket = require('../app');
 
 /**
@@ -75,8 +76,8 @@ exports.virtualInterview = async (req, res) => {
               .then(async data => {
                 if (socket?.socket) {
                   socket.io.emit(`interviewSchedule${existingStudent.user._id}`, {
-                    title: 'interview invitation',
-                    message: `You have been invited for an onsite interview by ${existingCompany.name} on ${start_date} joining link: ${mail.guest_link}`
+                    title: 'invitation à un entretien',
+                    message: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
                   });
                 }
                 await User.findByIdAndUpdate(
@@ -84,8 +85,8 @@ exports.virtualInterview = async (req, res) => {
                   {
                     $push: {
                       notifications: {
-                        title: 'interview invitation',
-                        description: `You have been invited for an onsite interview by ${existingCompany.name} on ${start_date} joining link: ${mail.guest_link}`
+                        title: 'invitation à un entretien',
+                        description: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
                       }
                     }
                   },
@@ -164,8 +165,8 @@ exports.physicalInterview = async (req, res) => {
           .then(async data => {
             if (socket?.socket) {
               socket.io.emit(`interviewSchedule${existingStudent.user._id}`, {
-                title: 'interview invitation',
-                message: `You have been invited for an onsite interview by ${existingCompany.name} on ${start_date}`
+                title: 'invitation à un entretien',
+                message: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
               });
             }
             await User.findByIdAndUpdate(
@@ -173,8 +174,8 @@ exports.physicalInterview = async (req, res) => {
               {
                 $push: {
                   notifications: {
-                    title: 'interview invitation',
-                    description: `You have been invited for an onsite interview by ${existingCompany.name} on ${start_date}`
+                    title: 'invitation à un entretien',
+                    description: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
                   }
                 }
               },
@@ -471,8 +472,8 @@ exports.update = async (req, res) => {
         interviewInvitation(mail).then(async () => {
           if (socket?.socket) {
             socket.io.emit(`interviewSchedule${existingStudent.user._id}`, {
-              title: 'interview invitation',
-              message: `You have been invited for online interview by ${existingCompany.name} on ${start_date} joining link: ${mail.guest_link}`
+              title: 'invitation à un entretien',
+              message: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
             });
           }
           await User.findByIdAndUpdate(
@@ -480,8 +481,8 @@ exports.update = async (req, res) => {
             {
               $push: {
                 notifications: {
-                  title: 'interview invitation',
-                  description: `You have been invited for an online interview by ${existingCompany.name} on ${start_date} joining link: ${mail.guest_link}`
+                  title: 'invitation à un entretien',
+                  description: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
                 }
               }
             },
@@ -533,8 +534,8 @@ exports.update = async (req, res) => {
       interviewInvitation(mail).then(async () => {
         if (socket?.socket) {
           socket.io.emit(`interviewSchedule${existingStudent.user._id}`, {
-            title: 'interview invitation',
-            message: `You have been invited for onsite interview by ${existingCompany.name} on ${start_date}`
+            title: 'invitation à un entretien',
+            message: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
           });
         }
         await User.findByIdAndUpdate(
@@ -542,7 +543,7 @@ exports.update = async (req, res) => {
           {
             $push: {
               notifications: {
-                title: 'interview invitation',
+                title: 'invitation à un entretien',
                 description: `You have been invited for an online interview by ${existingCompany.name} on ${start_date} `
               }
             }
