@@ -340,19 +340,23 @@ exports.markRead = asyncHandler(async (req, res, next) => {
     if (!requestedUser.type) {
       res.status(400).send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
     }
-    const user = await User.updateOne(
+    let user = await User.findOneAndUpdate(
       {
-        _id: userId
+        _id: userId,
+        'notifications.read': false
       },
       {
-        $set: {
-          'notifications.$.read': true
-        }
+        'notifications.$.read': true
       },
-      { multi: true }
+      {
+        new: true
+      }
     );
-
-    return res.status(200).json({ message: 'Success!', notifications: user });
+    if (!user) user = requestedUser;
+    return res.status(200).json({
+      message: 'Success!',
+      notifications: user.notifications
+    });
   } catch (err) {
     next(err);
   }
