@@ -75,7 +75,7 @@ exports.virtualInterview = async (req, res) => {
             companyRequest(student, job, existingCompany, existingStudent)
               .then(async data => {
                 if (socket?.socket) {
-                  socket.io.emit(`interviewSchedule${existingStudent.user._id}`, {
+                  socket.io.emit(`recieveNotification${existingStudent.user._id}`, {
                     title: 'invitation à un entretien',
                     message: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
                   });
@@ -165,7 +165,7 @@ exports.physicalInterview = async (req, res) => {
         await companyRequest(student, job, existingCompany, existingStudent)
           .then(async data => {
             if (socket?.socket) {
-              socket.io.emit(`interviewSchedule${existingStudent.user._id}`, {
+              socket.io.emit(`recieveNotification${existingStudent.user._id}`, {
                 title: 'invitation à un entretien',
                 message: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
               });
@@ -473,7 +473,7 @@ exports.update = async (req, res) => {
 
         interviewInvitation(mail).then(async () => {
           if (socket?.socket) {
-            socket.io.emit(`interviewSchedule${existingStudent.user._id}`, {
+            socket.io.emit(`recieveNotification${existingStudent.user._id}`, {
               title: 'invitation à un entretien',
               message: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
             });
@@ -536,7 +536,7 @@ exports.update = async (req, res) => {
       };
       interviewInvitation(mail).then(async () => {
         if (socket?.socket) {
-          socket.io.emit(`interviewSchedule${existingStudent.user._id}`, {
+          socket.io.emit(`recieveNotification${existingStudent.user._id}`, {
             title: 'invitation à un entretien',
             message: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
           });
