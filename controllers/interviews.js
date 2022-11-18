@@ -80,8 +80,8 @@ exports.virtualInterview = async (req, res) => {
                     message: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
                   });
                 }
-                await Student.findByIdAndUpdate(
-                  existingStudent._id,
+                await User.findByIdAndUpdate(
+                  existingStudent.user._id,
                   {
                     $push: {
                       notifications: {
@@ -169,8 +169,8 @@ exports.physicalInterview = async (req, res) => {
                 message: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
               });
             }
-            await Student.findByIdAndUpdate(
-              existingStudent._id,
+            await User.findByIdAndUpdate(
+              existingStudent.user._id,
               {
                 $push: {
                   notifications: {
@@ -380,7 +380,7 @@ exports.update = async (req, res) => {
       return res.status(404).json({ success: false, message: 'company not found' });
     }
     if (new Date(start_date) === new Date(interview)) {
-      const interview = await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
+      await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
         .populate({
           path: 'student',
           populate: {
@@ -476,8 +476,8 @@ exports.update = async (req, res) => {
               message: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
             });
           }
-          await Student.findByIdAndUpdate(
-            existingStudent._id,
+          await User.findByIdAndUpdate(
+            existingStudent.user._id,
             {
               $push: {
                 notifications: {

@@ -1,20 +1,20 @@
-const Joi = require("joi");
-const asyncHandler = require("../middlewares/async");
-const User = require("../models/User");
-const Student = require("../models/Student");
-const Company = require("../models/Company");
-const Skill = require("../models/Skill");
-const { Texts } = require("../utils/texts");
+const Joi = require('joi');
+const asyncHandler = require('../middlewares/async');
+const User = require('../models/User');
+const Student = require('../models/Student');
+const Company = require('../models/Company');
+const Skill = require('../models/Skill');
+const { Texts } = require('../utils/texts');
 
-const crypto = require("crypto");
-const nodemailer = require("nodemailer");
-const bcrypt = require("bcryptjs");
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const bcrypt = require('bcryptjs');
 
 // GET single user Profile
 exports.GetProfile = asyncHandler(async (req, res, next) => {
   try {
     const userID = req.params.id;
-    const user = await User.findById(userID).populate("student");
+    const user = await User.findById(userID).populate('student');
     return res.status(200).json({ user: user });
   } catch (err) {
     return res.status(400).res.json({ message: err.message });
@@ -25,7 +25,7 @@ exports.GetUser = asyncHandler(async (req, res) => {
   try {
     const token = req.params.token;
     const user = await User.findOne({ resetPasswordToken: token });
-    return res.status(200).json({ status: "sucess", user: user });
+    return res.status(200).json({ status: 'sucess', user: user });
   } catch (err) {
     return res.status(400).res.json({ message: err.message });
   }
@@ -41,7 +41,7 @@ exports.editProfile = asyncHandler(async (req, res, next) => {
       city: Joi.string().required(),
       zip: Joi.string().required(),
       latitude: Joi.number().required(),
-      longitude: Joi.number().required(),
+      longitude: Joi.number().required()
     });
 
     const schema = Joi.object().keys({
@@ -51,7 +51,7 @@ exports.editProfile = asyncHandler(async (req, res, next) => {
         .max(10)
         .pattern(/^[0-9]+$/)
         .required(),
-      address: address_object.required(),
+      address: address_object.required()
     });
     // Check if the skills are in database or not, If Not then saving them in the database//
 
@@ -61,13 +61,11 @@ exports.editProfile = asyncHandler(async (req, res, next) => {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         address: req.body.address,
-        phone: req.body.phone,
+        phone: req.body.phone
       },
       { new: true }
     );
-    return res
-      .status(200)
-      .json({ message: Texts.Profile_updated_successfully, user: user });
+    return res.status(200).json({ message: Texts.Profile_updated_successfully, user: user });
   } catch (err) {
     return res.status(400).res.json({ message: err.message });
   }
@@ -81,21 +79,19 @@ exports.DeleteProfile = asyncHandler(async (req, res, next) => {
     const user = await User.findByIdAndUpdate(
       userID,
       {
-        isDeleted: true,
+        isDeleted: true
       },
       { new: true }
     ).then(async () => {
       await Student.findByIdAndUpdate(
         requestedUser.student,
         {
-          isDeleted: true,
+          isDeleted: true
         },
         { new: true }
       );
     });
-    return res
-      .status(200)
-      .json({ message: Texts.User_has_been_deleted_Successfully });
+    return res.status(200).json({ message: Texts.User_has_been_deleted_Successfully });
   } catch (err) {
     return res.status(400).json({ message: err.message });
   }
@@ -107,54 +103,50 @@ exports.requestForgetPassword = asyncHandler(async (req, res, next) => {
     const email = req.body.email;
     const user = await User.findOne({ email: email });
     if (!user) {
-      return res
-        .status(400)
-        .json({ message: Texts.No_user_found_with_this_email });
+      return res.status(400).json({ message: Texts.No_user_found_with_this_email });
     } else {
       const buf = await crypto.randomBytes(20);
-      var token = buf.toString("hex");
+      var token = buf.toString('hex');
       const restPasswordExpires = Date.now() + 36000000;
       await User.findOneAndUpdate(
         { email: email },
         {
           resetPasswordToken: token,
-          restPasswordExpires: restPasswordExpires,
+          restPasswordExpires: restPasswordExpires
         },
         { new: true }
       );
       var smtpTransport = nodemailer.createTransport({
-        host: "mail.gandi.net",
+        host: 'mail.gandi.net',
         port: 465,
         secure: true,
         auth: {
           user: process.env.MailingId,
-          pass: process.env.MailingPassword,
-        },
+          pass: process.env.MailingPassword
+        }
       });
       var mailOptions = {
         to: email,
         from: process.env.MailingId,
-        subject: "Réinitialisez votre mot de passe - Winaa",
+        subject: 'Réinitialisez votre mot de passe - Winaa',
         text:
-          "Bonjour,\n\n\n" +
-          "Vous avez récemment fait une requête pour réinitialiser votre mot de passe sur la plateforme Winaa.\n\n" +
-          "Veuillez cliquer sur le lien suivant pour le réinitialiser:\n\n" +
+          'Bonjour,\n\n\n' +
+          'Vous avez récemment fait une requête pour réinitialiser votre mot de passe sur la plateforme Winaa.\n\n' +
+          'Veuillez cliquer sur le lien suivant pour le réinitialiser:\n\n' +
           `${process.env.verifyEmail}` +
-          "/réinitialiser/" +
+          '/réinitialiser/' +
           token +
-          "\n\n" +
-          "Merci.\n\n" +
-          "L'équipe Winaa",
+          '\n\n' +
+          'Merci.\n\n' +
+          "L'équipe Winaa"
       };
       await smtpTransport
         .sendMail(mailOptions)
-        .then((res) => {
-          console.log("mail res", res);
+        .then(res => {
+          console.log('mail res', res);
         })
-        .catch((err) => res.status(400).json({ message: err.message }));
-      return res
-        .status(200)
-        .json({ message: Texts.Email_has_been_sent_successfully });
+        .catch(err => res.status(400).json({ message: err.message }));
+      return res.status(200).json({ message: Texts.Email_has_been_sent_successfully });
     }
   } catch (err) {
     return res.status(400).json({ message: err.message });
@@ -168,14 +160,14 @@ exports.forgetPassword = asyncHandler(async (req, res, next) => {
     const user = await User.findOne({
       resetPasswordToken: req.query.passwordToken,
       restPasswordExpires: {
-        $gt: Date.now(),
-      },
+        $gt: Date.now()
+      }
     });
 
     if (!user) {
       return;
       res.status(400).json({
-        message: Texts.invalidToken,
+        message: Texts.invalidToken
       });
     }
     if (req.body.password === req.body.confirm) {
@@ -184,11 +176,11 @@ exports.forgetPassword = asyncHandler(async (req, res, next) => {
 
       var updatedUser = await User.findOneAndUpdate(
         {
-          resetPasswordToken: req.query.passwordToken,
+          resetPasswordToken: req.query.passwordToken
         },
         {
           password: updatedPassword,
-          $unset: { resetPasswordToken: 1, restPasswordExpires: 1 },
+          $unset: { resetPasswordToken: 1, restPasswordExpires: 1 }
         },
         { new: true }
       );
@@ -197,23 +189,23 @@ exports.forgetPassword = asyncHandler(async (req, res, next) => {
     }
 
     var smtpTransport = nodemailer.createTransport({
-      host: "mail.gandi.net",
+      host: 'mail.gandi.net',
       port: 465,
       secure: true,
       auth: {
         user: process.env.MailingId,
-        pass: process.env.MailingPassword,
-      },
+        pass: process.env.MailingPassword
+      }
     });
     var mailOptions = {
       to: user.email,
       from: process.env.MailingId,
-      subject: "Votre mot de passe a été modifié - Winaa",
+      subject: 'Votre mot de passe a été modifié - Winaa',
       text:
-        "Bonjour,\n\n" +
-        "Ceci est une confirmation que le mot de passe de votre compte " +
+        'Bonjour,\n\n' +
+        'Ceci est une confirmation que le mot de passe de votre compte ' +
         user.email +
-        " vient d'être changé.\n",
+        " vient d'être changé.\n"
     };
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
@@ -222,7 +214,7 @@ exports.forgetPassword = asyncHandler(async (req, res, next) => {
     });
     return res.status(200).json({
       message: Texts.Password_updated_successfully,
-      user: updatedUser,
+      user: updatedUser
     });
   } catch (err) {
     next(err);
@@ -234,38 +226,30 @@ exports.getAllNotifications = asyncHandler(async (req, res, next) => {
   try {
     const populateQuery = [
       {
-        path: "company",
+        path: 'company'
       },
       {
-        path: "student",
+        path: 'student'
       },
       {
-        path: "hardSkills",
-      },
+        path: 'hardSkills'
+      }
     ];
-    const requestedUser = await User.findById(req.user.id).populate(
-      populateQuery
-    );
+    const requestedUser = await User.findById(req.user.id).populate(populateQuery);
     if (!requestedUser.type) {
-      res
-        .status(400)
-        .send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
+      res.status(400).send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
     } else {
-      if (requestedUser.type === "company") {
+      if (requestedUser.type === 'company') {
         const notifications = requestedUser.company.notifications.filter(
-          (not) => not.statusNew == true
+          not => not.statusNew == true
         );
 
-        return res
-          .status(200)
-          .json({ message: "Success!", notifications: notifications });
+        return res.status(200).json({ message: 'Success!', notifications: notifications });
       } else {
         const notifications = requestedUser.student.notifications.filter(
-          (not) => not.statusNew == true
+          not => not.statusNew == true
         );
-        return res
-          .status(200)
-          .json({ message: "Success!", notifications: notifications });
+        return res.status(200).json({ message: 'Success!', notifications: notifications });
       }
     }
   } catch (err) {
@@ -279,53 +263,45 @@ exports.updateNotifications = asyncHandler(async (req, res, next) => {
     const userId = req.params.id;
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
-      res
-        .status(400)
-        .send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
+      res.status(400).send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
     }
     let tempNotify;
-    if (requestedUser.type === "student") {
-      let user = await Student.findById(requestedUser.student).populate(
-        "student"
-      );
+    if (requestedUser.type === 'student') {
+      let user = await Student.findById(requestedUser.student).populate('student');
       tempNotify = user.notifications;
       await Student.findOneAndUpdate(
         { _id: user._id },
         {
           $set: {
-            "notifications.$[el].statusNew": false,
-            "notifications.$[el].color": "white",
-          },
+            'notifications.$[el].statusNew': false,
+            'notifications.$[el].color': 'white'
+          }
         },
         {
-          arrayFilters: [{ "el._id": `${userId}` }],
-          new: true,
+          arrayFilters: [{ 'el._id': `${userId}` }],
+          new: true
         }
       );
-    } else if (requestedUser.type === "company") {
-      let user = await Company.findById(requestedUser.company).populate(
-        "company"
-      );
+    } else if (requestedUser.type === 'company') {
+      let user = await Company.findById(requestedUser.company).populate('company');
 
       tempNotify = user.notifications;
       await Company.findOneAndUpdate(
         { _id: user._id },
         {
           $set: {
-            "notifications.$[el].statusNew": false,
-            "notifications.$[el].color": "#fff",
-          },
+            'notifications.$[el].statusNew': false,
+            'notifications.$[el].color': '#fff'
+          }
         },
         {
-          arrayFilters: [{ "el._id": `${userId}` }],
-          new: true,
+          arrayFilters: [{ 'el._id': `${userId}` }],
+          new: true
         }
       );
     }
 
-    return res
-      .status(200)
-      .json({ message: "Success!", notifications: tempNotify });
+    return res.status(200).json({ message: 'Success!', notifications: tempNotify });
   } catch (err) {
     next(err);
   }
@@ -336,21 +312,46 @@ exports.GetSoftSkills = asyncHandler(async (req, res, next) => {
   try {
     const skills = await Skill.find({
       $and: [
-        { skillType: { $eq: "Soft Skill" } },
+        { skillType: { $eq: 'Soft Skill' } },
         {
-          isDeleted: { $eq: false },
-        },
-      ],
+          isDeleted: { $eq: false }
+        }
+      ]
     });
 
     if (skills) {
       res.status(200).send({
         skills: skills,
-        message: "Les compétences ont été récupérées avec succès",
+        message: 'Les compétences ont été récupérées avec succès'
       });
     }
   } catch (error) {
     res.status(200).send({ message: error.message });
     next(error);
+  }
+});
+
+// update user notification
+exports.markRead = asyncHandler(async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    const requestedUser = await User.findById(userId);
+    if (!requestedUser.type) {
+      res.status(400).send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
+    }
+    let user = await User.findOneAndUpdate(
+      { _id: userId },
+      {
+        $set: {
+          'notifications.$[el].read': true
+        }
+      },
+      {
+        new: true
+      }
+    );
+    return res.status(200).json({ message: 'Success!', notifications: user });
+  } catch (err) {
+    next(err);
   }
 });
