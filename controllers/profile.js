@@ -367,7 +367,9 @@ exports.viewAll = asyncHandler(async (req, res, next) => {
     if (!requestedUser.type) {
       res.status(400).send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
     }
-    return res.status(200).json({ message: 'Success!', notifications: requestedUser.notfication });
+    return res
+      .status(200)
+      .json({ message: 'Success!', notifications: requestedUser.notifications });
   } catch (err) {
     next(err);
   }
