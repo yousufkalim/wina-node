@@ -183,15 +183,14 @@ io.on('connection', socket => {
     // logic to save notifications in our db
     notificationService
       .addNotifcation({
-        id: data.id
-        // title: data.title,
-        // message: data.message,
+        id: data.id,
+        title: data.title,
+        message: data.message
       })
       .then(message => {
-        console.log(message, 'message');
         socket.broadcast.emit(`recieveNotification${data.id}`, {
-          // title: "qwerty",
-          // message: "qwerty",
+          title: data.title,
+          message: data.message
         });
       })
       .catch(e => console.log(e));
