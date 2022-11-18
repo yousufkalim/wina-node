@@ -80,7 +80,11 @@ const UserSchema = new mongoose.Schema({
     {
       read: { type: Boolean, default: false },
       title: String,
-      description: String
+      description: String,
+      createdAt: {
+        type: Date,
+        default: Date.now()
+      }
     }
   ],
   appointments: [
