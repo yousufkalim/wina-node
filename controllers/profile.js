@@ -335,7 +335,7 @@ exports.GetSoftSkills = asyncHandler(async (req, res, next) => {
 // update user notification
 exports.markRead = asyncHandler(async (req, res, next) => {
   try {
-    const userId = mongoose.Types.ObjectId(userId);
+    const userId = mongoose.Types.ObjectId(req.params.userId);
     const requestedUser = await User.findById(userId);
     if (!requestedUser.type) {
       res.status(400).send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
