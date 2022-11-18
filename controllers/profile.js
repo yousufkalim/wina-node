@@ -9,6 +9,7 @@ const { Texts } = require('../utils/texts');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 
 // GET single user Profile
 exports.GetProfile = asyncHandler(async (req, res, next) => {
@@ -334,22 +335,24 @@ exports.GetSoftSkills = asyncHandler(async (req, res, next) => {
 // update user notification
 exports.markRead = asyncHandler(async (req, res, next) => {
   try {
-    const userId = req.params.userId;
+    const userId = mongoose.Types.ObjectId(req.params.userId);
     const requestedUser = await User.findById(userId);
     if (!requestedUser.type) {
       res.status(400).send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
     }
-    let user = await User.findOneAndUpdate(
-      { _id: userId },
+    const user = await User.updateOne(
       {
-        $set: {
-          'notifications.$[el].read': true
-        }
+        _id: userId
       },
       {
-        new: true
-      }
+        $set: {
+          'notifications.$.read': true
+        }
+      },
+      false,
+      true
     );
+
     return res.status(200).json({ message: 'Success!', notifications: user });
   } catch (err) {
     next(err);
@@ -364,7 +367,9 @@ exports.viewAll = asyncHandler(async (req, res, next) => {
     if (!requestedUser.type) {
       res.status(400).send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
     }
-    return res.status(200).json({ message: 'Success!', notifications: requestedUser.notfication });
+    return res
+      .status(200)
+      .json({ message: 'Success!', notifications: requestedUser.notifications });
   } catch (err) {
     next(err);
   }
