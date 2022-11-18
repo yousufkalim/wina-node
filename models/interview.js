@@ -23,8 +23,8 @@ const InterviewSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'rejected', 'attended', 'accepted'],
-    default: 'pending'
+    enum: ['requested', 'rejected', 'attended', 'accepted'],
+    default: 'requested'
   },
   type: { type: String, enum: ['virtual', 'physical'] },
   host_link: String,

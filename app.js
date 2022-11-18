@@ -162,12 +162,12 @@ server.listen(PORT, () => {
 // Socket configuration //
 io.on('connection', socket => {
   exports.io = io;
-  exports.socket = socket;
   socket.on('sendnotification', data => {
     socket.broadcast.emit('sendnotification', data);
   });
 
   exports.socket = { socket, io };
+
   var useris = socket.handshake.query.userConnectionId;
   socket.join(useris);
   //Leave the room if the user closes the socket

@@ -65,7 +65,7 @@ exports.validateupdateInterview = [
   check('status', 'status  is required')
     .notEmpty()
     .trim()
-    .isIn(['pending', 'rejected', 'attended', 'accepted']),
+    .isIn(['requested', 'rejected', 'attended', 'accepted']),
   check('start_date', 'Interview date is required').notEmpty().trim()
 ];
 

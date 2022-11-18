@@ -78,6 +78,7 @@ const UserSchema = new mongoose.Schema({
 
   notifications: [
     {
+      statusNew: Boolean,
       title: String,
       description: String
     }

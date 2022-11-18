@@ -12,7 +12,9 @@ const Job = require('../models/Job');
 const Appointment = require('../models/Appointment');
 const { interviewInvitation } = require('../utils/sendEmail');
 const { Texts } = require('../utils/texts');
-const io = require('../app');
+const User = require('../models/User');
+const socket = require('../app');
+
 /**
  * Create Virtual Interview
  * @param {object} req
@@ -21,6 +23,7 @@ const io = require('../app');
 exports.virtualInterview = async (req, res) => {
   try {
     const { description, student, job, company, start_date } = req.body;
+
     const existingStudent = await Student.findById(student).populate('user');
     if (!existingStudent) {
       return res.status(404).json({ success: false, message: 'Student not found' });
@@ -71,11 +74,25 @@ exports.virtualInterview = async (req, res) => {
             //to add company request and to send notification to user for interview
             companyRequest(student, job, existingCompany, existingStudent)
               .then(async data => {
-                if (io?.socket) {
-                  io?.socket?.emit(`interviewSchedule${student}`, {
-                    message: `You have been invited for an online interview by ${existingCompany.name} on ${start_date} joining-link is: ${guest_link}`
+                if (socket?.socket) {
+                  socket.io.emit(`recieveNotification${existingStudent.user._id}`, {
+                    title: 'invitation à un entretien',
+                    message: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
                   });
                 }
+                await Student.findByIdAndUpdate(
+                  existingStudent._id,
+                  {
+                    $push: {
+                      notifications: {
+                        statusNew: true,
+                        title: 'invitation à un entretien',
+                        description: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
+                      }
+                    }
+                  },
+                  { new: true }
+                );
                 const interviews = await Interviews.find()
                   .populate({
                     path: 'student',
@@ -147,11 +164,25 @@ exports.physicalInterview = async (req, res) => {
         //to add company request and to send notification to user for interview
         await companyRequest(student, job, existingCompany, existingStudent)
           .then(async data => {
-            if (io?.socket) {
-              io?.socket?.emit(`interviewSchedule${student}`, {
-                message: `You have been invited for an onsite interview by ${existingCompany.name} on ${start_date}`
+            if (socket?.socket) {
+              socket.io.emit(`recieveNotification${existingStudent.user._id}`, {
+                title: 'invitation à un entretien',
+                message: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
               });
             }
+            await Student.findByIdAndUpdate(
+              existingStudent._id,
+              {
+                $push: {
+                  notifications: {
+                    statusNew: true,
+                    title: 'invitation à un entretien',
+                    description: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
+                  }
+                }
+              },
+              { new: true }
+            );
             const interviews = await Interviews.find()
               .populate({
                 path: 'student',
@@ -439,7 +470,27 @@ exports.update = async (req, res) => {
               model: 'User'
             }
           });
+
         interviewInvitation(mail).then(async () => {
+          if (socket?.socket) {
+            socket.io.emit(`recieveNotification${existingStudent.user._id}`, {
+              title: 'invitation à un entretien',
+              message: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
+            });
+          }
+          await Student.findByIdAndUpdate(
+            existingStudent._id,
+            {
+              $push: {
+                notifications: {
+                  statusNew: true,
+                  title: 'invitation à un entretien',
+                  description: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
+                }
+              }
+            },
+            { new: true }
+          );
           const interviews = await Interviews.find()
             .populate({
               path: 'student',
@@ -484,6 +535,25 @@ exports.update = async (req, res) => {
         date: start_date
       };
       interviewInvitation(mail).then(async () => {
+        if (socket?.socket) {
+          socket.io.emit(`recieveNotification${existingStudent.user._id}`, {
+            title: 'invitation à un entretien',
+            message: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
+          });
+        }
+        await Student.findByIdAndUpdate(
+          existingStudent._id,
+          {
+            $push: {
+              notifications: {
+                statusNew: true,
+                title: 'invitation à un entretien',
+                description: `You have been invited for an online interview by ${existingCompany.name} on ${start_date} `
+              }
+            }
+          },
+          { new: true }
+        );
         const interviews = await Interviews.find()
           .populate({
             path: 'student',
@@ -544,31 +614,31 @@ const companyRequest = (RECIEVER_ID, JOB_ID, companyData, studentData) => {
         } else {
           let fill = data.find(fl => JOB_ID === `${fl._id}`);
           if (fill && fill.company_requests && fill.company_requests.length > 0) {
-            let check = fill.company_requests.some(
-              sr => sr.status === 'requested' && `${sr.student}` === RECIEVER_ID
-            );
-            if (check) {
-              reject({ success: false, message: Texts.You_have_already_sent_a_request });
-            } else {
-              const notifications = {
-                title: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`,
-                jobID: JOB_ID,
-                description: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`
-              };
-              await Job.findByIdAndUpdate(JOB_ID, {
-                $push: {
-                  company_requests: {
-                    student: RECIEVER_ID,
-                    jobID: JOB_ID,
-                    status: status
-                  }
+            // let check = fill.company_requests.some(
+            //   sr => sr.status === 'requested' && `${sr.student}` === RECIEVER_ID
+            // );
+            // if (check) {
+            // reject({ success: false, message: Texts.You_have_already_sent_a_request });
+            // } else {
+            const notifications = {
+              title: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`,
+              jobID: JOB_ID,
+              description: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`
+            };
+            await Job.findByIdAndUpdate(JOB_ID, {
+              $push: {
+                company_requests: {
+                  student: RECIEVER_ID,
+                  jobID: JOB_ID,
+                  status: status
                 }
-              });
+              }
+            });
 
-              studentData.notifications.push(notifications);
-              await studentData.save();
-              resolve({ success: true, message: 'Requested Successfully' });
-            }
+            studentData.notifications.push(notifications);
+            await studentData.save();
+            resolve({ success: true, message: 'Requested Successfully' });
+            // }
           } else {
             await Job.findByIdAndUpdate(JOB_ID, {
               $push: {
