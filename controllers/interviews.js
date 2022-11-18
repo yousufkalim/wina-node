@@ -85,7 +85,6 @@ exports.virtualInterview = async (req, res) => {
                   {
                     $push: {
                       notifications: {
-                        statusNew: true,
                         title: 'invitation à un entretien',
                         description: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
                       }
@@ -175,7 +174,6 @@ exports.physicalInterview = async (req, res) => {
               {
                 $push: {
                   notifications: {
-                    statusNew: true,
                     title: 'invitation à un entretien',
                     description: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
                   }
@@ -483,7 +481,6 @@ exports.update = async (req, res) => {
             {
               $push: {
                 notifications: {
-                  statusNew: true,
                   title: 'invitation à un entretien',
                   description: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
                 }
@@ -546,7 +543,6 @@ exports.update = async (req, res) => {
           {
             $push: {
               notifications: {
-                statusNew: true,
                 title: 'invitation à un entretien',
                 description: `You have been invited for an online interview by ${existingCompany.name} on ${start_date} `
               }
@@ -620,11 +616,11 @@ const companyRequest = (RECIEVER_ID, JOB_ID, companyData, studentData) => {
             // if (check) {
             // reject({ success: false, message: Texts.You_have_already_sent_a_request });
             // } else {
-            const notifications = {
-              title: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`,
-              jobID: JOB_ID,
-              description: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`
-            };
+            // const notifications = {
+            //   title: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`,
+
+            //   description: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`
+            // };
             await Job.findByIdAndUpdate(JOB_ID, {
               $push: {
                 company_requests: {
@@ -635,8 +631,8 @@ const companyRequest = (RECIEVER_ID, JOB_ID, companyData, studentData) => {
               }
             });
 
-            studentData.notifications.push(notifications);
-            await studentData.save();
+            // studentData.notifications.push(notifications);
+            // await studentData.save();
             resolve({ success: true, message: 'Requested Successfully' });
             // }
           } else {
@@ -649,13 +645,13 @@ const companyRequest = (RECIEVER_ID, JOB_ID, companyData, studentData) => {
                 }
               }
             });
-            const notifications = {
-              title: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`,
-              jobID: JOB_ID,
-              description: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`
-            };
-            studentData.notifications.push(notifications);
-            await studentData.save();
+            // const notifications = {
+            //   title: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`,
+            //   jobID: JOB_ID,
+            //   description: `${companyData.name} ${Texts.is_sent_request_you_on_a_job}`
+            // };
+            // studentData.notifications.push(notifications);
+            // await studentData.save();
             resolve({ success: true, message: 'Requested Successfully' });
           }
         }

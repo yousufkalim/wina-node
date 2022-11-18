@@ -1,156 +1,155 @@
-const mongoose = require("mongoose")
+const mongoose = require('mongoose');
 
 const StudentSchema = new mongoose.Schema({
   general_Presentation: {
     type: String,
-    required: false,
+    required: false
   },
   score: {
     type: Number,
     required: false,
-    default: 0,
+    default: 0
   },
   offer_status: {
     type: String,
-    enum: ["accepted", "rejected", "proposal"],
-    default: "proposal",
+    enum: ['accepted', 'rejected', 'proposal'],
+    default: 'proposal'
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User'
   },
 
   presentation_Video: {
     video: {
       type: String,
-      required: false,
+      required: false
     },
     status: {
       type: String,
-      enum: ["None", "Validated", "To be Validated"],
-      default: "Validated",
-      required: false,
+      enum: ['None', 'Validated', 'To be Validated'],
+      default: 'Validated',
+      required: false
     },
-    required: false,
+    required: false
   },
 
   professional_Picture: {
     image: {
       type: String,
-      required: false,
-     
+      required: false
     },
     status: {
       type: String,
-      enum: ["None", "Validated", "To be Validated"],
-      default: "Validated",
-      required: false,
+      enum: ['None', 'Validated', 'To be Validated'],
+      default: 'Validated',
+      required: false
     },
-    required: false,
+    required: false
   },
 
   professional_networks: {
     linkedIn: {
       type: String,
-      required: false,
+      required: false
     },
     Behance: {
       type: String,
-      required: false,
+      required: false
     },
     Dribble: {
       type: String,
-      required: false,
+      required: false
     },
     Github: {
       type: String,
-      required: false,
-    },
+      required: false
+    }
   },
 
   education: [
     {
       school: {
         type: String,
-        required: false,
+        required: false
       },
       image: {
         type: String,
-        required: false,
+        required: false
       },
       levelOfEducation: {
         type: String,
         enum: [
-          "Brevet",
-          "CAP",
-          "BEP",
-          "MC",
-          "BacGénéral",
-          "BacProfessionel",
-          "BTS",
-          "DUT",
-          "Licence",
-          "Master",
-          "Doctorat"
-        ],
+          'Brevet',
+          'CAP',
+          'BEP',
+          'MC',
+          'BacGénéral',
+          'BacProfessionel',
+          'BTS',
+          'DUT',
+          'Licence',
+          'Master',
+          'Doctorat'
+        ]
       },
       end_Date: {
         type: String,
-        required: false,
+        required: false
       },
       start_Date: {
         type: String,
-        required: false,
+        required: false
       },
 
       description: {
         type: String,
-        required: false,
-      },
-    },
+        required: false
+      }
+    }
   ],
 
   professional_profile: [
     {
       position: {
         type: String,
-        required: false,
+        required: false
       },
       image: {
         type: String,
-        required: false,
+        required: false
       },
       type: {
         type: String,
-        required: false,
+        required: false
       },
       place: {
         type: String,
-        required: false,
+        required: false
       },
       position_hold: {
         type: Boolean,
         required: false,
-        default: false,
+        default: false
       },
       company: {
         type: String,
-        required: false,
+        required: false
       },
       duration: {
         start_date: { type: String, required: false },
-        end_date: { type: String, required: false },
+        end_date: { type: String, required: false }
       },
       description: {
         type: String,
-        required: false,
-      },
-    },
+        required: false
+      }
+    }
   ],
 
   resume: {
     type: String,
-    required: false,
+    required: false
   },
 
   languages: [
@@ -158,101 +157,94 @@ const StudentSchema = new mongoose.Schema({
       name: { type: String, Required: false },
       skill: {
         type: String,
-        enum: ["beginner", "intermediate", "fluent", "native"],
-      },
-    },
+        enum: ['beginner', 'intermediate', 'fluent', 'native']
+      }
+    }
   ],
 
   positionSought: {
     domain: {
       type: String,
-      required: false,
+      required: false
     },
 
     position: {
       type: String,
-      required: false,
+      required: false
     },
     startDate: {
       type: String,
-      required: false,
+      required: false
     },
     duration: {
       type: String,
-      required: false,
+      required: false
     },
     alternationRhythm: {
       type: String,
-      required: false,
+      required: false
     },
     levelOfEducation: {
       type: String,
       enum: [
-           "Brevet",
-          "CAP",
-          "BEP",
-          "MC",
-          "BacGénéral",
-          "BacProfessionel",
-          "BTS",
-          "DUT",
-          "Licence",
-          "Master",
-          "Doctorat"
-      ],
+        'Brevet',
+        'CAP',
+        'BEP',
+        'MC',
+        'BacGénéral',
+        'BacProfessionel',
+        'BTS',
+        'DUT',
+        'Licence',
+        'Master',
+        'Doctorat'
+      ]
     },
     description: {
       type: String,
-      required: false,
+      required: false
     },
     dateOfBirth: {
       type: String,
-      required: false,
-    },
+      required: false
+    }
   },
-
- 
 
   softSkills: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Skill",
-      required: false,
-    },
+      ref: 'Skill',
+      required: false
+    }
   ],
   hardSkills: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Skill",
-      required: false,
-    },
+      ref: 'Skill',
+      required: false
+    }
   ],
   notifications: [
     {
       title: String,
       description: String,
-      color: { type: String, default: "#ccc" },
-      statusNew: { type: Boolean, default: true },
-      jobID: {
-        type: String,
-        required: false,
-      },
+      read: { type: Boolean, default: false },
       createdAt: {
         type: Date,
-        default: Date.now,
-      },
-    },
+        default: Date.now
+      }
+    }
   ],
 
   isDeleted: {
     type: Boolean,
-    default: false,
+    default: false
   },
 
   createdAt: {
     type: Date,
-    default: Date.now,
-  },
-})
+    default: Date.now
+  }
+});
 
-module.exports = mongoose.model("Student", StudentSchema)
+module.exports = mongoose.model('Student', StudentSchema);

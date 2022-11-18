@@ -433,7 +433,7 @@ exports.packageSubscriber = async (req, res) => {
 cron.schedule('0 11 * * *', async () => {
   try {
     const timeNow = new Date();
-    await Subscription.findAndUpdate(
+    await Subscription.updateMany(
       { expire_on: { $lte: timeNow } },
       { expired: true },
       { new: true }

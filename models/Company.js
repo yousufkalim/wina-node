@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const CompanySchema = new mongoose.Schema({
   name: {
@@ -103,11 +103,7 @@ const CompanySchema = new mongoose.Schema({
     {
       title: String,
       description: String,
-      statusNew: { type: Boolean, default: true },
-      jobID: {
-        type: String,
-        required: false
-      },
+      read: { type: Boolean, default: false },
       createdAt: {
         type: Date,
         default: Date.now
@@ -155,4 +151,4 @@ const CompanySchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model("Company", CompanySchema);
+module.exports = mongoose.model('Company', CompanySchema);

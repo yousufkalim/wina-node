@@ -524,7 +524,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                   $push: {
                     notifications: {
                       title: Texts.student_is_applied_on_your_job,
-                      jobID: JOB_ID,
+
                       description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
                         Texts.student_is_applied_on_your_job
                       }`
@@ -559,7 +559,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                 $push: {
                   notifications: {
                     title: Texts.student_is_applied_on_your_job,
-                    jobID: JOB_ID,
+
                     description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
                       Texts.student_is_applied_on_your_job
                     }`
@@ -623,7 +623,6 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                       title: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
                         Texts.has_rejected_your_job
                       }`,
-                      jobID: JOB_ID,
                       description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
                         Texts.has_rejected_your_job
                       }`
@@ -660,7 +659,6 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                     title: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
                       Texts.has_rejected_your_job
                     }`,
-                    jobID: JOB_ID,
                     description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
                       Texts.has_rejected_your_job
                     }`
@@ -733,7 +731,6 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(async (req, res, next) =>
               title: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
                 Texts.has_accepted_your_offer
               }`,
-              jobID: JOB_ID,
               description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
                 Texts.has_accepted_your_offer
               }`
@@ -759,7 +756,6 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(async (req, res, next) =>
               title: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
                 Texts.has_rejected_your_offer
               }`,
-              jobID: JOB_ID,
               description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
                 Texts.has_rejected_your_offer
               }`
@@ -1160,7 +1156,7 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
                 $push: {
                   notifications: {
                     title: `${company.name} ${Texts.is_sent_request_you_on_a_job}`,
-                    jobID: JOB_ID,
+
                     description: `${company.name} ${Texts.is_sent_request_you_on_a_job}`
                   }
                 }
@@ -1192,7 +1188,7 @@ exports.OfferDecisionByCompany = asyncHandler(async (req, res, next) => {
               $push: {
                 notifications: {
                   title: `${company.name} ${Texts.is_sent_request_you_on_a_job}`,
-                  jobID: JOB_ID,
+
                   description: `${company.name} ${Texts.is_sent_request_you_on_a_job}`
                 }
               }
@@ -1263,7 +1259,7 @@ exports.OffersRecievedDecisionByCompany = asyncHandler(async (req, res, next) =>
           $push: {
             notifications: {
               title: `${company.name} ${Texts.has_accepted_your_offer}`,
-              jobID: JOB_ID,
+
               description: `${company.name} ${Texts.has_accepted_your_offer}`
             }
           }
@@ -1293,7 +1289,7 @@ exports.OffersRecievedDecisionByCompany = asyncHandler(async (req, res, next) =>
           $push: {
             notifications: {
               title: `${company.name} ${Texts.has_rejected_your_offer}`,
-              jobID: JOB_ID,
+
               description: `${company.name} ${Texts.has_rejected_your_offer}`
             }
           }
