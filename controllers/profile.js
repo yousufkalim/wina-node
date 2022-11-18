@@ -349,8 +349,7 @@ exports.markRead = asyncHandler(async (req, res, next) => {
           'notifications.$.read': true
         }
       },
-      false,
-      true
+      { multi: true }
     );
 
     return res.status(200).json({ message: 'Success!', notifications: user });
