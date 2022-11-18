@@ -340,7 +340,7 @@ exports.markRead = asyncHandler(async (req, res, next) => {
     if (!requestedUser.type) {
       res.status(400).send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
     }
-    await User.updateOne(
+    const user = await User.updateOne(
       {
         _id: userId
       },
