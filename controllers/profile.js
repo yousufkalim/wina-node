@@ -9,6 +9,7 @@ const { Texts } = require('../utils/texts');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 
 // GET single user Profile
 exports.GetProfile = asyncHandler(async (req, res, next) => {
@@ -334,15 +335,22 @@ exports.GetSoftSkills = asyncHandler(async (req, res, next) => {
 // update user notification
 exports.markRead = asyncHandler(async (req, res, next) => {
   try {
-    const userId = req.params.userId;
+    const userId = mongoose.Types.ObjectId(userId);
     const requestedUser = await User.findById(userId);
     if (!requestedUser.type) {
       res.status(400).send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
     }
-    let user = await User.update(
-      { _id: userId }, // <-- the array field must appear as part of the query document.
-      { $set: { 'notifications.$.read': true } },
-      { multi: true }
+    await User.updateOne(
+      {
+        _id: userId
+      },
+      {
+        $set: {
+          'notifications.$.read': true
+        }
+      },
+      false,
+      true
     );
 
     return res.status(200).json({ message: 'Success!', notifications: user });
