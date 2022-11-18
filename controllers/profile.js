@@ -355,3 +355,17 @@ exports.markRead = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
+
+// update user notification
+exports.viewAll = asyncHandler(async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    const requestedUser = await User.findById(userId);
+    if (!requestedUser.type) {
+      res.status(400).send({ message: "Vous n'êtes pas autorisé à obtenir un emploi" });
+    }
+    return res.status(200).json({ message: 'Success!', notifications: requestedUser.notfication });
+  } catch (err) {
+    next(err);
+  }
+});

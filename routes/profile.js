@@ -25,6 +25,7 @@ const {
   updateNotifications,
   GetSoftSkills,
   GetUser,
+  viewAll,
   markRead
 } = require('../controllers/profile');
 
@@ -49,4 +50,7 @@ router.delete('/delete-profile', protect, DeleteProfile);
 router.post('/updateNotifications/:id', protect, updateNotifications);
 //markRead
 router.put('/markRead/:userId', protect, markRead);
+//viewAllRead
+router.get('/viewAll/:userId', protect, viewAll);
+
 module.exports = router;
