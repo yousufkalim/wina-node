@@ -38,10 +38,20 @@ app.use(
 console.log(process.env.MailingPassword, 'process.env.MailingPassword');
 
 //// Body Parser Middleware ////
-app.use(bodyParser.json());
+
+app.use(
+  bodyParser.json({
+    verify: function (req, res, buf) {
+      var url = req.originalUrl;
+      if (url.startsWith('/api/v1/profile/payments/stripe/webhook')) {
+        req.rawBody = buf.toString();
+      }
+    },
+    limit: '50mb'
+  })
+);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
-  console.log('Reading the spreadsheet..');
   const workbook = xlsx.readFile('./public/skills.xlsx');
   const sheets = workbook.SheetNames;
   var xlData = workbook.Sheets[sheets[0]];
