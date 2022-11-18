@@ -525,9 +525,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                     notifications: {
                       title: Texts.student_is_applied_on_your_job,
                       jobID: JOB_ID,
-                      description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
-                        Texts.student_is_applied_on_your_job
-                      }`
+                      description: `${requestedUser.firstName}   ${requestedUser.lastName} ${Texts.student_is_applied_on_your_job}`
                     }
                   }
                 },
