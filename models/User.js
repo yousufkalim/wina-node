@@ -78,7 +78,7 @@ const UserSchema = new mongoose.Schema({
 
   notifications: [
     {
-      statusNew: Boolean,
+      read: { type: Boolean, default: false },
       title: String,
       description: String
     }

@@ -1498,7 +1498,6 @@ exports.validateAppointment = asyncHandler(async (req, res, next) => {
           $push: {
             notifications: {
               title: Texts.Appointment_Scheduled,
-              title: Texts.success + Texts.Appointment_Scheduled,
               description: Texts.Admin_has_assigned_you_an_appointment
             }
           }
