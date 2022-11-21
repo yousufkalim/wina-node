@@ -4,7 +4,7 @@ const User = require('../models/User');
 const Company = require('../models/Company');
 const Job = require('../models/Job');
 const Student = require('../models/Student');
-
+const socket = require('../app');
 const { Texts } = require('../utils/texts');
 const Appointment = require('../models/Appointment');
 const matchingAlgo = require('../services/searchStudents');
@@ -615,23 +615,27 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                 }
               });
 
-              await Company.findByIdAndUpdate(
-                RECIEVER_ID,
-                {
-                  $push: {
-                    notifications: {
-                      title: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
-                        Texts.has_rejected_your_job
-                      }`,
-                      description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
-                        Texts.has_rejected_your_job
-                      }`
-                    }
-                  }
-                },
-                { new: true }
-              );
-
+              if (socket?.socket) {
+                const cmp = await Company.findById(RECIEVER_ID).populate('contactPerson.person');
+                if (cmp.contactPerson.person._id) {
+                  socket.io.emit(`recieveNotification${cmp.contactPerson.person._id}`, {
+                    title: 'offre de décision par létudiant',
+                    message: `offre de décision par l'étudiant`
+                  });
+                  await User.findByIdAndUpdate(
+                    cmp.contactPerson.person._id,
+                    {
+                      $push: {
+                        notifications: {
+                          title: 'offre de décision par létudiant',
+                          description: `offre de décision par l'étudiant`
+                        }
+                      }
+                    },
+                    { new: true }
+                  );
+                }
+              }
               const jobs = await Job.find().populate(populateQuery);
               if (jobs) {
                 res.status(200).send({
@@ -651,22 +655,27 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
               }
             });
 
-            await Company.findByIdAndUpdate(
-              RECIEVER_ID,
-              {
-                $push: {
-                  notifications: {
-                    title: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
-                      Texts.has_rejected_your_job
-                    }`,
-                    description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
-                      Texts.has_rejected_your_job
-                    }`
-                  }
-                }
-              },
-              { new: true }
-            );
+            if (socket?.socket) {
+              const cmp = await Company.findById(RECIEVER_ID).populate('contactPerson.person');
+              if (cmp.contactPerson.person._id) {
+                socket.io.emit(`recieveNotification${cmp.contactPerson.person._id}`, {
+                  title: 'offre de décision par létudiant',
+                  message: `offre de décision par l'étudiant`
+                });
+                await User.findByIdAndUpdate(
+                  cmp.contactPerson.person._id,
+                  {
+                    $push: {
+                      notifications: {
+                        title: 'offre de décision par létudiant',
+                        description: `offre de décision par l'étudiant`
+                      }
+                    }
+                  },
+                  { new: true }
+                );
+              }
+            }
 
             const jobs = await Job.find().populate(populateQuery);
             if (jobs) {
@@ -1289,7 +1298,6 @@ exports.OffersRecievedDecisionByCompany = asyncHandler(async (req, res, next) =>
           $push: {
             notifications: {
               title: `${company.name} ${Texts.has_rejected_your_offer}`,
-
               description: `${company.name} ${Texts.has_rejected_your_offer}`
             }
           }

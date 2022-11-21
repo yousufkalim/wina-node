@@ -10,6 +10,7 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
+const stripe = require('stripe')(process.env.SECRET_KEY);
 
 // GET single user Profile
 exports.GetProfile = asyncHandler(async (req, res, next) => {
@@ -332,7 +333,6 @@ exports.GetSoftSkills = asyncHandler(async (req, res, next) => {
   }
 });
 
-// update user notification
 exports.markRead = asyncHandler(async (req, res, next) => {
   try {
     const userId = mongoose.Types.ObjectId(req.params.userId);
@@ -342,17 +342,22 @@ exports.markRead = asyncHandler(async (req, res, next) => {
     }
     let user = await User.findOneAndUpdate(
       {
-        _id: userId,
-        'notifications.read': false
+        _id: userId
       },
       {
-        'notifications.$.read': true
+        $set: {
+          'notifications.$[notif].read': true
+        }
       },
       {
+        arrayFilters: [
+          {
+            'notif.read': false
+          }
+        ],
         new: true
       }
     );
-    if (!user) user = requestedUser;
     return res.status(200).json({
       message: 'Success!',
       notifications: user.notifications
@@ -361,7 +366,6 @@ exports.markRead = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
-
 // update user notification
 exports.viewAll = asyncHandler(async (req, res, next) => {
   try {
@@ -377,3 +381,74 @@ exports.viewAll = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
+
+exports.Checkout = async (req, res, next) => {
+  try {
+    let metaData = req.body.metaData;
+    let lineItems = req.body.line_items; // => get the line items array from the resposne
+    // => stripe api to create a checkout seesion url
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'], // => A list of the types of payment methods (e.g., card)
+      line_items: lineItems, // => A list of items the customer is purchasing. For payment mode, there is a maximum of 100 line items
+      locale: 'auto', // => The IETF language tag of the locale Checkout is displayed in.
+      mode: 'payment', // => The mode of the Checkout Session. Possible type: payment, setup and subscription
+      success_url: `${process.env.REACT_URL}`, // => The URL the customer will be directed to if they decide to cancel payment and return to your website. example http://localhost:3001/home?success
+      cancel_url: `${process.env.REACT_URL}`, // => The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page. example http://localhost:3001/not_home?reject
+      metadata: metaData
+    });
+    // => return the url of the checkout session page
+    res.status(200).json({
+      url: session.url
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.Webhook = async (req, res) => {
+  let sig = req.headers['stripe-signature'];
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.rawBody,
+      sig,
+      process.env.WEB_HOOK_KEY //////webhook scret key,
+    );
+  } catch (error) {
+    res.status(400).send(`Webhook Error: ${error.message}`);
+    return;
+  }
+
+  switch (event.type) {
+    case 'checkout.session.completed':
+      {
+        const session = event.data.object;
+        const metaData = session.metadata;
+        const { package, user, price, expire_on } = metaData;
+        const existingSubscription = await Subscription.findOne({
+          'user.uId': user.uId,
+          expired: false
+        });
+        if (existingSubscription) {
+          return res.status(404).json({
+            success: false,
+            message: 'sorry you cant subscribe mutilple packages at a time'
+          });
+        }
+        Subscription.create({
+          package: package,
+          user: user,
+          price: price,
+          expire_on: expire_on
+        }).then(subscribe => {
+          res
+            .status(200)
+            .json({ success: true, message: 'You have subscribed successfully', subscribe });
+        });
+      }
+      break;
+    default:
+      console.trace(`Unhandled event type ${event.type}`);
+  }
+  res.send();
+};
