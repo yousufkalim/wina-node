@@ -366,7 +366,6 @@ exports.markRead = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
-
 // update user notification
 exports.viewAll = asyncHandler(async (req, res, next) => {
   try {
