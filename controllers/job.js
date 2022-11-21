@@ -456,6 +456,7 @@ exports.GetStudentRejectedJobs = asyncHandler(async (req, res, next) => {
 // offer accepted by student
 exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
   try {
+    //S
     const populateQuery = [
       {
         path: 'company'
