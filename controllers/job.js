@@ -1289,7 +1289,6 @@ exports.OffersRecievedDecisionByCompany = asyncHandler(async (req, res, next) =>
           $push: {
             notifications: {
               title: `${company.name} ${Texts.has_rejected_your_offer}`,
-
               description: `${company.name} ${Texts.has_rejected_your_offer}`
             }
           }

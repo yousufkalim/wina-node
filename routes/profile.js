@@ -26,7 +26,8 @@ const {
   GetSoftSkills,
   GetUser,
   viewAll,
-  markRead
+  markRead,
+  Checkout
 } = require('../controllers/profile');
 
 // middleware functions //
@@ -48,9 +49,12 @@ router.put('/editProfile', protect, editProfile);
 // Delete User Profile //
 router.delete('/delete-profile', protect, DeleteProfile);
 router.post('/updateNotifications/:id', protect, updateNotifications);
+
 //markRead
 router.put('/markRead/:userId', protect, markRead);
 //viewAllRead
 router.get('/viewAll/:userId', protect, viewAll);
+//Checkout
+router.post('/checkout', Checkout);
 
 module.exports = router;
