@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const Student = require('../models/Student');
+const User = require('../models/User');
 
 const { upload } = require('../middlewares/multer');
 
@@ -50,10 +51,15 @@ router.post('/resumeUpload', upload, async (req, res, next) => {
         });
       } else {
         uploadedResume = req.files.resume[0].filename;
-        await Student.findByIdAndUpdate(req.body.id, {
-          resume: uploadedResume
-        });
-        res.status(200).send({ message: ' Le fichier a été ajouté avec succès' });
+        const student = await Student.findByIdAndUpdate(
+          req.body.id,
+          {
+            resume: uploadedResume
+          },
+          { new: true }
+        );
+        const user = await User.findById(student.user).populate('student');
+        res.status(200).send({ user: user, message: ' Le fichier a été ajouté avec succès' });
       }
     } else {
       res.status(400).send({
