@@ -11,6 +11,7 @@ const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const stripe = require('stripe')(process.env.SECRET_KEY);
+const Package = require('../models/packages');
 
 // GET single user Profile
 exports.GetProfile = asyncHandler(async (req, res, next) => {
@@ -425,6 +426,10 @@ exports.Webhook = async (req, res) => {
         const session = event.data.object;
         const metaData = session.metadata;
         const { package, user, price } = metaData;
+        const existingPackage = await Package.findById(package);
+        var type = existingPackage.type;
+        type = type.replace(/[^0-9]/g, '');
+        const expire_on = new Date(Date.now() + type * 30 * 864000);
         Subscription.create({
           package: package,
           user: user,
