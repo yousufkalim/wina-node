@@ -518,22 +518,24 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                   }
                 }
               });
-
-              await Company.findByIdAndUpdate(
-                RECIEVER_ID,
-                {
-                  $push: {
-                    notifications: {
-                      title: Texts.student_is_applied_on_your_job,
-
-                      description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
-                        Texts.student_is_applied_on_your_job
-                      }`
+              if (socket?.socket) {
+                socket.io.emit(`recieveNotification${cmp.contactPerson.person._id}`, {
+                  title: 'offre de décision par létudiant',
+                  message: `offre de décision par l'étudiant`
+                });
+                await User.findByIdAndUpdate(
+                  cmp.contactPerson.person._id,
+                  {
+                    $push: {
+                      notifications: {
+                        title: 'offre de décision par létudiant',
+                        description: `offre de décision par l'étudiant`
+                      }
                     }
-                  }
-                },
-                { new: true }
-              );
+                  },
+                  { new: true }
+                );
+              }
 
               const jobs = await Job.find().populate(populateQuery);
               if (jobs) {
@@ -554,21 +556,27 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
               }
             });
 
-            await Company.findByIdAndUpdate(
-              RECIEVER_ID,
-              {
-                $push: {
-                  notifications: {
-                    title: Texts.student_is_applied_on_your_job,
-
-                    description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
-                      Texts.student_is_applied_on_your_job
-                    }`
-                  }
-                }
-              },
-              { new: true }
-            );
+            if (socket?.socket) {
+              const cmp = await Company.findById(RECIEVER_ID).populate('contactPerson.person');
+              if (cmp.contactPerson.person._id) {
+                socket.io.emit(`recieveNotification${cmp.contactPerson.person._id}`, {
+                  title: 'offre de décision par létudiant',
+                  message: `offre de décision par l'étudiant`
+                });
+                await User.findByIdAndUpdate(
+                  cmp.contactPerson.person._id,
+                  {
+                    $push: {
+                      notifications: {
+                        title: 'offre de décision par létudiant',
+                        description: `offre de décision par l'étudiant`
+                      }
+                    }
+                  },
+                  { new: true }
+                );
+              }
+            }
             const jobs = await Job.find().populate(populateQuery);
             if (jobs) {
               res.status(200).send({
@@ -618,6 +626,7 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
 
               if (socket?.socket) {
                 const cmp = await Company.findById(RECIEVER_ID).populate('contactPerson.person');
+
                 if (cmp.contactPerson.person._id) {
                   socket.io.emit(`recieveNotification${cmp.contactPerson.person._id}`, {
                     title: 'offre de décision par létudiant',
@@ -636,13 +645,13 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                     { new: true }
                   );
                 }
-              }
-              const jobs = await Job.find().populate(populateQuery);
-              if (jobs) {
-                res.status(200).send({
-                  jobs: jobs,
-                  message: Texts.Rejected_job_successfully
-                });
+                const jobs = await Job.find().populate(populateQuery);
+                if (jobs) {
+                  res.status(200).send({
+                    jobs: jobs,
+                    message: Texts.Rejected_job_successfully
+                  });
+                }
               }
             }
           } else {
@@ -655,9 +664,9 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                 }
               }
             });
-
             if (socket?.socket) {
               const cmp = await Company.findById(RECIEVER_ID).populate('contactPerson.person');
+
               if (cmp.contactPerson.person._id) {
                 socket.io.emit(`recieveNotification${cmp.contactPerson.person._id}`, {
                   title: 'offre de décision par létudiant',
@@ -677,7 +686,6 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
                 );
               }
             }
-
             const jobs = await Job.find().populate(populateQuery);
             if (jobs) {
               res.status(200).send({
