@@ -170,6 +170,7 @@ server.listen(PORT, () => {
 // Socket configuration //
 io.on('connection', socket => {
   exports.io = io;
+
   socket.on('sendnotification', data => {
     socket.broadcast.emit('sendnotification', data);
   });
