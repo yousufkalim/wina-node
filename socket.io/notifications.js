@@ -5,14 +5,13 @@ module.exports = {
 
 async function addNotifcation(data) {
   try {
-    const user = await User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
       data.id,
       {
         $push: {
           notifications: {
-            // title: "qwertyu",
-            // description: "qwertyui",
-            // projectID: projectID,
+            title: data.title,
+            description: data.message
           }
         }
       },

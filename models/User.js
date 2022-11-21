@@ -78,9 +78,13 @@ const UserSchema = new mongoose.Schema({
 
   notifications: [
     {
-      statusNew: Boolean,
+      read: { type: Boolean, default: false },
       title: String,
-      description: String
+      description: String,
+      createdAt: {
+        type: Date,
+        default: Date.now()
+      }
     }
   ],
   appointments: [

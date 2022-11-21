@@ -36,17 +36,25 @@ app.use(
 );
 
 //// Body Parser Middleware ////
-app.use(bodyParser.json());
+
+app.use(
+  bodyParser.json({
+    verify: function (req, res, buf) {
+      var url = req.originalUrl;
+      if (url.startsWith('/api/v1/profile/payments/stripe/webhook')) {
+        req.rawBody = buf.toString();
+      }
+    },
+    limit: '50mb'
+  })
+);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
-  console.log('Reading the spreadsheet..');
   const workbook = xlsx.readFile('./public/skills.xlsx');
   const sheets = workbook.SheetNames;
   var xlData = workbook.Sheets[sheets[0]];
   let jsonData = xlsx.utils.sheet_to_json(xlData);
-
   console.log('Reading second sheet...', sheets);
-
   res.json({ message: 'success', jsonData });
 });
 // Morgan
@@ -162,6 +170,7 @@ server.listen(PORT, () => {
 // Socket configuration //
 io.on('connection', socket => {
   exports.io = io;
+
   socket.on('sendnotification', data => {
     socket.broadcast.emit('sendnotification', data);
   });
@@ -181,15 +190,14 @@ io.on('connection', socket => {
     // logic to save notifications in our db
     notificationService
       .addNotifcation({
-        id: data.id
-        // title: data.title,
-        // message: data.message,
+        id: data.id,
+        title: data.title,
+        message: data.message
       })
       .then(message => {
-        console.log(message, 'message');
         socket.broadcast.emit(`recieveNotification${data.id}`, {
-          // title: "qwerty",
-          // message: "qwerty",
+          title: data.title,
+          message: data.message
         });
       })
       .catch(e => console.log(e));
