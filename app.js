@@ -56,9 +56,7 @@ app.get('/', (req, res) => {
   const sheets = workbook.SheetNames;
   var xlData = workbook.Sheets[sheets[0]];
   let jsonData = xlsx.utils.sheet_to_json(xlData);
-
   console.log('Reading second sheet...', sheets);
-
   res.json({ message: 'success', jsonData });
 });
 // Morgan
