@@ -6,7 +6,7 @@
 const Subscription = require('../models/Subscription');
 const Company = require('../models/Company');
 const Student = require('../models/Student');
-const Package = require('../models/Packages');
+const Package = require('../models/packages');
 const cron = require('node-cron');
 const mongoose = require('mongoose');
 /**
