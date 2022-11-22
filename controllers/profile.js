@@ -12,6 +12,7 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const stripe = require('stripe')(process.env.SECRET_KEY);
 const Package = require('../models/packages');
+const Subscription = require('../models/Subscription');
 
 // GET single user Profile
 exports.GetProfile = asyncHandler(async (req, res, next) => {
@@ -425,14 +426,19 @@ exports.Webhook = async (req, res) => {
       {
         const session = event.data.object;
         const metaData = session.metadata;
-        const { package, user, price } = metaData;
+        const { package, user, price, type } = metaData;
         const existingPackage = await Package.findById(package);
-        var type = existingPackage.type;
-        type = type.replace(/[^0-9]/g, '');
-        const expire_on = moment().add(parseInt(type), 'months').calendar();
+        var type1 = existingPackage.type;
+        type1 = type1.replace(/[^0-9]/g, '');
+        const u1 = {
+          uId: user,
+          type: type
+        };
+        const expire_on = moment().add(parseInt(type1), 'months').calendar();
+
         await Subscription.create({
           package: package,
-          user: user,
+          user: u1,
           price: price,
           expire_on: expire_on
         });

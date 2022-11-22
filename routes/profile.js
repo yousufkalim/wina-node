@@ -57,6 +57,7 @@ router.put('/markRead/:userId', protect, markRead);
 router.get('/viewAll/:userId', protect, viewAll);
 //Checkout
 router.post('/checkout', Checkout);
+
 router.post('/payments/stripe/webhook', express.raw({ type: 'application/json' }), Webhook);
 
 module.exports = router;

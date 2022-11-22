@@ -38,7 +38,7 @@ app.use(
 //// Body Parser Middleware ////
 
 app.use(
-  bodyParser.json({
+  express.json({
     verify: function (req, res, buf) {
       var url = req.originalUrl;
       if (url.startsWith('/api/v1/profile/payments/stripe/webhook')) {
