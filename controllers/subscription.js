@@ -446,7 +446,7 @@ cron.schedule('0 11 * * *', async () => {
 exports.findSubscription = async (req, res) => {
   try {
     const { package, user } = req.query;
-    const existingPackage = await Package.findById(package);
+    const existingPackage = await Package.findOne({ _id: package });
     if (!existingPackage) {
       return res.status(404).json({ success: false, message: 'Package not found' });
     }
