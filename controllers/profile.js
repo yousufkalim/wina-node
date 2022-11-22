@@ -5,7 +5,7 @@ const Student = require('../models/Student');
 const Company = require('../models/Company');
 const Skill = require('../models/Skill');
 const { Texts } = require('../utils/texts');
-
+const moment = require('moment');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
@@ -429,7 +429,7 @@ exports.Webhook = async (req, res) => {
         const existingPackage = await Package.findById(package);
         var type = existingPackage.type;
         type = type.replace(/[^0-9]/g, '');
-        const expire_on = new Date(Date.now() + type * 30 * 864000);
+        const expire_on = moment().add(type, 'months').calendar();
         Subscription.create({
           package: package,
           user: user,
