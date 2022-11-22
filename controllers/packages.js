@@ -3,7 +3,7 @@
  * @author Shuja Naqvi
  */
 
-const Package = require('../models/packages');
+const Package = require('../models/Packages');
 
 /**
  * Create New  Package

@@ -5,12 +5,13 @@ const Student = require('../models/Student');
 const Company = require('../models/Company');
 const Skill = require('../models/Skill');
 const { Texts } = require('../utils/texts');
-
+const moment = require('moment');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const stripe = require('stripe')(process.env.SECRET_KEY);
+const Package = require('../models/Packages');
 
 // GET single user Profile
 exports.GetProfile = asyncHandler(async (req, res, next) => {
@@ -425,6 +426,10 @@ exports.Webhook = async (req, res) => {
         const session = event.data.object;
         const metaData = session.metadata;
         const { package, user, price } = metaData;
+        const existingPackage = await Package.findById(package);
+        var type = existingPackage.type;
+        type = type.replace(/[^0-9]/g, '');
+        const expire_on = moment().add(type, 'months').calendar();
         Subscription.create({
           package: package,
           user: user,
