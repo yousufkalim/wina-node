@@ -442,3 +442,26 @@ cron.schedule('0 11 * * *', async () => {
     console.log(err.message);
   }
 });
+
+exports.findSubscription = async (req, res) => {
+  try {
+    const { package, user } = req.query;
+    const existingPackage = await Package.findById(package);
+    if (!existingPackage) {
+      return res.status(404).json({ success: false, message: 'Package not found' });
+    }
+    const existingSubscription = await Subscription.findOne({
+      'user.uId': user,
+      expired: false
+    });
+    if (existingSubscription) {
+      return res
+        .status(200)
+        .json({ success: false, message: 'sorry you cant subscribe mutilple packages at a time' });
+    }
+    return res.status(200).json({ success: true, message: 'Acessible' });
+  } catch (err) {
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};

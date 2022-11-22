@@ -17,6 +17,7 @@ const subscription = require('../controllers/subscription');
 router.post('/', validateSubscription, isValidated, subscription.create);
 router.get('/', subscription.getAll);
 router.get('/getByUser', subscription.getByUser);
+router.get('/findSubscription', subscription.findSubscription);
 router.get('/packageSubscriber/:packageId', subscription.packageSubscriber);
 router.get('/:subscriptionId', subscription.getById);
 

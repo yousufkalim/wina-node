@@ -366,7 +366,6 @@ exports.markRead = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
-
 // update user notification
 exports.viewAll = asyncHandler(async (req, res, next) => {
   try {
@@ -425,17 +424,7 @@ exports.Webhook = async (req, res) => {
       {
         const session = event.data.object;
         const metaData = session.metadata;
-        const { package, user, price, expire_on } = metaData;
-        const existingSubscription = await Subscription.findOne({
-          'user.uId': user.uId,
-          expired: false
-        });
-        if (existingSubscription) {
-          return res.status(404).json({
-            success: false,
-            message: 'sorry you cant subscribe mutilple packages at a time'
-          });
-        }
+        const { package, user, price } = metaData;
         Subscription.create({
           package: package,
           user: user,
