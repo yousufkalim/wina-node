@@ -11,7 +11,7 @@ const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const stripe = require('stripe')(process.env.SECRET_KEY);
-const Package = require('../models/packages');
+const Package = require('../models/Packages');
 
 // GET single user Profile
 exports.GetProfile = asyncHandler(async (req, res, next) => {
