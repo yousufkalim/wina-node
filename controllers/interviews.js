@@ -391,7 +391,7 @@ exports.update = async (req, res) => {
     if (!existingCompany) {
       return res.status(404).json({ success: false, message: 'company not found' });
     }
-    if (new Date(start_date) === new Date(interview)) {
+    if (new Date(start_date) === new Date(interview.start_date)) {
       await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
         .populate({
           path: 'student',
