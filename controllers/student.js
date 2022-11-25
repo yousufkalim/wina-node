@@ -209,6 +209,20 @@ exports.GetStudentProfile = asyncHandler(async (req, res, next) => {
 
 //// Edit Student info ////
 exports.edit = asyncHandler(async (req, res, next) => {
+  const populateQuery = [
+    { path: 'company' },
+    {
+      path: 'student',
+      populate: [
+        {
+          path: 'softSkills'
+        },
+        {
+          path: 'hardSkills'
+        }
+      ]
+    }
+  ];
   const {
     general_Presentation,
     professional_networks,
@@ -242,6 +256,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user.id);
   try {
     // Validating body //
+
     const professional_network = Joi.object().keys({
       linkedIn: Joi.string().uri().optional().allow(''),
       Behance: Joi.string().uri().optional().allow(''),
@@ -436,7 +451,7 @@ exports.edit = asyncHandler(async (req, res, next) => {
 
     const updateUser = await User.findByIdAndUpdate(req.user.id, {
       student: userobj._id
-    }).populate('student');
+    }).populate(populateQuery);
     return res.status(200).json({ message: Texts.userUpdated, user: updateUser });
   } catch (err) {
     return res.status(400).json({ message: err.message });
@@ -541,11 +556,9 @@ exports.GetUser = asyncHandler(async (req, res, next) => {
         ]
       }
     ];
-    const { type } = req.body;
     const userID = req.user.id;
     const requestedUser = await User.findOne({
-      _id: userID,
-      type: type
+      _id: userID
     }).populate(populateQuery);
 
     return res.status(200).json({
