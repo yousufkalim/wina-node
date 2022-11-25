@@ -597,8 +597,6 @@ exports.update = async (req, res) => {
       });
     }
   } catch (err) {
-    // Error handling
-    // eslint-disable-next-line no-console
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
@@ -656,7 +654,6 @@ const companyRequest = (RECIEVER_ID, JOB_ID, companyData, studentData) => {
                 }
               }
             });
-
             // studentData.notifications.push(notifications);
             // await studentData.save();
             resolve({ success: true, message: 'Requested Successfully' });
