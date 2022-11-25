@@ -541,11 +541,9 @@ exports.GetUser = asyncHandler(async (req, res, next) => {
         ]
       }
     ];
-    const { type } = req.body;
     const userID = req.user.id;
     const requestedUser = await User.findOne({
-      _id: userID,
-      type: type
+      _id: userID
     }).populate(populateQuery);
 
     return res.status(200).json({
