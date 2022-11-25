@@ -566,7 +566,7 @@ exports.update = async (req, res) => {
                 title: 'invitation à un entretien',
                 description: `Vous avez été invité à un entretien sur site par ${
                   existingCompany.name
-                }  ${moment(start_date).format('DD/MM/YYYY hh:mm:ss a')} `
+                } le ${moment(start_date).format('DD/MM/YYYY hh:mm:ss a')} `
               }
             }
           },
