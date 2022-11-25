@@ -79,9 +79,8 @@ exports.virtualInterview = async (req, res) => {
                     title: 'invitation à un entretien',
                     message: `Vous avez été invité à un entretien en ligne par ${
                       existingCompany.name
-                    } le ${moment(start_date).format(
-                      'DD/MM/YYY hh:mm:ss a'
-                    )} en rejoignant le lien : ${mail.guest_link}`
+                    } le ${moment(start_date).format('DD/MM/YYYY hh:mm:ss a')}  `,
+                    link: `${mail.guest_link}`
                   });
                 }
                 await User.findByIdAndUpdate(
@@ -92,9 +91,8 @@ exports.virtualInterview = async (req, res) => {
                         title: 'invitation à un entretien',
                         description: `Vous avez été invité à un entretien en ligne par ${
                           existingCompany.name
-                        } le ${moment(start_date).format(
-                          'DD/MM/YYY hh:mm:ss a'
-                        )} en rejoignant le lien : ${mail.guest_link}`
+                        } le ${moment(start_date).format('DD/MM/YYYY hh:mm:ss a')}  `,
+                        link: `${mail.guest_link}`
                       }
                     }
                   },
@@ -487,9 +485,8 @@ exports.update = async (req, res) => {
               title: 'invitation à un entretien',
               message: `Vous avez été invité à un entretien en ligne par ${
                 existingCompany.name
-              } le ${moment(start_date).format('DD/MM/YYY hh:mm:ss a')} en rejoignant le lien : ${
-                mail.guest_link
-              }`
+              } le ${moment(start_date).format('DD/MM/YYYY hh:mm:ss a')}  `,
+              link: `${mail.guest_link}`
             });
           }
           await User.findByIdAndUpdate(
@@ -500,9 +497,8 @@ exports.update = async (req, res) => {
                   title: 'invitation à un entretien',
                   description: `Vous avez été invité à un entretien en ligne par ${
                     existingCompany.name
-                  } le ${moment(start_date).format(
-                    'DD/MM/YYY hh:mm:ss a'
-                  )} en rejoignant le lien : ${mail.guest_link}`
+                  } le ${moment(start_date).format('DD/MM/YYYY hh:mm:ss a')}`,
+                  link: `${mail.guest_link}`
                 }
               }
             },
@@ -559,7 +555,7 @@ exports.update = async (req, res) => {
             title: 'invitation à un entretien',
             message: `Vous avez été invité à un entretien sur site par ${
               existingCompany.name
-            } le ${moment(start_date).format('DD/MM/YYY hh:mm:ss a')}`
+            } le ${moment(start_date).format('DD/MM/YYYY hh:mm:ss a')}`
           });
         }
         await Student.findByIdAndUpdate(
@@ -568,9 +564,9 @@ exports.update = async (req, res) => {
             $push: {
               notifications: {
                 title: 'invitation à un entretien',
-                description: `You have been invited for an online interview by ${
+                description: `Vous avez été invité à un entretien sur site par ${
                   existingCompany.name
-                } on ${moment(start_date).format('DD/MM/YYY hh:mm:ss a')} `
+                } le ${moment(start_date).format('DD/MM/YYYY hh:mm:ss a')} `
               }
             }
           },
