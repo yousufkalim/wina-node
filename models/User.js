@@ -81,6 +81,7 @@ const UserSchema = new mongoose.Schema({
       read: { type: Boolean, default: false },
       title: String,
       description: String,
+      link: String,
       createdAt: {
         type: Date,
         default: Date.now()
