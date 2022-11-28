@@ -65,7 +65,7 @@ class MatchingCriteria extends DealBreaker {
     const softSkillsArray = [];
     var n = 0;
     var score = 0;
-    const result = jobs.filter(job => {
+    jobs.filter(job => {
       n = 0;
       userSoftSkills.map(item => {
         job.softSkills.map(item1 => {
@@ -94,7 +94,7 @@ class MatchingCriteria extends DealBreaker {
     const hardSkillsArray = [];
     var n = 0;
     var score = 0;
-    const result = jobs.filter(job => {
+    jobs.filter(job => {
       n = 0;
       userHardSkills.map(item => {
         job.hardSkills.map(item1 => {
@@ -371,7 +371,9 @@ class MatchingCriteria extends DealBreaker {
           score: totalScore
         });
         newArray.sort(function (a, b) {
-          return b.score - a.score;
+          if (a.score > 0 && b.score > 0) {
+            return b.score - a.score;
+          }
         });
       });
       return newArray;

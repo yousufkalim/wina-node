@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Student = require('../models/Student');
 const Appointment = require('../models/Appointment');
 const matchingAlgo = require('../services/searchJobs');
+const { searchJob } = require('../services/jobs');
 const Skill = require('../models/Skill');
 const { Texts } = require('../utils/texts');
 
@@ -502,20 +503,8 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
 
 exports.searchForJob = asyncHandler(async (req, res, next) => {
   try {
-    // matchingAlgo.dealBreaker("startingDate", req, res, next);
-    // matchingCriteria.location(req, res, next);
-    // matchingCriteria.softSkills(req, res, next)
-    // matchingCriteria.hardSkills(req, res, next);
-    // matchingCriteria.field(req, res, next);
-    // matchingCriteria.jobName(req, res, next);
-    // matchingCriteria.startDate(req, res, next);
-    // matchingCriteria.lengthOfTheAlternate(req, res, next);
-    // matchingCriteria.levelOfEducation(req, res, next);
-    // matchingCriteria.frequencyOfApprenticeship(req, res, next);
-    // matchingCriteria.ageRange(req, res, next);
-    // matchingCriteria.search(req, res, next);
-    const data = await matchingCriteria.display(req, res, next);
-    return res.status(200).json({ jobs: data.students });
+    const data = await searchJob(req, res, next);
+    return res.status(200).json({ jobs: data });
   } catch (err) {
     return res.status(400).json({ message: err.message });
 
