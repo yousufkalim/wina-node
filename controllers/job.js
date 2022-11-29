@@ -916,32 +916,37 @@ exports.GetCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
     if (!requestedUser.type) {
       res.status(400).send({ message: Texts.notAuthorized });
     }
-    await Job.find()
-      .populate(populateQuery)
-      .exec(async (err, data) => {
-        if (err) {
-          res.status(404).send({ message: err.message });
-        } else {
-          let results = [];
-          data.map(dt => {
-            if (dt.company_requests && dt.company_requests.length > 0) {
-              let check = dt.company_requests.some(
-                ft =>
-                  `${ft.student}` === `${requestedUser.student}` && `${ft.status}` !== 'rejected'
-              );
-              if (check) {
-                results.push(dt);
-              }
-            }
-            return data;
-          });
-          if (results && results.length > 0) {
-            res.status(200).send({ jobs: results, message: 'Travail récupéré avec succès' });
-          } else {
-            res.status(200).send({ jobs: [], message: Texts.error });
-          }
-        }
-      });
+    // await Job.find()
+    //   .populate(populateQuery)
+    //   .exec(async (err, data) => {
+    //     if (err) {
+    //       res.status(404).send({ message: err.message });
+    //     } else {
+    //       let results = [];
+    //       data.map(dt => {
+    //         if (dt.company_requests && dt.company_requests.length > 0) {
+    //           let check = dt.company_requests.some(
+    //             ft =>
+    //               `${ft.student}` === `${requestedUser.student}` && `${ft.status}` !== 'rejected'
+    //           );
+    //           if (check) {
+    //             results.push(dt);
+    //           }
+    //         }
+    //         return data;
+    //       });
+    //       if (results && results.length > 0) {
+    //         res.status(200).send({ jobs: results, message: 'Travail récupéré avec succès' });
+    //       } else {
+    //         res.status(200).send({ jobs: [], message: Texts.error });
+    //       }
+    //     }
+    //   });
+    const data = await Job.find({
+      'company_requests.student': requestedUser.student,
+      'company_requests.status': 'pending'
+    }).populate(populateQuery);
+    res.status(200).send({ jobs: data, message: 'Travail récupéré avec succès' });
   } catch (error) {
     res.status(200).send({ message: error });
 

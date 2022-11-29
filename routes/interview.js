@@ -23,6 +23,7 @@ router.post('/physicalInterview', validateInterview, isValidated, interview.phys
 router.get('/getInterviews/:companyId/:studentId', interview.getInterviews);
 router.get('/getByCompany/:companyId', interview.getByCompany);
 router.get('/getByStudent/:studentId', interview.getByStudent);
+router.get('/getOffersStudent/:studentId', interview.getOffersStudent);
 router.get('/:interviewId', interview.getById);
 router.put('/:interviewId', validateupdateInterview, isValidated, interview.update);
 
