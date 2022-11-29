@@ -24,6 +24,9 @@ router.get('/getInterviews/:companyId/:studentId', interview.getInterviews);
 router.get('/getByCompany/:companyId', interview.getByCompany);
 router.get('/getByStudent/:studentId', interview.getByStudent);
 router.get('/getOffersStudent/:studentId', interview.getOffersStudent);
+//getRejectedOffersStudent
+router.get('/getRejectedOffersStudent/:studentId', interview.getRejectedOffersStudent);
+
 router.get('/:interviewId', interview.getById);
 router.put('/:interviewId', validateupdateInterview, isValidated, interview.update);
 

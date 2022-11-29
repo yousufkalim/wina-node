@@ -518,8 +518,8 @@ exports.bookCoachingAppointment = asyncHandler(async (req, res, next) => {
 
 exports.searchForJob = asyncHandler(async (req, res, next) => {
   try {
-    const data = await searchJob(req, res, next);
-    return res.status(200).json({ jobs: data });
+    const data = await matchingCriteria.display(req, res, next);
+    return res.status(200).json({ jobs: data.students });
   } catch (err) {
     return res.status(400).json({ message: err.message });
 
