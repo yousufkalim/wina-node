@@ -12,7 +12,6 @@ const Texts = {
     'Une question ? RDV sur le chatbot une équipe de conseiller s’engage à te répondre dans un délai maximum de 48H .',
   Student_verification_Email_Footer1: 'A très vite, Ensemble on va y arriver !',
   Student_verification_Email_Footer2: 'L’équipe WinaA',
-
   // Company Email verification text
   Company_verification_Email_Title: 'Prêt à recruter votre super apprenti ?',
   Hello: 'Bonjour',
@@ -38,7 +37,6 @@ const Texts = {
     'Merci de cliquer sur le lien suivant afin de valider votre adresse e-mail : ',
   Verification_email_URL: 'L’équipe WINAA',
   Password_must_match: 'Le mot du passe doit être identique',
-
   userAlreadyExists: "L'utilisateur existe déjà",
   emailExists: "L'adresse e-mail existe déjà",
   allUsers: 'Tous les utilisateurs',
@@ -53,7 +51,6 @@ const Texts = {
   professional_info_deleted: 'Expérience professionnelle supprimée',
   invalidToken: 'Session expirée',
   emailVerificationSent: "Lien de vérification de l'adresse e-mail envoyé",
-
   You_have_successfully_verified: 'Vous_avez_vérifié_avec succès',
   You_have_successfully_registered_on_WINA: 'Enregistrement réussi',
   success: 'Succès',
@@ -67,11 +64,9 @@ const Texts = {
   Logout_was_successful: 'Déconnexion avec succès',
   Max_size_can_be_200MB: 'La taille maximale est 200MB',
   Max_size_can_be_10MB: 'La taille maximale est 10MB',
-
   Please_select_an_image_of_File_type_jpg: 'Veuillez sélectionner une image de type de fichier jpg',
   Please_select_an_resume_of_File_type_PDF: 'Veuillez sélectionner un CV de type de fichier PDF',
   Coaching_Appointment_for_Student: 'Rendez-vous de coaching pour étudiant',
-
   Coaching_Appointment_for_Student: 'Rendez-vous de coaching pour étudiant',
   Student_has_requested_for_Coaching_Appointment:
     "L'étudiant a demandé un rendez-vous d'entraîneur",
@@ -95,12 +90,10 @@ const Texts = {
   Rejected_job_successfully: 'Rejeté_emploi_avec succès',
   has_rejected_your_job: 'a rejeté votre emploi',
   has_rejected_your_offer: 'a rejeté votre offre',
-
   has_accepted_your_offer: 'a accepté votre offre',
   Request_has_been_accepted_successfully: 'La demande a été acceptée avec succès',
   Request_has_been_deleted_successfully: 'La demande a été supprimée avec succès',
   Request_has_been_sent_successfully: 'La demande a été envoyée avec succès',
-
   is_sent_request_you_on_a_job: 'est envoyé vous demande sur un emploi',
   Skill_created_successfully: 'Compétence créée avec succès',
   Skill_Updated_Successfully: 'Compétence mise à jour avec succès',
@@ -108,29 +101,23 @@ const Texts = {
   Domain_created_successfully: 'Domaine créée avec succès',
   DomainAlreadyExists: 'Domaine existe déjà',
   Domain_Updated_Successfully: 'Domaine mise à jour avec succès',
-
   Company_has_been_deleted_Successfully: 'La société a été supprimée avec succès',
   Your_Profile_picture_has_been_Validated_successfully:
     'Votre photo de profil a été validée avec succès',
   Your_job_picture_has_been_Validated_successfully:
     "Votre photo d'emploi a été validée avec succès",
   Picture_validated: 'Image_validée',
-
   Validation_failed: 'Validation échouée',
   invalid_profile_picture: 'photo de profil invalide',
   invalid_job_picture: 'photo de travail invalide',
-
   invalid_video: 'vidéo invalide',
-
   Picture_has_been_deleted: "L'image a été supprimée",
   Video_has_been_deleted: 'La vidéo a été supprimée',
-
   Your_Presentational_video_has_been_Validated_successfully:
     'Votre vidéo de présentation a été validée avec succès',
   School_Created_Successfully: 'École Créée Succès',
   School_updated_Successfully: 'École mise à jour avec succès',
   School_deleted_Successfully: 'École supprimée avec succès',
-
   Appointment_updated_Successfully: 'Rendez-vous mis à jour avec succès',
   Appointment_deleted_Successfully: 'Rendez vous supprimé avec succès',
   Appointment_Approved: 'Rendez vous Approuvé',
@@ -145,7 +132,6 @@ const Texts = {
     'Votre demande de rendez-vous de coaching a été approuvée',
   Your_request_for_Coaching_Appointment_has_been_cancelled:
     'Votre demande de rendez-vous de coaching a été annulée',
-
   Profile_updated_successfully: 'Mise à jour du profil réussie',
   User_has_been_deleted_Successfully: "L'utilisateur a été supprimé avec succès",
   No_user_found_with_this_email: 'Aucun utilisateur trouvé avec cet email',
@@ -153,6 +139,7 @@ const Texts = {
   Password_updated_successfully: 'Mot de passe mis à jour avec succès',
   company_not_found: 'entreprise introuvable',
   members_already_added: 'membres déjà ajoutés',
+  Cannot_add_more_than_4_members: "Impossible d'ajouter plus de 4 membres",
   member_not_found: 'Membre introuvable',
   stages_already_added: 'étapes déjà ajoutées',
   stage_not_found: 'étape introuvable',

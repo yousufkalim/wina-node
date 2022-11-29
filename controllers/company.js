@@ -308,7 +308,9 @@ exports.addMember = async (req, res) => {
       return res.status(404).json({ success: false, message: Texts.company_not_found });
     }
     if (findCompany.members.length >= 4) {
-      return res.status(404).json({ success: false, message: Texts.members_already_added });
+      return res
+        .status(404)
+        .json({ success: false, message: Texts.Cannot_add_more_than_4_members });
     }
     findCompany.members.push(member);
     await findCompany.save();
