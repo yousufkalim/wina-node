@@ -204,7 +204,7 @@ const startDateJob = async (jobs, student) => {
       return startDateArray.push({ job: job.job, score: job.score + 0 });
     }
     const jobDate = moment(job.job.startDate, 'YYYY-MM-DD');
-
+    console;
     const result = Math.abs(studentStartingDate.diff(jobDate, 'weeks'));
     if (result <= 1) {
       score = 1;
