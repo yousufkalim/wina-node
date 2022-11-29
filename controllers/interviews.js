@@ -692,8 +692,39 @@ exports.getOffersStudent = async (req, res) => {
     const { studentId } = req.params;
     const interviews = await Interviews.find({
       student: studentId,
-      status: 'pending',
+      status: 'requested',
       start_date: { $gte: new Date(Date.now()) }
+    })
+      .populate({
+        path: 'student',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      })
+      .populate({
+        path: 'company',
+        populate: {
+          path: 'contactPerson.person',
+          model: 'User'
+        }
+      })
+      .populate('job');
+    res.status(200).json({ success: true, interviews });
+  } catch (err) {
+    // Error handling
+    // eslint-disable-next-line no-console
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+exports.getRejectedOffersStudent = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const interviews = await Interviews.find({
+      student: studentId,
+      status: 'rejected'
     })
       .populate({
         path: 'student',
