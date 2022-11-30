@@ -749,3 +749,62 @@ exports.getRejectedOffersStudent = async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
+
+//updateStudentInterview
+exports.updateStudentInterview = async (req, res) => {
+  try {
+    const { interviewId } = req.params;
+    const interview = await Interviews.findById(interviewId);
+    if (!interview) {
+      res.status(404).json({ success: false, message: 'Interview Not Found' });
+    }
+    interview.status = req.body.status;
+    await interview.save();
+    const Reqinterviews = await Interviews.find({
+      student: interview.student,
+      status: 'requested',
+      start_date: { $gte: new Date(Date.now()) }
+    })
+      .populate({
+        path: 'student',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      })
+      .populate({
+        path: 'company',
+        populate: {
+          path: 'contactPerson.person',
+          model: 'User'
+        }
+      })
+      .populate('job');
+    const Rejinterviews = await Interviews.find({
+      student: interview.student,
+      status: 'rejected'
+    })
+      .populate({
+        path: 'student',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      })
+      .populate({
+        path: 'company',
+        populate: {
+          path: 'contactPerson.person',
+          model: 'User'
+        }
+      })
+      .populate('job');
+
+    res.status(200).json({ success: true, requested: Reqinterviews, rejected: Rejinterviews });
+  } catch (err) {
+    // Error handling
+    // eslint-disable-next-line no-console
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
