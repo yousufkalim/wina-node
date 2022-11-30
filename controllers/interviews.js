@@ -800,7 +800,14 @@ exports.updateStudentInterview = async (req, res) => {
       })
       .populate('job');
 
-    res.status(200).json({ success: true, requested: Reqinterviews, rejected: Rejinterviews });
+    res
+      .status(200)
+      .json({
+        success: true,
+        requested: Reqinterviews,
+        rejected: Rejinterviews,
+        message: 'Entretien mis à jour avec succès'
+      });
   } catch (err) {
     // Error handling
     // eslint-disable-next-line no-console
