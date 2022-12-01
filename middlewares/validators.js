@@ -68,7 +68,10 @@ exports.validateupdateInterview = [
     .isIn(['requested', 'rejected', 'attended', 'accepted']),
   check('start_date', 'Interview date is required').notEmpty().trim()
 ];
-
+//
+exports.validateInterviewStaus = [
+  check('status', 'status  is required').notEmpty().trim().isIn(['rejected', 'accepted'])
+];
 //Update company info
 exports.validateUpdateComapny = [
   check('company_description', 'Company description is required').notEmpty().trim(),
