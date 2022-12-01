@@ -6,6 +6,7 @@ const router = require('express').Router();
 const {
   validateInterview,
   validateupdateInterview,
+  validateInterviewStaus,
   isValidated
 } = require('../middlewares/validators');
 const interview = require('../controllers/interviews');
@@ -23,8 +24,18 @@ router.post('/physicalInterview', validateInterview, isValidated, interview.phys
 router.get('/getInterviews/:companyId/:studentId', interview.getInterviews);
 router.get('/getByCompany/:companyId', interview.getByCompany);
 router.get('/getByStudent/:studentId', interview.getByStudent);
+router.get('/getOffersStudent/:studentId', interview.getOffersStudent);
+//getRejectedOffersStudent
+router.get('/getRejectedOffersStudent/:studentId', interview.getRejectedOffersStudent);
+
 router.get('/:interviewId', interview.getById);
 router.put('/:interviewId', validateupdateInterview, isValidated, interview.update);
+router.put(
+  '/updateStudentInterview/:interviewId',
+  validateInterviewStaus,
+  isValidated,
+  interview.updateStudentInterview
+);
 
 // Export
 module.exports = router;

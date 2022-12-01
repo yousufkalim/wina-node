@@ -366,13 +366,15 @@ class MatchingCriteria extends DealBreaker {
         // Age Range Filter //
         let ageRangeIndex = ageRangeResult.findIndex(ageRange => ageRange.id === job.id);
         totalScore += ageRangeResult[ageRangeIndex].score / 100;
-        newArray.push({
-          jobId: job.id,
-          score: totalScore
-        });
-        newArray.sort(function (a, b) {
-          return b.score - a.score;
-        });
+        if (!isNaN(totalScore)) {
+          newArray.push({
+            jobId: job.id,
+            score: totalScore
+          });
+          newArray.sort(function (a, b) {
+            return b.score - a.score;
+          });
+        }
       });
       return newArray;
     } catch (err) {
