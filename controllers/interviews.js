@@ -14,7 +14,7 @@ const { interviewInvitation } = require('../utils/sendEmail');
 const { Texts } = require('../utils/texts');
 const User = require('../models/User');
 const socket = require('../app');
-
+const moment = require('moment');
 /**
  * Create Virtual Interview
  * @param {object} req
@@ -77,7 +77,10 @@ exports.virtualInterview = async (req, res) => {
                 if (socket?.socket) {
                   socket.io.emit(`recieveNotification${existingStudent.user._id}`, {
                     title: 'invitation à un entretien',
-                    message: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
+                    message: `Vous avez été invité à un entretien en ligne par ${
+                      existingCompany.name
+                    } le ${moment(start_date).format('DD/MM/YYYY hh:mm:ss a')}  `,
+                    link: `${mail.guest_link}`
                   });
                 }
                 await User.findByIdAndUpdate(
@@ -86,7 +89,10 @@ exports.virtualInterview = async (req, res) => {
                     $push: {
                       notifications: {
                         title: 'invitation à un entretien',
-                        description: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
+                        description: `Vous avez été invité à un entretien en ligne par ${
+                          existingCompany.name
+                        } le ${moment(start_date).format('DD/MM/YYYY hh:mm:ss a')}  `,
+                        link: `${mail.guest_link}`
                       }
                     }
                   },
@@ -110,7 +116,7 @@ exports.virtualInterview = async (req, res) => {
                   .populate('job');
                 res.status(200).json({
                   success: true,
-                  message: 'Interview has been schedule',
+                  message: "L'entretien a été programmé",
                   notification: data.message,
                   interview: interviews
                 });
@@ -166,7 +172,9 @@ exports.physicalInterview = async (req, res) => {
             if (socket?.socket) {
               socket.io.emit(`recieveNotification${existingStudent.user._id}`, {
                 title: 'invitation à un entretien',
-                message: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
+                message: `Vous avez été invité à un entretien sur site par ${
+                  existingCompany.name
+                } le ${moment(start_date).format('DD/MM/YYY hh:mm:ss a')}`
               });
             }
             await User.findByIdAndUpdate(
@@ -175,7 +183,9 @@ exports.physicalInterview = async (req, res) => {
                 $push: {
                   notifications: {
                     title: 'invitation à un entretien',
-                    description: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
+                    description: `Vous avez été invité à un entretien sur site par ${
+                      existingCompany.name
+                    } le ${moment(start_date).format('DD/MM/YYY hh:mm:ss a')}`
                   }
                 }
               },
@@ -199,7 +209,7 @@ exports.physicalInterview = async (req, res) => {
               .populate('job');
             res.status(200).json({
               success: true,
-              message: 'Interview has been schedule',
+              message: "L'entretien a été programmé",
               notification: data.message,
               interview: interviews
             });
@@ -379,7 +389,7 @@ exports.update = async (req, res) => {
     if (!existingCompany) {
       return res.status(404).json({ success: false, message: 'company not found' });
     }
-    if (new Date(start_date) === new Date(interview)) {
+    if (new Date(start_date) === new Date(interview.start_date)) {
       await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
         .populate({
           path: 'student',
@@ -412,7 +422,7 @@ exports.update = async (req, res) => {
         });
       return res
         .status(200)
-        .json({ success: true, message: 'Interview has been updated', interview: interviews });
+        .json({ success: true, message: "L'entretien a été mis à jour", interview: interviews });
     }
     if (interview.type === 'virtual') {
       const payload = {
@@ -473,7 +483,10 @@ exports.update = async (req, res) => {
           if (socket?.socket) {
             socket.io.emit(`recieveNotification${existingStudent.user._id}`, {
               title: 'invitation à un entretien',
-              message: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
+              message: `Vous avez été invité à un entretien en ligne par ${
+                existingCompany.name
+              } le ${moment(start_date).format('DD/MM/YYYY hh:mm:ss a')}  `,
+              link: `${mail.guest_link}`
             });
           }
           await User.findByIdAndUpdate(
@@ -482,7 +495,10 @@ exports.update = async (req, res) => {
               $push: {
                 notifications: {
                   title: 'invitation à un entretien',
-                  description: `Vous avez été invité à un entretien en ligne par ${existingCompany.name} le ${start_date} en rejoignant le lien : ${mail.guest_link}`
+                  description: `Vous avez été invité à un entretien en ligne par ${
+                    existingCompany.name
+                  } le ${moment(start_date).format('DD/MM/YYYY hh:mm:ss a')}`,
+                  link: `${mail.guest_link}`
                 }
               }
             },
@@ -503,9 +519,11 @@ exports.update = async (req, res) => {
                 model: 'User'
               }
             });
-          return res
-            .status(200)
-            .json({ success: true, message: 'Interview has been updated', interview: interviews });
+          return res.status(200).json({
+            success: true,
+            message: "L'entretien a été mis à jour",
+            interview: interviews
+          });
         });
       });
     } else if (interview.type === 'physical') {
@@ -535,7 +553,9 @@ exports.update = async (req, res) => {
         if (socket?.socket) {
           socket.io.emit(`recieveNotification${existingStudent.user._id}`, {
             title: 'invitation à un entretien',
-            message: `Vous avez été invité à un entretien sur site par ${existingCompany.name} le ${start_date}`
+            message: `Vous avez été invité à un entretien sur site par ${
+              existingCompany.name
+            } le ${moment(start_date).format('DD/MM/YYYY hh:mm:ss a')}`
           });
         }
         await Student.findByIdAndUpdate(
@@ -544,7 +564,9 @@ exports.update = async (req, res) => {
             $push: {
               notifications: {
                 title: 'invitation à un entretien',
-                description: `You have been invited for an online interview by ${existingCompany.name} on ${start_date} `
+                description: `Vous avez été invité à un entretien sur site par ${
+                  existingCompany.name
+                } le ${moment(start_date).format('DD/MM/YYYY hh:mm:ss a')} `
               }
             }
           },
@@ -567,12 +589,10 @@ exports.update = async (req, res) => {
           });
         res
           .status(200)
-          .json({ success: true, message: 'Interview has been schedule', interview: interviews });
+          .json({ success: true, message: "L'entretien a été mis à jour", interview: interviews });
       });
     }
   } catch (err) {
-    // Error handling
-    // eslint-disable-next-line no-console
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
@@ -630,7 +650,6 @@ const companyRequest = (RECIEVER_ID, JOB_ID, companyData, studentData) => {
                 }
               }
             });
-
             // studentData.notifications.push(notifications);
             // await studentData.save();
             resolve({ success: true, message: 'Requested Successfully' });

@@ -36,20 +36,8 @@ exports.create = async (req, res) => {
 
 exports.getAll = async (req, res) => {
   try {
-    const { page, pageSize } = req.query;
-    const pageNumber = page * 1 || 1;
-    const pagesize = pageSize * 1 || 100;
-    const skip = (pageNumber - 1) * pagesize;
-    const packages = await Package.find().skip(skip).limit(pagesize);
-    const packageLength = await Package.aggregate([
-      {
-        $group: {
-          _id: null,
-          count: { $sum: 1 }
-        }
-      }
-    ]);
-    return res.status(200).json({ count: packageLength[0].count, data: { packages } });
+    const packages = await Package.find();
+    return res.status(200).json({ data: { packages } });
   } catch (err) {
     // Error handling
     // eslint-disable-next-line no-console
