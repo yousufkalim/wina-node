@@ -422,7 +422,11 @@ exports.packageSubscriber = async (req, res) => {
     ]);
     return res
       .status(200)
-      .json({ success: true, count: subscribersLength[0].count, data: { subscriptions } });
+      .json({
+        success: true,
+        count: subscribersLength[0]?.count ? subscribersLength[0]?.count : 0,
+        data: { subscriptions }
+      });
   } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
