@@ -13,10 +13,10 @@ const Package = require('../models/packages');
 
 exports.create = async (req, res) => {
   try {
-    if (Object.keys(req.files).length < 1) {
-      return res.status(404).json({ success: false, message: 'Picture required' });
+    if (Object.keys(req.files).length > 0) {
+      req.body.photo = req.files.image[0].path;
     }
-    req.body.photo = req.files.image[0].path;
+
     Package.create(req.body).then(interview => {
       res.status(200).json({ success: true, message: 'Package has been created', interview });
     });
