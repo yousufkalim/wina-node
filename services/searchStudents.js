@@ -396,13 +396,15 @@ class MatchingCriteria extends DealBreaker {
         let ageRangeIndex = ageRangeResult.findIndex(ageRange => ageRange.id === student.id);
         totalScore += ageRangeResult[ageRangeIndex].score / 100;
 
-        newArray.push({
-          studentId: student.id,
-          score: totalScore
-        });
-        newArray.sort(function (a, b) {
-          return b.score - a.score;
-        });
+        if (!isNaN(totalScore)) {
+          newArray.push({
+            studentId: student.id,
+            score: totalScore
+          });
+          newArray.sort(function (a, b) {
+            return b.score - a.score;
+          });
+        }
       });
 
       return newArray;

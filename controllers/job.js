@@ -237,7 +237,28 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
         new: true
       }
     );
-    return res.status(200).json({ message: Texts.success + Texts.jobUpdated, Job: updatedJob });
+    const populateQuery = [
+      {
+        path: 'company'
+      },
+      {
+        path: 'softSkills'
+      },
+      {
+        path: 'hardSkills'
+      },
+      {
+        path: 'company_requests.student',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      }
+    ];
+    const jobs = await Job.find({ company: companyID }).populate(populateQuery);
+    return res
+      .status(200)
+      .json({ message: Texts.success + Texts.jobUpdated, Job: updatedJob, Jobs: jobs });
   } catch (err) {
     return res.status(400).json({ message: err.message });
     next(err);
