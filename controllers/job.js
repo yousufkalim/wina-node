@@ -256,9 +256,21 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
       }
     ];
     const jobs = await Job.find({ company: companyID }).populate(populateQuery);
-    return res
-      .status(200)
-      .json({ message: Texts.success + Texts.jobUpdated, Job: updatedJob, Jobs: jobs });
+    if (jobs.length > 0) {
+      var newData = [];
+      for (let i = 0; i < jobs.length; i++) {
+        req.params.id = jobs[i]._id;
+        const job = { ...jobs[i]._doc };
+        const matchedStudents = await matchingCriteria.display(req, res, next);
+        job.matchedStudents = matchedStudents.students;
+        newData.push(job);
+      }
+      return res
+        .status(200)
+        .send({ message: Texts.success + Texts.jobUpdated, Job: updatedJob, Jobs: jobs });
+    } else {
+      return res.status(204).send({ message: 'Non trouvé dans la base de données' });
+    }
   } catch (err) {
     return res.status(400).json({ message: err.message });
     next(err);
@@ -1383,7 +1395,7 @@ exports.GetJobswithStudents = asyncHandler(async (req, res, next) => {
     } else {
       const jobs = await Job.find({ company: requestedUser.company }).populate(populateQuery);
 
-      if (jobs) {
+      if (jobs.length > 0) {
         var newData = [];
         for (let i = 0; i < jobs.length; i++) {
           req.params.id = jobs[i]._id;
@@ -1393,6 +1405,8 @@ exports.GetJobswithStudents = asyncHandler(async (req, res, next) => {
           newData.push(job);
         }
         return res.status(200).send({ jobs: newData, message: 'Travail récupéré avec succès' });
+      } else {
+        return res.status(404).send({ message: 'Non trouvé dans la base de données' });
       }
     }
   } catch (error) {
