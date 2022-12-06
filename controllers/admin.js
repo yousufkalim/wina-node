@@ -504,7 +504,6 @@ exports.companyList = asyncHandler(async (req, res, next) => {
     const skip = (pageNumber - 1) * pagesize;
     const listOfCompanies = await Company.find({ isDeleted: false })
       .populate('contactPerson.person')
-
       .skip(skip)
       .limit(pagesize);
     const recordLength = await Company.aggregate([
