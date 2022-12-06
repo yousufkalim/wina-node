@@ -15,10 +15,11 @@ const { upload } = require('../middlewares/multer');
  * @method delete delete package
  */
 
-router.post('/', upload, validatePackage, isValidated, package.create);
+router.post('/', validatePackage, isValidated, package.create);
 router.get('/', package.getAll);
+router.get('/getByType', package.getByType);
 router.get('/:packageId', package.getById);
-router.put('/:packageId', upload, validatePackage, isValidated, package.update);
+router.put('/:packageId', validatePackage, isValidated, package.update);
 
 // Export
 module.exports = router;

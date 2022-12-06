@@ -13,12 +13,8 @@ const Package = require('../models/packages');
 
 exports.create = async (req, res) => {
   try {
-    if (Object.keys(req.files).length > 0) {
-      req.body.photo = req.files.image[0].path;
-    }
-
-    Package.create(req.body).then(interview => {
-      res.status(200).json({ success: true, message: 'Package has been created', interview });
+    Package.create(req.body).then(package => {
+      res.status(200).json({ success: true, message: 'Package has been created', package });
     });
   } catch (err) {
     // Error handling
@@ -73,12 +69,31 @@ exports.getById = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    if (Object.keys(req.files).length > 0) {
-      req.body.photo = req.files.image[0].path;
-    }
     const { packageId } = req.params;
     const package = await Package.findByIdAndUpdate(packageId, req.body, { new: true });
     res.status(200).json({ success: true, package });
+  } catch (err) {
+    // Error handling
+    // eslint-disable-next-line no-console
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+/**
+ * get  packages by type
+ * @param {object} req
+ * @param {object} res
+ */
+
+exports.getByType = async (req, res) => {
+  try {
+    const { type } = req.query;
+    if (!type) {
+      res.status(400).json({ success: false, message: 'Type Required' });
+    }
+    const packages = await Package.find({ type: type });
+    return res.status(200).json(packages);
   } catch (err) {
     // Error handling
     // eslint-disable-next-line no-console
