@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const Student = require('../models/Student');
 const User = require('../models/User');
-
+const Skill = require('../models/Skill');
 const { upload } = require('../middlewares/multer');
 
 router.post('/fileUpload', upload, async (req, res, next) => {
@@ -40,6 +40,23 @@ router.post('/fileUpload', upload, async (req, res, next) => {
   }
 });
 router.post('/resumeUpload', upload, async (req, res, next) => {
+  const populateQuery = [
+    { path: 'company' },
+    {
+      path: 'student',
+      populate: [
+        {
+          path: 'softSkills'
+        },
+        {
+          path: 'hardSkills'
+        },
+        {
+          path: 'languages'
+        }
+      ]
+    }
+  ];
   if (req.files) {
     if (
       req.files.resume[0].mimetype === 'application/pdf' ||
@@ -58,7 +75,7 @@ router.post('/resumeUpload', upload, async (req, res, next) => {
           },
           { new: true }
         );
-        const user = await User.findById(student.user).populate('student');
+        const user = await User.findById(student.user).populate(populateQuery);
         res.status(200).send({ user: user, message: ' Le fichier a été ajouté avec succès' });
       }
     } else {
