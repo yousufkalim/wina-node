@@ -93,11 +93,12 @@ exports.updateStageDescription = [
 exports.validatePackage = [
   check('title', 'title is required').notEmpty().trim(),
   check('price', 'price  is required').notEmpty().trim(),
-  check('type', 'Package type is required')
+  check('validity', 'Package validity is required')
     .notEmpty()
     .trim()
-    .isIn(['1 Month', '3 Months', '6 Months', '12 Months']),
-  check('detail', 'detail date is required').notEmpty().trim()
+    .isIn(['Monthly', 'Quarterly', 'Yearly']),
+  check('type', 'Package type is required').notEmpty().trim().isIn(['Student', 'Company']),
+  check('detail', 'detail  is required').notEmpty().trim()
 ];
 
 //Subscription

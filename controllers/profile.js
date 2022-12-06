@@ -428,13 +428,20 @@ exports.Webhook = async (req, res) => {
         const metaData = session.metadata;
         const { package, user, price, type } = metaData;
         const existingPackage = await Package.findById(package);
-        var type1 = existingPackage.type;
-        type1 = type1.replace(/[^0-9]/g, '');
+        var validity = existingPackage.validity;
+        //'Monthly', 'Yearly', 'Quarterly'
+        if (validity === 'Monthly') {
+          var expire_on = moment().add(1, 'months').calendar();
+        } else if (validity === 'Yearly') {
+          var expire_on = moment().add(12, 'months').calendar();
+        } else if (validity === 'Quarterly') {
+          var expire_on = moment().add(3, 'months').calendar();
+        }
         const u1 = {
           uId: user,
           type: type
         };
-        const expire_on = moment().add(parseInt(type1), 'months').calendar();
+
         await Subscription.create({
           package: package,
           user: u1,

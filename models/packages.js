@@ -8,8 +8,9 @@ const PackageSchema = new mongoose.Schema(
   {
     title: String,
     price: Number,
-    type: { type: String, enum: ['1 Month', '3 Months', '6 Months', '12 Months'] },
+    validity: { type: String, enum: ['Monthly', 'Yearly', 'Quarterly'] },
     detail: String,
+    type: { type: String, enum: ['Student', 'Company'] },
     photo: String
   },
   {

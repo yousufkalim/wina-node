@@ -5,7 +5,12 @@ const Student = require('../models/Student');
 
 exports.searchJob = async (req, res, next) => {
   try {
-    const jobs = await Job.find({ isDeleted: false });
+    const jobs = await Job.find({
+      isDeleted: false,
+      'student_requests.student': {
+        $ne: req.user.student
+      }
+    });
     const student = await Student.findById(req.user.student);
     if (!jobs || !student) {
       return res.status(404).json({ message: 'student not found' });
