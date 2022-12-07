@@ -698,8 +698,8 @@ exports.getSkillsByType = async (req, res, next) => {
       message: 'Les compétences ont été récupérées avec succès'
     });
   } catch (err) {
-    return res.status(200).send({ message: error.message });
-    next(error);
+    return res.status(500).send({ message: err.message });
+    next(err);
   }
 };
 exports.getHardSkills = async (req, res, next) => {

@@ -41,9 +41,10 @@ exports.create = async (req, res) => {
       expired: false
     });
     if (existingSubscription) {
-      return res
-        .status(404)
-        .json({ success: false, message: 'sorry you cant subscribe mutilple packages at a time' });
+      return res.status(404).json({
+        success: false,
+        message: 'Désolé, vous ne pouvez pas souscrire plusieurs packages à la fois'
+      });
     }
     Subscription.create(req.body).then(subscribe => {
       res
@@ -461,7 +462,10 @@ exports.findSubscription = async (req, res) => {
     if (existingSubscription) {
       return res
         .status(200)
-        .json({ success: false, message: 'sorry you cant subscribe mutilple packages at a time' });
+        .json({
+          success: false,
+          message: 'Désolé, vous ne pouvez pas souscrire plusieurs packages à la fois'
+        });
     }
     return res.status(200).json({ success: true, message: 'Acessible' });
   } catch (err) {
