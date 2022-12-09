@@ -38,7 +38,7 @@ const Texts = {
   Verification_email_URL: 'L’équipe WINAA',
   Password_must_match: 'Le mot du passe doit être identique',
   userAlreadyExists: "L'utilisateur existe déjà",
-  emailExists: "L'adresse e-mail existe déjà",
+  emailExists: 'Vous avez déjà un compte, veuillez vous connecter',
   allUsers: 'Tous les utilisateurs',
   userData: 'Donnée utilisateur',
   userAdded: 'Utilisateur ajouté',
