@@ -21,9 +21,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       requestedUser.studentConsultant ||
       requestedUser.companyConsultant
     ) {
-      const error = new Error('Accès refusé!');
-      error.status = 400;
-      throw error;
+      return res.status(400).send({ message: 'Vous avez déjà un compte, veuillez vous connecter' });
     }
     const userType = req.user.type;
     let UploadedPicture = '';
@@ -655,17 +653,11 @@ exports.getSoftSkills = async (req, res, next) => {
     //var query="négociat"
     if (type === 'Soft Skill') {
       const skills = await Skill.find({
-        $and: [
-          { skillType: 'Soft Skill' },
-          {
-            isDeleted: false
-          }
-        ]
+        $and: [{ skillType: 'Soft Skill' }, { isDeleted: false }]
       });
-      return res.status(200).send({
-        skills: skills,
-        message: 'Les compétences ont été récupérées avec succès'
-      });
+      return res
+        .status(200)
+        .send({ skills: skills, message: 'Les compétences ont été récupérées avec succès' });
     }
   } catch (err) {
     return res.status(200).send({ message: error.message });
@@ -698,8 +690,8 @@ exports.getSkillsByType = async (req, res, next) => {
       message: 'Les compétences ont été récupérées avec succès'
     });
   } catch (err) {
-    return res.status(200).send({ message: error.message });
-    next(error);
+    return res.status(500).send({ message: err.message });
+    next(err);
   }
 };
 exports.getHardSkills = async (req, res, next) => {
