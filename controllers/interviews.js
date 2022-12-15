@@ -23,7 +23,6 @@ const moment = require('moment');
 exports.virtualInterview = async (req, res) => {
   try {
     const { description, student, job, company, start_date } = req.body;
-
     const existingStudent = await Student.findById(student).populate('user');
     if (!existingStudent) {
       return res.status(404).json({ success: false, message: 'Student not found' });
@@ -32,6 +31,11 @@ exports.virtualInterview = async (req, res) => {
     if (!existingCompany) {
       return res.status(404).json({ success: false, message: 'company not found' });
     }
+    const existingJob = await Job.findById(job).populate('job');
+    if (!existingJob) {
+      return res.status(404).json({ success: false, message: 'Job not found' });
+    }
+
     const payload = {
       iss: process.env.ZOOM_KEY, //your API KEY
       exp: new Date(start_date).getTime()
@@ -67,7 +71,9 @@ exports.virtualInterview = async (req, res) => {
           host: existingCompany.contactPerson.person.email,
           host_link: response.start_url,
           guest_link: response.join_url,
-          date: start_date
+          date: start_date,
+          company_name: existingCompany.name,
+          job_position: existingJob.position
         };
         Interviews.create(req.body).then(interview => {
           interviewInvitation(mail).then(async () => {
@@ -157,13 +163,19 @@ exports.physicalInterview = async (req, res) => {
     if (!existingCompany) {
       return res.status(404).json({ success: false, message: 'company not found' });
     }
+    const existingJob = await Job.findById(job).populate('job');
+    if (!existingJob) {
+      return res.status(404).json({ success: false, message: 'Job not found' });
+    }
 
     Interviews.create(req.body).then(interview => {
       const mail = {
         description: description,
         guest: existingStudent.user.email,
         host: existingCompany.contactPerson.person.email,
-        date: start_date
+        date: start_date,
+        company_name: existingCompany.name,
+        job_position: existingJob.position
       };
       interviewInvitation(mail).then(async () => {
         //to add company request and to send notification to user for interview
