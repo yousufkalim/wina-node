@@ -277,8 +277,16 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
                 var mailOptions = {
                   to: user.email,
                   from: process.env.MailingId,
-                  subject: Texts.emailVerificationSent,
-                  text: Texts.You_have_successfully_verified
+                  subject: 'Votre compte Winaa',
+                  text:
+                    'Bonjour,' +
+                    '\n\n' +
+                    'Votre compte a été vérifié avec succès. Vous pouvez à présent vous connecter sur la plateforme Winaa.' +
+                    '\n\n' +
+                    ' Merci,' +
+                    '\n\n' +
+                    'L’équipe Winaa`' +
+                    '\n\n'
                 };
                 transporter.sendMail(mailOptions, (error, info) => {
                   if (error) {
