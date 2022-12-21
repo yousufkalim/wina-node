@@ -1389,15 +1389,19 @@ exports.GetJobswithStudents = asyncHandler(async (req, res, next) => {
       const jobs = await Job.find({ company: requestedUser.company }).populate(populateQuery);
 
       if (jobs.length > 0) {
-        var newData = [];
+        let promises = [];
         for (let i = 0; i < jobs.length; i++) {
           req.params.id = jobs[i]._id;
-          const job = { ...jobs[i]._doc };
-          const matchedStudents = await matchingCriteria.display(req, res, next);
-          job.matchedStudents = matchedStudents.students;
-          newData.push(job);
+          promises.push(matchingCriteria.display(req, res, next));
         }
-        return res.status(200).send({ jobs: newData, message: 'Travail récupéré avec succès' });
+
+        let data = await Promise.all(promises);
+
+        for (let i = 0; i < jobs.length; i++) {
+          jobs[i]._doc.matchedStudents = data[i].students;
+        }
+
+        return res.status(200).send({ jobs: jobs, message: 'Travail récupéré avec succès' });
       } else {
         return res.status(404).send({ message: 'Non trouvé dans la base de données' });
       }
