@@ -3,11 +3,11 @@ var maxSize = 104857600;
 
 const storage = multer.diskStorage({
   filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    cb(null, Date.now() + '-' + file.originalname.replace(/ /g, '_'));
   },
   destination: function (req, file, cb) {
-    cb(null, "views/uploads");
-  },
+    cb(null, 'views/uploads');
+  }
 });
 
 exports.upload = multer({
