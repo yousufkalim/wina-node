@@ -553,16 +553,16 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
               });
               if (socket?.socket) {
                 socket.io.emit(`recieveNotification${cmp.contactPerson.person._id}`, {
-                  title: 'offre de décision par létudiant',
-                  message: `offre de décision par l'étudiant`
+                  title: "Offre demandée par l'étudiant",
+                  message: `${requestedUser?.firstName.toUpperCase()} ${requestedUser?.lastName.toUpperCase()} demandé pour le poste de ${job?.position.toUpperCase()}`
                 });
                 await User.findByIdAndUpdate(
                   cmp.contactPerson.person._id,
                   {
                     $push: {
                       notifications: {
-                        title: 'offre de décision par létudiant',
-                        description: `offre de décision par l'étudiant`
+                        title: "Offre demandée par l'étudiant",
+                        description: `${requestedUser?.firstName.toUpperCase()} ${requestedUser?.lastName.toUpperCase()} demandé pour le poste de ${job?.position.toUpperCase()}`
                       }
                     }
                   },
@@ -593,16 +593,16 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
               const cmp = await Company.findById(RECIEVER_ID).populate('contactPerson.person');
               if (cmp.contactPerson.person._id) {
                 socket.io.emit(`recieveNotification${cmp.contactPerson.person._id}`, {
-                  title: 'offre de décision par létudiant',
-                  message: `offre de décision par l'étudiant`
+                  title: "Offre demandée par l'étudiant",
+                  message: `${requestedUser?.firstName.toUpperCase()} ${requestedUser?.lastName.toUpperCase()} demandé pour le poste de ${job?.position.toUpperCase()}`
                 });
                 await User.findByIdAndUpdate(
                   cmp.contactPerson.person._id,
                   {
                     $push: {
                       notifications: {
-                        title: 'offre de décision par létudiant',
-                        description: `offre de décision par l'étudiant`
+                        title: "Offre demandée par l'étudiant",
+                        description: `${requestedUser?.firstName.toUpperCase()} ${requestedUser?.lastName.toUpperCase()} demandé pour le poste de ${job?.position.toUpperCase()}`
                       }
                     }
                   },
@@ -662,16 +662,16 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
 
                 if (cmp.contactPerson.person._id) {
                   socket.io.emit(`recieveNotification${cmp.contactPerson.person._id}`, {
-                    title: 'offre de décision par létudiant',
-                    message: `offre de décision par l'étudiant`
+                    title: "Offre refusée par l'étudiant",
+                    message: `${requestedUser?.firstName.toUpperCase()} ${requestedUser?.lastName.toUpperCase()} a refusé ce poste ${job?.position.toUpperCase()}`
                   });
                   await User.findByIdAndUpdate(
                     cmp.contactPerson.person._id,
                     {
                       $push: {
                         notifications: {
-                          title: 'offre de décision par létudiant',
-                          description: `offre de décision par l'étudiant`
+                          title: "Offre refusée par l'étudiant",
+                          description: `${requestedUser?.firstName.toUpperCase()} ${requestedUser?.lastName.toUpperCase()} a refusé ce poste ${job?.position.toUpperCase()}`
                         }
                       }
                     },
@@ -702,16 +702,16 @@ exports.OfferDecisionByStudent = asyncHandler(async (req, res, next) => {
 
               if (cmp.contactPerson.person._id) {
                 socket.io.emit(`recieveNotification${cmp.contactPerson.person._id}`, {
-                  title: 'offre de décision par létudiant',
-                  message: `offre de décision par l'étudiant`
+                  title: "Offre refusée par l'étudiant",
+                  message: `${requestedUser?.firstName.toUpperCase()} ${requestedUser?.lastName.toUpperCase()} a refusé ce poste ${job?.position.toUpperCase()}`
                 });
                 await User.findByIdAndUpdate(
                   cmp.contactPerson.person._id,
                   {
                     $push: {
                       notifications: {
-                        title: 'offre de décision par létudiant',
-                        description: `offre de décision par l'étudiant`
+                        title: "Offre refusée par l'étudiant",
+                        description: `${requestedUser?.firstName.toUpperCase()} ${requestedUser?.lastName.toUpperCase()} a refusé ce poste ${job?.position.toUpperCase()}`
                       }
                     }
                   },
@@ -804,12 +804,8 @@ exports.OffersRecievedDecisionByStudent = asyncHandler(async (req, res, next) =>
         {
           $push: {
             notifications: {
-              title: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
-                Texts.has_rejected_your_offer
-              }`,
-              description: `${requestedUser.firstName} ${' '} ${requestedUser.lastName} ${
-                Texts.has_rejected_your_offer
-              }`
+              title: `${requestedUser.firstName} ${requestedUser.lastName} ${Texts.has_rejected_your_offer}`,
+              description: `${requestedUser.firstName} ${requestedUser.lastName} ${Texts.has_rejected_your_offer}`
             }
           }
         },
@@ -895,7 +891,6 @@ exports.CancelOfferDecisionByCompany = asyncHandler(async (req, res, next) => {
       return res.status(400).send({ message: results.error.details[0].message });
     }
     const JOB_ID = req.body.id;
-    console.log('job', JOB_ID);
     const SENDER_ID = req.params.id;
     await Job.findByIdAndUpdate(JOB_ID, {
       $pull: {
@@ -941,9 +936,7 @@ exports.GetCompanyAppliedJobs = asyncHandler(async (req, res, next) => {
       },
       { path: 'softSkills' },
       { path: 'hardSkills' },
-      {
-        path: 'student'
-      }
+      { path: 'student' }
     ];
     const requestedUser = await User.findById(req.user.id);
     if (!requestedUser.type) {
