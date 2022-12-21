@@ -4,15 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="71ea8dda-eb55-4dcf-b090-3390eea24f0c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/controllers/job.js" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/job.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/searchStudents.js" beforeDir="false" afterPath="$PROJECT_DIR$/services/searchStudents.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+    <list default="true" id="71ea8dda-eb55-4dcf-b090-3390eea24f0c" name="Changes" comment="Algorithm optimized">
+      <change afterPath="$PROJECT_DIR$/middlewares/packageCheck.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/interview.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/interview.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -63,8 +70,16 @@
       <workItem from="1666085239083" duration="337000" />
       <workItem from="1666087540473" duration="339000" />
       <workItem from="1666087889822" duration="856000" />
-      <workItem from="1671617666189" duration="4454000" />
+      <workItem from="1671617666189" duration="6991000" />
     </task>
+    <task id="LOCAL-00001" summary="Algorithm optimized">
+      <created>1671622804283</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1671622804283</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -80,5 +95,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Algorithm optimized" />
+    <option name="LAST_COMMIT_MESSAGE" value="Algorithm optimized" />
   </component>
 </project>
