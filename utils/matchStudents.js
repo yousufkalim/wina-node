@@ -612,11 +612,14 @@ class MatchCriteria {
       let diff = -1;
 
       try {
+        let studentStartDate = student.positionSought?.startDate;
+        let jobStartDate = job.startDate;
+
         // Validation
-        if (student.positionSought && Object.keys(student.positionSought)?.length) {
+        if (jobStartDate && studentStartDate) {
           // This means that if the difference between the starting date indicated by the student, and the starting date indicated for the offer is more than 4 months, the offer is automatically eliminated
-          const studentStartDate = moment(student.positionSought.startDate);
-          const jobStartDate = moment(job.startDate);
+          studentStartDate = moment(studentStartDate);
+          jobStartDate = moment(jobStartDate);
           diff = jobStartDate.diff(studentStartDate, 'months');
         }
         return diff >= 0 && diff <= 4;
@@ -1063,7 +1066,7 @@ exports.matchStudents = (job, students) => {
       //   Looping through the filtered students
       for (let i = 0; i < filteredStudents.length; i++) {
         //   Calculating score for each student
-        let student = students[i];
+        let student = filteredStudents[i];
 
         try {
           // All the criteria runs here and the score is calculated
