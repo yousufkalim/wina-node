@@ -9,6 +9,7 @@ const { Texts } = require('../utils/texts');
 const Appointment = require('../models/Appointment');
 const matchingAlgo = require('../services/searchStudents');
 var matchingCriteria = new matchingAlgo.MatchingCriteria();
+const { matchStudents } = require('../utils/matchStudents');
 
 //// Create Job ////
 exports.CreateJob = asyncHandler(async (req, res, next) => {
@@ -1409,5 +1410,50 @@ exports.GetJobswithStudents = asyncHandler(async (req, res, next) => {
   } catch (error) {
     console.log(error);
     return res.status(200).send({ message: error });
+  }
+});
+
+exports.GetJobsAndStudents = asyncHandler(async (req, res, next) => {
+  try {
+    //  Populate Query for jobs
+    const populateQuery = [
+      {
+        path: 'company'
+      },
+      {
+        path: 'softSkills'
+      },
+      {
+        path: 'hardSkills'
+      },
+      {
+        path: 'company_requests.student',
+        populate: {
+          path: 'user',
+          model: 'User'
+        }
+      }
+    ];
+
+    // Verify if user is a company
+    if (req.user?.type !== 'company') {
+      return res.status(400).send({ message: Texts.notAuthorized });
+    }
+
+    // Get all jobs for the company
+    const jobs = await Job.find({ company: req.user?.company }).populate(populateQuery);
+    const students = await Student.find({ isDeleted: false }).populate('user');
+
+    if (!jobs.length || !students.length) {
+      return res.status(404).send({ message: 'Non trouvé dans la base de données' });
+    }
+
+    const promises = jobs.map(job => matchStudents(job, students));
+    const newJobs = await Promise.all(promises);
+
+    res.status(200).send({ jobs: newJobs, message: 'Travail récupéré avec succès' });
+  } catch (error) {
+    console.log(error);
+    return res.status(200).send({ message: 'Non trouvé dans la base de données' });
   }
 });

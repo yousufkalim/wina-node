@@ -25,7 +25,8 @@ const {
   GetAllCompanyAppliedJobs,
   CancelOfferDecisionByCompany,
   GetStudentAppliedSuccessJobs,
-  GetJobswithStudents
+  GetJobswithStudents,
+  GetJobsAndStudents
 } = require('../controllers/job');
 
 //middleware functions
@@ -117,4 +118,6 @@ router.post(
  * @author Shuja Naqvi
  */
 router.get('/GetJobswithStudents', [protect, validateType('company')], GetJobswithStudents);
+router.get('/getjobsandstudents', [protect, validateType('company')], GetJobsAndStudents);
+
 module.exports = router;
