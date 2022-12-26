@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="71ea8dda-eb55-4dcf-b090-3390eea24f0c" name="Changes" comment="Error handling and bug fixes">
+    <list default="true" id="71ea8dda-eb55-4dcf-b090-3390eea24f0c" name="Changes" comment="Date validation improved">
+      <change afterPath="$PROJECT_DIR$/utils/algorithm/matchStudents.test.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.husky/pre-commit" beforeDir="false" afterPath="$PROJECT_DIR$/.husky/pre-commit" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/matchStudents.js" beforeDir="false" afterPath="$PROJECT_DIR$/utils/matchStudents.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,30 +38,101 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;js.linters.configure.manually.selectedeslint&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/yousuf/Projects/wina/backend&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;yarn&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/Users/yousuf/.config/yarn/global/node_modules/prettier&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.javascript.prettier&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "js.linters.configure.manually.selectedeslint": "true",
+    "last_opened_file_path": "/Users/yousuf/Projects/wina/backend",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "/Users/yousuf/Projects/wina/backend/node_modules/jest",
+    "nodejs_interpreter_path": "node",
+    "nodejs_package_manager_path": "yarn",
+    "prettierjs.PrettierConfiguration.Package": "/Users/yousuf/.config/yarn/global/node_modules/prettier",
+    "settings.editor.selected.configurable": "settings.javascript.prettier",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
-      &quot;JavaScript&quot;
+  "keyToStringList": {
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "JavaScript"
     ]
   }
-}</component>
-  <component name="RunManager" selected="Node.js.Debug">
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/utils/algorithm" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Jest.Test score calculation by getting data from DB">
+    <configuration name="Test 0 score by matching all the criteria" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <node-options value="" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/utils/algorithm/matchStudents.test.js" />
+      <test-names>
+        <test-name value="Test 0 score by matching all the criteria" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="Test 100% score by matching all the criteria" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <node-options value="" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/utils/algorithm/matchStudents.test.js" />
+      <test-names>
+        <test-name value="Test 100% score by matching all the criteria" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="Test 44.5 score by matching all the criteria" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <node-options value="" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/utils/algorithm/matchStudents.test.js" />
+      <test-names>
+        <test-name value="Test 44.5 score by matching all the criteria" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="Test deal-breaker by adding 4 months diff between job and students" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <node-options value="" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/utils/algorithm/matchStudents.test.js" />
+      <test-names>
+        <test-name value="Test deal-breaker by adding 4 months diff between job and students" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="Test score calculation by getting data from DB" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <node-options value="" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/utils/algorithm/matchStudents.test.js" />
+      <test-names>
+        <test-name value="Test score calculation by getting data from DB" />
+      </test-names>
+      <method v="2" />
+    </configuration>
     <configuration name="Debug" type="NodeJSConfigurationType" path-to-node="node" path-to-js-file="app.js" working-dir="$PROJECT_DIR$">
       <method v="2" />
     </configuration>
@@ -66,9 +140,23 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Jest.Test 0 score by matching all the criteria" />
+      <item itemvalue="Jest.Test 100% score by matching all the criteria" />
+      <item itemvalue="Jest.Test 44.5 score by matching all the criteria" />
+      <item itemvalue="Jest.Test deal-breaker by adding 4 months diff between job and students" />
+      <item itemvalue="Jest.Test score calculation by getting data from DB" />
       <item itemvalue="Node.js.Debug" />
       <item itemvalue="Node.js.Start" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Jest.Test score calculation by getting data from DB" />
+        <item itemvalue="Jest.Test 100% score by matching all the criteria" />
+        <item itemvalue="Jest.Test 44.5 score by matching all the criteria" />
+        <item itemvalue="Jest.Test 0 score by matching all the criteria" />
+        <item itemvalue="Jest.Test deal-breaker by adding 4 months diff between job and students" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
@@ -87,7 +175,7 @@
       <workItem from="1671617666189" duration="7785000" />
       <workItem from="1671686374660" duration="50774000" />
       <workItem from="1671959127627" duration="618000" />
-      <workItem from="1672030137265" duration="2356000" />
+      <workItem from="1672030137265" duration="9443000" />
     </task>
     <task id="LOCAL-00001" summary="Algorithm optimized">
       <created>1671622804283</created>
@@ -124,7 +212,35 @@
       <option name="project" value="LOCAL" />
       <updated>1672032015103</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Not using destructuring to avoid undefined errors">
+      <created>1672032681102</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1672032681102</updated>
+    </task>
+    <task id="LOCAL-00007" summary="CHANGELOGS.md added for new algo">
+      <created>1672033609645</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1672033609645</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Documentation done for new algo">
+      <created>1672033642914</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1672033642914</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Date validation improved">
+      <created>1672040491893</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1672040491893</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -147,6 +263,10 @@
     <MESSAGE value="New algo route created" />
     <MESSAGE value="New algo has been created" />
     <MESSAGE value="Error handling and bug fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Error handling and bug fixes" />
+    <MESSAGE value="Not using destructuring to avoid undefined errors" />
+    <MESSAGE value="CHANGELOGS.md added for new algo" />
+    <MESSAGE value="Documentation done for new algo" />
+    <MESSAGE value="Date validation improved" />
+    <option name="LAST_COMMIT_MESSAGE" value="Date validation improved" />
   </component>
 </project>
