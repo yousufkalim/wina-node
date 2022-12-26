@@ -2,6 +2,33 @@
  * Winaa - Student Matching Algorithm - v1.0.0
  * @author Yousuf Kalim
  */
+
+/**
+ **************** Cigarette Lga aao *****************
+ */
+
+/**
+ * Instructions for new maintainers:
+ * 1. Make sure to document the every new line of code with comments
+ * 2. Make sure to pass the eslint and unit tests
+ * 3. Make sure to update the version number at the top of this file
+ * 4. Make sure to update the CHANGELOGS.md file with the changes
+ * 5. The score should be rounded to 1 decimal place
+ * 6. Are you ready to f**k your mind? Read the workflow below before you start
+ */
+
+/**
+ * Workflow:
+ * 1. Create a new class called MatchCriteria
+ * 2. Create a method for each criteria
+ * 3. Each method should return a score between 0 and 1
+ * 4. The score should be calculated based on the criteria
+ * 5. The score should be rounded to 1 decimal place
+ * 7. The score should be added to the student object
+ * 9. The matchedStudents array should be added to the job object
+ * 10. The job object should be returned
+ */
+
 const moment = require('moment');
 
 let job = {

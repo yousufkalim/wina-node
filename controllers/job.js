@@ -9,7 +9,7 @@ const { Texts } = require('../utils/texts');
 const Appointment = require('../models/Appointment');
 const matchingAlgo = require('../services/searchStudents');
 var matchingCriteria = new matchingAlgo.MatchingCriteria();
-const { matchStudents } = require('../utils/matchStudents');
+const { matchStudents } = require('../utils/algorithm/matchStudents');
 
 //// Create Job ////
 exports.CreateJob = asyncHandler(async (req, res, next) => {
