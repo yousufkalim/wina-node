@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="71ea8dda-eb55-4dcf-b090-3390eea24f0c" name="Changes" comment="New algo has been created">
+    <list default="true" id="71ea8dda-eb55-4dcf-b090-3390eea24f0c" name="Changes" comment="Error handling and bug fixes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/matchStudents.js" beforeDir="false" afterPath="$PROJECT_DIR$/utils/matchStudents.js" afterDir="false" />
     </list>
@@ -87,7 +87,7 @@
       <workItem from="1671617666189" duration="7785000" />
       <workItem from="1671686374660" duration="50774000" />
       <workItem from="1671959127627" duration="618000" />
-      <workItem from="1672030137265" duration="1809000" />
+      <workItem from="1672030137265" duration="2356000" />
     </task>
     <task id="LOCAL-00001" summary="Algorithm optimized">
       <created>1671622804283</created>
@@ -117,7 +117,14 @@
       <option name="project" value="LOCAL" />
       <updated>1672030557231</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Error handling and bug fixes">
+      <created>1672032015103</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1672032015103</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -139,6 +146,7 @@
     <MESSAGE value="isPremium middleware added" />
     <MESSAGE value="New algo route created" />
     <MESSAGE value="New algo has been created" />
-    <option name="LAST_COMMIT_MESSAGE" value="New algo has been created" />
+    <MESSAGE value="Error handling and bug fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Error handling and bug fixes" />
   </component>
 </project>

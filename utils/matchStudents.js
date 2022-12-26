@@ -837,8 +837,8 @@ class MatchCriteria {
     let score = 0;
 
     try {
-      let { startDate: jobStartDate } = job;
-      let { startDate: studentStartDate } = student.positionSought;
+      let jobStartDate = job.startDate;
+      let studentStartDate = student.positionSought?.startDate;
 
       // Validation
       if (!jobStartDate || !studentStartDate) {
@@ -879,8 +879,8 @@ class MatchCriteria {
     let score = 0;
 
     try {
-      let { duration: jobDuration } = job;
-      let { duration: studentDuration } = student.positionSought;
+      let jobDuration = job.duration;
+      let studentDuration = student.positionSought?.duration;
 
       //   Validation
       if (!jobDuration || !studentDuration) {
@@ -995,7 +995,7 @@ class MatchCriteria {
     let score = 0;
 
     try {
-      const { ageRange } = job;
+      const ageRange = job.ageRange;
       const age = student.positionSought?.dateOfBirth;
 
       //   Validation
