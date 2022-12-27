@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="71ea8dda-eb55-4dcf-b090-3390eea24f0c" name="Changes" comment="Date validation improved">
-      <change beforePath="$PROJECT_DIR$/.husky/pre-commit" beforeDir="false" afterPath="$PROJECT_DIR$/.husky/pre-commit" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+    <list default="true" id="71ea8dda-eb55-4dcf-b090-3390eea24f0c" name="Changes" comment="Get matched students api">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/job.js" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/job.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/job.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/job.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/algorithm/matchStudents.js" beforeDir="false" afterPath="$PROJECT_DIR$/utils/algorithm/matchStudents.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/algorithm/matchStudents.test.js" beforeDir="false" afterPath="$PROJECT_DIR$/utils/algorithm/matchStudents.test.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +67,7 @@
       <recent name="$PROJECT_DIR$/utils/algorithm" />
     </key>
   </component>
-  <component name="RunManager" selected="Jest.Test score calculation by getting data from DB">
+  <component name="RunManager" selected="Node.js.Debug">
     <configuration name="Test 0 score by matching all the criteria" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
       <node-options value="" />
@@ -173,7 +175,7 @@
       <workItem from="1671617666189" duration="7785000" />
       <workItem from="1671686374660" duration="50774000" />
       <workItem from="1671959127627" duration="618000" />
-      <workItem from="1672030137265" duration="9630000" />
+      <workItem from="1672030137265" duration="26308000" />
     </task>
     <task id="LOCAL-00001" summary="Algorithm optimized">
       <created>1671622804283</created>
@@ -265,6 +267,7 @@
     <MESSAGE value="CHANGELOGS.md added for new algo" />
     <MESSAGE value="Documentation done for new algo" />
     <MESSAGE value="Date validation improved" />
-    <option name="LAST_COMMIT_MESSAGE" value="Date validation improved" />
+    <MESSAGE value="Get matched students api" />
+    <option name="LAST_COMMIT_MESSAGE" value="Get matched students api" />
   </component>
 </project>

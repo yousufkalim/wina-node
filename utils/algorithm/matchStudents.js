@@ -8,7 +8,7 @@
  */
 
 /**
- * Instructions for new maintainers:
+ * Instructions for new maintainer:
  * 1. Make sure to document the every new line of code with comments
  * 2. Make sure to pass the eslint and unit tests
  * 3. Make sure to update the version number at the top of this file
@@ -477,7 +477,7 @@ class MatchCriteria {
  * @param {Array} students - array of students
  * @returns {Object}
  */
-exports.matchStudents = (job, students) => {
+exports.matchStudents = (job, students, appendInJob = false) => {
   return new Promise((resolve, reject) => {
     try {
       // Validation
@@ -527,11 +527,15 @@ exports.matchStudents = (job, students) => {
         }
       }
 
-      // Sorting students based on score
-      job.matchedStudents = matchedStudents.sort((a, b) => b.score - a.score);
+      matchedStudents.sort((a, b) => b.score - a.score);
+
+      if (appendInJob) {
+        job.matchedStudents = matchedStudents;
+        return resolve(job);
+      }
 
       // Done dana done
-      return resolve(job);
+      return resolve(matchedStudents);
     } catch (err) {
       console.log('Error in matching algorithm: ', err);
       return reject(err);

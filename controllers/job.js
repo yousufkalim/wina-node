@@ -1413,45 +1413,83 @@ exports.GetJobswithStudents = asyncHandler(async (req, res, next) => {
   }
 });
 
-exports.GetJobsAndStudents = asyncHandler(async (req, res, next) => {
+// Get students according to the job
+exports.GetMatchedStudents = asyncHandler(async (req, res, next) => {
   try {
-    //  Populate Query for jobs
-    const populateQuery = [
-      {
-        path: 'company'
-      },
-      {
-        path: 'softSkills'
-      },
-      {
-        path: 'hardSkills'
-      },
-      {
-        path: 'company_requests.student',
-        populate: {
-          path: 'user',
-          model: 'User'
-        }
-      }
-    ];
-
     // Verify if user is a company
     if (req.user?.type !== 'company') {
       return res.status(400).send({ message: Texts.notAuthorized });
     }
 
-    // Get all jobs for the company
-    const jobs = await Job.find({ company: req.user?.company }).populate(populateQuery);
-    const students = await Student.find({ isDeleted: false }).populate('user');
+    const { jobId } = req.params;
 
-    if (!jobs.length || !students.length) {
+    // Get all jobs for the company
+    let job = await Job.findOne({ _id: jobId, company: req.user?.company });
+    let students = await Student.find({ isDeleted: false }).select('-score').populate('user');
+    job = JSON.parse(JSON.stringify(job));
+    students = JSON.parse(JSON.stringify(students));
+
+    if (!job || !students.length) {
       return res.status(404).send({ message: 'Non trouvé dans la base de données' });
     }
 
-    const promises = jobs.map(job => matchStudents(job, students));
-    const newJobs = await Promise.all(promises);
+    const requestedStudents = [];
+    const acceptedStudents = [];
+    const rejectedStudents = [];
+    const studentsToBeMatched = [];
 
-    res.status(200).send({ jobs: newJobs, message: 'Travail récupéré avec succès' });
+    // I know it's messed up, but efficieny is more important
+    for (let i = 0; i < students.length; i++) {
+      let student = students[i];
+
+      // Check if student has applied for the job
+      if (job.student_requests.some(studentRequest => studentRequest.student === student._id)) {
+        // Check if student has been accepted or rejected
+        if (
+          job.student_requests.some(
+            studentRequest =>
+              studentRequest.student === student._id && studentRequest.status === 'accepted'
+          )
+        ) {
+          acceptedStudents.push(student);
+        } else if (
+          job.student_requests.some(
+            studentRequest =>
+              studentRequest.student === student._id && studentRequest.status === 'rejected'
+          )
+        ) {
+          rejectedStudents.push(student);
+        } else {
+          requestedStudents.push(student);
+        }
+      } else if (
+        job.company_requests.some(companyRequest => companyRequest.student === student._id)
+      ) {
+        if (
+          job.company_requests.some(
+            companyRequest =>
+              companyRequest.student === student._id &&
+              (companyRequest.status === 'requested' || companyRequest.status === 'accepted')
+          )
+        ) {
+          acceptedStudents.push(student);
+        } else {
+          rejectedStudents.push(student);
+        }
+      } else {
+        studentsToBeMatched.push(student);
+      }
+    }
+
+    // Run matching algorithm for remaining students
+    const matchedStudents = await matchStudents(job, studentsToBeMatched);
+
+    res.status(200).send({
+      matchedStudents: [...matchedStudents, ...requestedStudents],
+      acceptedStudents: acceptedStudents,
+      rejectedStudents: rejectedStudents,
+      message: 'Travail récupéré avec succès'
+    });
   } catch (error) {
     console.log(error);
     return res.status(200).send({ message: 'Non trouvé dans la base de données' });
