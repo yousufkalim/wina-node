@@ -9,6 +9,7 @@ const { Texts } = require('../utils/texts');
 const Appointment = require('../models/Appointment');
 const matchingAlgo = require('../services/searchStudents');
 var matchingCriteria = new matchingAlgo.MatchingCriteria();
+const { matchStudents } = require('../utils/algorithm/matchStudents');
 
 //// Create Job ////
 exports.CreateJob = asyncHandler(async (req, res, next) => {
@@ -1389,15 +1390,19 @@ exports.GetJobswithStudents = asyncHandler(async (req, res, next) => {
       const jobs = await Job.find({ company: requestedUser.company }).populate(populateQuery);
 
       if (jobs.length > 0) {
-        var newData = [];
+        let promises = [];
         for (let i = 0; i < jobs.length; i++) {
           req.params.id = jobs[i]._id;
-          const job = { ...jobs[i]._doc };
-          const matchedStudents = await matchingCriteria.display(req, res, next);
-          job.matchedStudents = matchedStudents.students;
-          newData.push(job);
+          promises.push(matchingCriteria.display(req, res, next));
         }
-        return res.status(200).send({ jobs: newData, message: 'Travail récupéré avec succès' });
+
+        let data = await Promise.all(promises);
+
+        for (let i = 0; i < jobs.length; i++) {
+          jobs[i]._doc.matchedStudents = data[i].students;
+        }
+
+        return res.status(200).send({ jobs: jobs, message: 'Travail récupéré avec succès' });
       } else {
         return res.status(404).send({ message: 'Non trouvé dans la base de données' });
       }
@@ -1405,5 +1410,88 @@ exports.GetJobswithStudents = asyncHandler(async (req, res, next) => {
   } catch (error) {
     console.log(error);
     return res.status(200).send({ message: error });
+  }
+});
+
+// Get students according to the job
+exports.GetMatchedStudents = asyncHandler(async (req, res, next) => {
+  try {
+    // Verify if user is a company
+    if (req.user?.type !== 'company') {
+      return res.status(400).send({ message: Texts.notAuthorized });
+    }
+
+    const { jobId } = req.params;
+
+    // Get all jobs for the company
+    let job = await Job.findOne({ _id: jobId, company: req.user?.company });
+    let students = await Student.find({ isDeleted: false }).select('-score').populate('user');
+    job = JSON.parse(JSON.stringify(job));
+    students = JSON.parse(JSON.stringify(students));
+
+    if (!job || !students.length) {
+      return res.status(404).send({ message: 'Non trouvé dans la base de données' });
+    }
+
+    const requestedStudents = [];
+    const acceptedStudents = [];
+    const rejectedStudents = [];
+    const studentsToBeMatched = [];
+
+    // I know it's messed up, but efficieny is more important
+    for (let i = 0; i < students.length; i++) {
+      let student = students[i];
+
+      // Check if student has applied for the job
+      if (job.student_requests.some(studentRequest => studentRequest.student === student._id)) {
+        // Check if student has been accepted or rejected
+        if (
+          job.student_requests.some(
+            studentRequest =>
+              studentRequest.student === student._id && studentRequest.status === 'accepted'
+          )
+        ) {
+          acceptedStudents.push(student);
+        } else if (
+          job.student_requests.some(
+            studentRequest =>
+              studentRequest.student === student._id && studentRequest.status === 'rejected'
+          )
+        ) {
+          rejectedStudents.push(student);
+        } else {
+          requestedStudents.push(student);
+        }
+      } else if (
+        job.company_requests.some(companyRequest => companyRequest.student === student._id)
+      ) {
+        if (
+          job.company_requests.some(
+            companyRequest =>
+              companyRequest.student === student._id &&
+              (companyRequest.status === 'requested' || companyRequest.status === 'accepted')
+          )
+        ) {
+          acceptedStudents.push(student);
+        } else {
+          rejectedStudents.push(student);
+        }
+      } else {
+        studentsToBeMatched.push(student);
+      }
+    }
+
+    // Run matching algorithm for remaining students
+    const matchedStudents = await matchStudents(job, studentsToBeMatched);
+
+    res.status(200).send({
+      matchedStudents: [...matchedStudents, ...requestedStudents],
+      acceptedStudents: acceptedStudents,
+      rejectedStudents: rejectedStudents,
+      message: 'Travail récupéré avec succès'
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(200).send({ message: 'Non trouvé dans la base de données' });
   }
 });

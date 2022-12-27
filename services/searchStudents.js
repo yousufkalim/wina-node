@@ -413,26 +413,28 @@ class MatchingCriteria extends DealBreaker {
     }
   };
 
-  display = async (req, res, next) => {
-    try {
-      let output = [];
-      const sortedArray = await this.search(req, res, next);
-      if (sortedArray !== undefined) {
-        await Promise.all(
-          sortedArray?.map(async student => {
-            const result = await Student.findByIdAndUpdate(student.studentId, {
-              score: student.score
-            }).populate('user');
-            output.push(result);
-          })
-        );
-        return { students: output };
-        // return res.status(200).json({ students: output });
+  display = (req, res, next) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sortedArray = await this.search(req, res, next);
+        if (sortedArray !== undefined) {
+          const result = await Promise.all(
+            sortedArray?.map(student =>
+              Student.findByIdAndUpdate(student.studentId, {
+                score: student.score
+              }).populate('user')
+            )
+          );
+
+          resolve({ students: result });
+          // return res.status(200).json({ students: output });
+        }
+      } catch (err) {
+        //return res.status(200).json({ message: err.message });
+        console.log('err----->', err);
+        reject(err);
       }
-    } catch (err) {
-      //return res.status(200).json({ message: err.message });
-      console.log('err----->', err);
-    }
+    });
   };
 }
 
