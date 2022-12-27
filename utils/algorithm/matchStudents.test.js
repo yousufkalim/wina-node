@@ -1,3 +1,7 @@
+/**
+ * Student Matching Algorithm Test Suite
+ * @author Yousuf Kalim
+ */
 const { expect, test } = require('@jest/globals');
 const { matchStudents } = require('./matchStudents');
 const mongoose = require('mongoose');
@@ -69,7 +73,7 @@ test('Test deal-breaker by adding 4 months diff between job and students', async
     }
   ];
 
-  const { matchedStudents } = await matchStudents(job, students);
+  const { matchedStudents } = await matchStudents(job, students, true);
   expect(matchedStudents.length).toBe(0);
 });
 
@@ -127,7 +131,7 @@ test('Test 0 score by matching all the criteria', async () => {
     }
   ];
 
-  const { matchedStudents } = await matchStudents(job, students);
+  const { matchedStudents } = await matchStudents(job, students, true);
   expect(matchedStudents[0].score).toBe(0);
 });
 
@@ -185,7 +189,7 @@ test('Test 44.5 score by matching all the criteria', async () => {
     }
   ];
 
-  const { matchedStudents } = await matchStudents(job, students);
+  const { matchedStudents } = await matchStudents(job, students, true);
   expect(matchedStudents[0].score).toBe(44.5);
 });
 
@@ -251,7 +255,7 @@ test('Test 100% score by matching all the criteria', async () => {
     }
   ];
 
-  const { matchedStudents } = await matchStudents(job, students);
+  const { matchedStudents } = await matchStudents(job, students, true);
   expect(matchedStudents[0].score).toBe(100);
 });
 
@@ -273,7 +277,7 @@ test('Test score calculation by getting data from DB', async () => {
   await mongoose.connection.close(); // Close DB connection to avoid memory leak
 
   // Match students with jobs
-  const promises = jobs.map(job => matchStudents(job, students));
+  const promises = jobs.map(job => matchStudents(job, students, true));
   const newJobs = await Promise.all(promises);
 
   // Validating if every matched student has a score
