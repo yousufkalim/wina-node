@@ -14,6 +14,7 @@ const JobSchema = new mongoose.Schema({
     enum: ['open', 'filled'],
     default: 'open'
   },
+  // TODO: urani hai
   student_requests: [
     {
       student: {
@@ -34,6 +35,7 @@ const JobSchema = new mongoose.Schema({
       }
     }
   ],
+  // TODO: urani hai
   company_requests: [
     {
       student: {
@@ -53,7 +55,20 @@ const JobSchema = new mongoose.Schema({
       }
     }
   ],
-
+  requests: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Student',
+        required: false
+      },
+      status: {
+        type: String,
+        enum: ['requested', 'accepted', 'rejected'],
+        default: 'requested'
+      }
+    }
+  ],
   domain: {
     type: String,
     required: false
