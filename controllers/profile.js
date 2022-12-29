@@ -452,6 +452,7 @@ exports.Webhook = async (req, res) => {
 
     return res.status(200).json({ success: true });
   } catch (error) {
+    console.log(error);
     res.status(400).send(`Webhook Error: ${error.message}`);
     return;
   }
