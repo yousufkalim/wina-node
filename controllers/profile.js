@@ -408,13 +408,15 @@ exports.Checkout = async (req, res, next) => {
 };
 
 exports.Webhook = async (req, res) => {
-  console.log('webhook hit');
   let sig = req.headers['stripe-signature'];
-
-  console.log('sig', sig);
-  console.log('req.body', req.body);
   try {
     const event = req.body;
+
+    console.log(event.data.object.metadata);
+
+    const parsed = JSON.parse(event.data.object.metadata);
+
+    console.log(parsed.data.object.metadata);
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
