@@ -1,5 +1,5 @@
 /**
- * Winaa - Student Matching Algorithm - v1.0.0
+ * Winaa - Student Matching Algorithm - v1.1.0
  * @author Yousuf Kalim
  */
 
@@ -24,9 +24,7 @@
  * 3. Each method should return a score between 0 and 1
  * 4. The score should be calculated based on the criteria
  * 5. The score should be rounded to 1 decimal place
- * 7. The score should be added to the student object
- * 9. The matchedStudents array should be added to the job object
- * 10. The job object should be returned
+ * 9. The matchedStudents or matchedJobs array should be returned
  */
 
 const moment = require('moment');
@@ -59,6 +57,35 @@ class MatchCriteria {
         return diff >= 0 && diff <= 4;
       } catch (err) {
         console.log('Error in filterStudents', err);
+        return false;
+      }
+    });
+  }
+
+  /**
+   * Filter to get only the jobs with 4 or fewer months to start
+   * @param student
+   * @param jobs
+   * @returns {*}
+   */
+  filterJobs(student, jobs) {
+    return jobs.filter(job => {
+      let diff = -1;
+
+      try {
+        let jobStartDate = job.startDate;
+        let studentStartDate = student.positionSought?.startDate;
+
+        // Validation
+        if (!isNaN(Date.parse(jobStartDate)) && !isNaN(Date.parse(studentStartDate))) {
+          // This means that if the difference between the starting date indicated by the student, and the starting date indicated for the offer is more than 4 months, the offer is automatically eliminated
+          studentStartDate = moment(new Date(studentStartDate));
+          jobStartDate = moment(new Date(jobStartDate));
+          diff = jobStartDate.diff(studentStartDate, 'months');
+        }
+        return diff >= 0 && diff <= 4;
+      } catch (err) {
+        console.log('Error in filterJobs', err);
         return false;
       }
     });
@@ -536,6 +563,73 @@ exports.matchStudents = (job, students, appendInJob = false) => {
 
       // Done dana done
       return resolve(matchedStudents);
+    } catch (err) {
+      console.log('Error in matching algorithm: ', err);
+      return reject(err);
+    }
+  });
+};
+
+/**
+ * This function will calculate the score of the jobs for a student
+ * @param {Object} student - student object
+ * @param {Array} jobs - array of jobs
+ * @returns {Object}
+ */
+exports.matchJobs = (student, jobs) => {
+  return new Promise((resolve, reject) => {
+    try {
+      // Validation
+      if (typeof student !== 'object' || !Object.keys(student).length || !Array.isArray(jobs)) {
+        return reject('Invalid arguments');
+      }
+
+      // Performing clone of the arguments to avoid mutation
+      student = JSON.parse(JSON.stringify(student));
+      jobs = JSON.parse(JSON.stringify(jobs));
+
+      // Initialize MatchCriteria Class
+      const matchCriteria = new MatchCriteria();
+
+      // Filtering to get only the jobs with 4 or fewer months to start
+      const filteredJobs = matchCriteria.filterJobs(student, jobs);
+
+      const matchedJobs = [];
+
+      //   Looping through the filtered jobs
+      for (let i = 0; i < filteredJobs.length; i++) {
+        //   Calculating score for each job
+        let job = filteredJobs[i];
+
+        try {
+          // All the criteria runs here and the score is calculated
+          const score = [
+            matchCriteria.location(job, student),
+            matchCriteria.softSkills(job, student),
+            matchCriteria.hardSkills(job, student),
+            matchCriteria.domain(job, student),
+            matchCriteria.position(job, student),
+            matchCriteria.startDate(job, student),
+            matchCriteria.duration(job, student),
+            matchCriteria.education(job, student),
+            matchCriteria.frequencyOfApprenticeship(job, student),
+            matchCriteria.age(job, student)
+          ].reduce((acc, curr) => acc + curr, 0);
+          job.score = parseFloat(score.toFixed(1));
+
+          matchedJobs.push(job);
+        } catch (err) {
+          //  If any error occurs in the criteria then the job's score will be 0
+          console.log('Error in calculating score for student: ', err);
+          job.score = 0;
+          matchedJobs.push(job);
+        }
+      }
+
+      matchedJobs.sort((a, b) => b.score - a.score);
+
+      // Done dana done
+      return resolve(filteredJobs);
     } catch (err) {
       console.log('Error in matching algorithm: ', err);
       return reject(err);
