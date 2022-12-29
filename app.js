@@ -40,7 +40,7 @@ app.use(
 app.use(
   express.json({
     verify: function (req, res, buf) {
-      var url = req.originalUrl;
+      const url = req.originalUrl;
       if (url.startsWith('/api/v1/profile/payments/stripe/webhook')) {
         req.rawBody = buf.toString();
       }
