@@ -410,6 +410,10 @@ exports.Checkout = async (req, res, next) => {
 exports.Webhook = async (req, res) => {
   let sig = req.headers['stripe-signature'];
   try {
+    if (!sig) {
+      return res.status(400).send('Webhook Error: No signature');
+    }
+
     const event = req.body;
 
     if (event.type === 'checkout.session.completed') {
@@ -424,7 +428,7 @@ exports.Webhook = async (req, res) => {
 
       const exisitingSubscription = await Subscription.findOne({ user: user._id });
       if (exisitingSubscription) {
-        await exisitingSubscription.deleteOne();
+        await Subscription.findOneAndDelete({ user: user._id });
       }
 
       let expire_on;
@@ -443,6 +447,8 @@ exports.Webhook = async (req, res) => {
         price: package.price,
         expire_on
       });
+
+      await User.findByIdAndUpdate(user._id, { isPremium: true });
     }
 
     return res.status(200).json({ success: true });

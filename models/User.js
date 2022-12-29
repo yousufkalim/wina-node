@@ -116,6 +116,11 @@ const UserSchema = new mongoose.Schema({
 
   apple: String,
 
+  isPremium: {
+    type: Boolean,
+    default: false
+  },
+
   invitation: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'Invitation',
