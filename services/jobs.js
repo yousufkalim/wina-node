@@ -2,6 +2,7 @@ const moment = require('moment');
 const User = require('../models/User');
 const Job = require('../models/Job');
 const Student = require('../models/Student');
+const { matchJobs } = require('../utils/algorithm');
 
 exports.searchJob = async (req, res, next) => {
   try {
@@ -11,28 +12,15 @@ exports.searchJob = async (req, res, next) => {
         $ne: req.user.student
       }
     });
-    const student = await Student.findById(req.user.student);
+    const student = await Student.findById(req.user.student).populate('user');
     if (!jobs || !student) {
       return res.status(404).json({ message: 'student not found' });
     }
-    const filteredJobs = await startDate(jobs, student);
-    if (filteredJobs.length < 1) {
-      return { data: filteredJobs };
-    }
-    const locationData = await location(filteredJobs, student, req.user);
-    const softSkillData = await softSkill(locationData, student);
-    const hardSkillData = await hardSkill(softSkillData, student);
-    const fieldData = await field(hardSkillData, student);
-    const startDateData = await startDateJob(fieldData, student);
-    const lengthOfTheAlternateData = await lengthOfTheAlternate(startDateData, student);
-    const levelOfEducationData = await levelOfEducation(lengthOfTheAlternateData, student);
-    const frequencyOfApprenticeshipData = await frequencyOfApprenticeship(
-      levelOfEducationData,
-      student
-    );
-    const ageRangeData = await ageRange(frequencyOfApprenticeshipData, student);
-    const data = await Display(ageRangeData);
-    return data;
+
+    const matchedJobs = await matchJobs(student, jobs);
+
+    console.log(matchedJobs.length);
+    return matchedJobs;
   } catch (err) {
     console.log('err-------->', err);
   }

@@ -12,11 +12,9 @@ const subcriptionSchema = new mongoose.Schema(
       required: true
     },
     user: {
-      type: {
-        type: String,
-        enum: ['company', 'student']
-      },
-      uId: mongoose.Schema.Types.ObjectId
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
     },
     expire_on: Date,
     expired: {

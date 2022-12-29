@@ -408,15 +408,51 @@ exports.Checkout = async (req, res, next) => {
 };
 
 exports.Webhook = async (req, res) => {
+  console.log('webhook hit');
   let sig = req.headers['stripe-signature'];
-  let event;
   try {
-    event = stripe.webhooks.constructEvent(
+    const event = stripe.webhooks.constructEvent(
       req.rawBody,
       sig,
       process.env.WEB_HOOK_KEY //////webhook scret key,
     );
+
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+
+      const user = await User.findById(session.metadata.user);
+      const package = await Package.findById(session.metadata.package);
+
+      if (!user || !package) {
+        res.json({ success: true });
+      }
+
+      const exisitingSubscription = await Subscription.findOne({ user: user._id });
+      if (exisitingSubscription) {
+        await exisitingSubscription.deleteOne();
+      }
+
+      let expire_on;
+
+      if (package.validity === 'Monthly') {
+        expire_on = moment().add(1, 'month');
+      } else if (package.validity === 'Quarterly') {
+        expire_on = moment().add(3, 'months');
+      } else {
+        expire_on = moment().add(1, 'year');
+      }
+
+      await Subscription.create({
+        package: package._id,
+        user: user._id,
+        price: package.price,
+        expire_on
+      });
+    }
+
+    return res.status(200).json({ success: true });
   } catch (error) {
+    console.log(error);
     res.status(400).send(`Webhook Error: ${error.message}`);
     return;
   }

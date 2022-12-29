@@ -4,12 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="71ea8dda-eb55-4dcf-b090-3390eea24f0c" name="Changes" comment="Get matched students api">
+    <list default="true" id="71ea8dda-eb55-4dcf-b090-3390eea24f0c" name="Changes" comment="Subscription functionality completed">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/job.js" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/job.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/job.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/job.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/algorithm/matchStudents.js" beforeDir="false" afterPath="$PROJECT_DIR$/utils/algorithm/matchStudents.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/algorithm/matchStudents.test.js" beforeDir="false" afterPath="$PROJECT_DIR$/utils/algorithm/matchStudents.test.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/profile.js" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/profile.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +55,8 @@
   },
   "keyToStringList": {
     "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
-      "JavaScript"
+      "JavaScript",
+      "JSON"
     ]
   }
 }]]></component>
@@ -67,8 +65,8 @@
       <recent name="$PROJECT_DIR$/utils/algorithm" />
     </key>
   </component>
-  <component name="RunManager" selected="Node.js.Debug">
-    <configuration name="Test 0 score by matching all the criteria" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+  <component name="RunManager">
+    <configuration name="Test 0 score by matching all the criteria" type="JavaScriptTestRunnerJest" nameIsGenerated="true">
       <node-interpreter value="project" />
       <node-options value="" />
       <jest-package value="$PROJECT_DIR$/node_modules/jest" />
@@ -153,7 +151,6 @@
         <item itemvalue="Jest.Test score calculation by getting data from DB" />
         <item itemvalue="Jest.Test 100% score by matching all the criteria" />
         <item itemvalue="Jest.Test 44.5 score by matching all the criteria" />
-        <item itemvalue="Jest.Test 0 score by matching all the criteria" />
         <item itemvalue="Jest.Test deal-breaker by adding 4 months diff between job and students" />
       </list>
     </recent_temporary>
@@ -176,6 +173,7 @@
       <workItem from="1671686374660" duration="50774000" />
       <workItem from="1671959127627" duration="618000" />
       <workItem from="1672030137265" duration="26308000" />
+      <workItem from="1672308846334" duration="5433000" />
     </task>
     <task id="LOCAL-00001" summary="Algorithm optimized">
       <created>1671622804283</created>
@@ -240,7 +238,42 @@
       <option name="project" value="LOCAL" />
       <updated>1672040491893</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Filter updated in search jobs">
+      <created>1672232985599</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1672232985599</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Made requests flow to manage company and student requests">
+      <created>1672233084366</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1672233084366</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Algorithm - Added the functionality to match jobs with a specific student">
+      <created>1672311272370</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1672311272370</updated>
+    </task>
+    <task id="LOCAL-00013" summary="New algo integrated with search-job api">
+      <created>1672311306800</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1672311306800</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Subscription functionality completed">
+      <created>1672313234638</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1672313234638</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -268,6 +301,12 @@
     <MESSAGE value="Documentation done for new algo" />
     <MESSAGE value="Date validation improved" />
     <MESSAGE value="Get matched students api" />
-    <option name="LAST_COMMIT_MESSAGE" value="Get matched students api" />
+    <MESSAGE value="Filter updated in search jobs" />
+    <MESSAGE value="Made requests flow to manage company and student requests" />
+    <MESSAGE value="Algorithm - Added the functionality to match jobs with a specific student" />
+    <MESSAGE value="Algo integrated with search-job api" />
+    <MESSAGE value="New algo integrated with search-job api" />
+    <MESSAGE value="Subscription functionality completed" />
+    <option name="LAST_COMMIT_MESSAGE" value="Subscription functionality completed" />
   </component>
 </project>

@@ -3,7 +3,7 @@
  * @author Yousuf Kalim
  */
 const { expect, test } = require('@jest/globals');
-const { matchStudents } = require('./matchStudents');
+const { matchStudents } = require('./index');
 const mongoose = require('mongoose');
 const Job = require('../../models/Job');
 const Student = require('../../models/Student');
