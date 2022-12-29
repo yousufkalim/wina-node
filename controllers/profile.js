@@ -412,12 +412,6 @@ exports.Webhook = async (req, res) => {
   try {
     const event = req.body;
 
-    console.log(event.data.object.metadata);
-
-    const parsed = JSON.parse(event.data.object.metadata);
-
-    console.log(parsed.data.object.metadata);
-
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
 
@@ -425,7 +419,7 @@ exports.Webhook = async (req, res) => {
       const package = await Package.findById(session.metadata.package);
 
       if (!user || !package) {
-        res.json({ success: true });
+        return res.json({ success: true });
       }
 
       const exisitingSubscription = await Subscription.findOne({ user: user._id });
