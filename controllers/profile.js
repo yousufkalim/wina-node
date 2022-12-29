@@ -414,11 +414,7 @@ exports.Webhook = async (req, res) => {
   console.log('sig', sig);
   console.log('req.body', req.body);
   try {
-    const event = stripe.webhooks.constructEvent(
-      req.rawBody,
-      sig,
-      process.env.WEB_HOOK_KEY //////webhook scret key,
-    );
+    const event = req.body;
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
