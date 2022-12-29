@@ -5,6 +5,7 @@
 
 const Subscription = require('../models/Subscription');
 const Company = require('../models/Company');
+const User = require('../models/User');
 const Student = require('../models/Student');
 const Package = require('../models/packages');
 const cron = require('node-cron');
@@ -421,13 +422,11 @@ exports.packageSubscriber = async (req, res) => {
         }
       }
     ]);
-    return res
-      .status(200)
-      .json({
-        success: true,
-        count: subscribersLength[0]?.count ? subscribersLength[0]?.count : 0,
-        data: { subscriptions }
-      });
+    return res.status(200).json({
+      success: true,
+      count: subscribersLength[0]?.count ? subscribersLength[0]?.count : 0,
+      data: { subscriptions }
+    });
   } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -438,10 +437,15 @@ exports.packageSubscriber = async (req, res) => {
 cron.schedule('0 11 * * *', async () => {
   try {
     const timeNow = new Date();
-    await Subscription.updateMany(
+    const subscriptions = await Subscription.updateMany(
       { expire_on: { $lte: timeNow } },
       { expired: true },
       { new: true }
+    );
+
+    await User.updateMany(
+      { _id: { $in: subscriptions.map(sub => sub.user) } },
+      { isPremium: false }
     );
   } catch (err) {
     console.log(err.message);
@@ -460,12 +464,10 @@ exports.findSubscription = async (req, res) => {
       expired: false
     });
     if (existingSubscription) {
-      return res
-        .status(200)
-        .json({
-          success: false,
-          message: 'Désolé, vous ne pouvez pas souscrire plusieurs packages à la fois'
-        });
+      return res.status(200).json({
+        success: false,
+        message: 'Désolé, vous ne pouvez pas souscrire plusieurs packages à la fois'
+      });
     }
     return res.status(200).json({ success: true, message: 'Acessible' });
   } catch (err) {
