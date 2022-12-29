@@ -7,7 +7,7 @@ exports.searchJob = async (req, res, next) => {
   try {
     const jobs = await Job.find({
       isDeleted: false,
-      'student_requests.student': {
+      'requests.student': {
         $ne: req.user.student
       }
     });

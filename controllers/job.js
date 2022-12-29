@@ -1443,17 +1443,17 @@ exports.GetMatchedStudents = asyncHandler(async (req, res, next) => {
       let student = students[i];
 
       // Check if student has applied for the job
-      if (job.student_requests.some(studentRequest => studentRequest.student === student._id)) {
+      if (job.requests.some(studentRequest => studentRequest.student === student._id)) {
         // Check if student has been accepted or rejected
         if (
-          job.student_requests.some(
+          job.requests.some(
             studentRequest =>
               studentRequest.student === student._id && studentRequest.status === 'accepted'
           )
         ) {
           acceptedStudents.push(student);
         } else if (
-          job.student_requests.some(
+          job.requests.some(
             studentRequest =>
               studentRequest.student === student._id && studentRequest.status === 'rejected'
           )
@@ -1461,20 +1461,6 @@ exports.GetMatchedStudents = asyncHandler(async (req, res, next) => {
           rejectedStudents.push(student);
         } else {
           requestedStudents.push(student);
-        }
-      } else if (
-        job.company_requests.some(companyRequest => companyRequest.student === student._id)
-      ) {
-        if (
-          job.company_requests.some(
-            companyRequest =>
-              companyRequest.student === student._id &&
-              (companyRequest.status === 'requested' || companyRequest.status === 'accepted')
-          )
-        ) {
-          acceptedStudents.push(student);
-        } else {
-          rejectedStudents.push(student);
         }
       } else {
         studentsToBeMatched.push(student);
@@ -1493,5 +1479,70 @@ exports.GetMatchedStudents = asyncHandler(async (req, res, next) => {
   } catch (error) {
     console.log(error);
     return res.status(200).send({ message: 'Non trouvé dans la base de données' });
+  }
+});
+
+exports.requests = asyncHandler(async (req, res, next) => {
+  try {
+    const { studentID, status, jobID } = req.body;
+
+    const schema = Joi.object().keys({
+      status: Joi.string().valid('accepted', 'requested', 'rejected'),
+      jobID: Joi.string().required(),
+      studentID: Joi.string().required()
+    });
+    let results = schema.validate(req.body);
+
+    if (results.error) {
+      return res.status(400).send({ message: results.error.details[0].message });
+    }
+
+    const student = await Student.findById(studentID).populate('user');
+    const job = await Job.findById(jobID).populate('company');
+
+    if (!student || !job) {
+      return res.status(404).send({ message: Texts.company_not_found });
+    }
+
+    const requests = job.requests.filter(request => request.student.toString() !== studentID);
+
+    await Job.findByIdAndUpdate(jobID, {
+      $set: {
+        requests: [...requests, { student: studentID, status }]
+      }
+    });
+
+    // Notification
+    const notification = {};
+    if (status === 'requested') {
+      notification.receiver = job.company._id.toString();
+      notification.title = `${student.user.firstName} ${student.user.lastName}  ${Texts.student_is_applied_on_your_job}`;
+      notification.message = `${student.user.firstName} ${student.user.lastName}  ${Texts.student_is_applied_on_your_job}`;
+    } else if (
+      status === 'rejected' &&
+      req.user.type === 'company' &&
+      job.requests?.some(_ => _.student === studentID && _.status === 'requested')
+    ) {
+      notification.receiver = studentID;
+      notification.title = `${job.company.name} ${Texts.has_rejected_your_job}`;
+      notification.message = `${job.company.name} ${Texts.has_rejected_your_job}`;
+    }
+
+    if (socket?.socket && notification.receiver) {
+      socket.io.emit(`recieveNotification${notification.receiver}`, notification);
+      await User.findByIdAndUpdate(notification.receiver, {
+        $push: {
+          notifications: notification
+        }
+      });
+    }
+
+    res.status(200).send({
+      success: true,
+      message: Texts.Request_has_been_sent_successfully
+    });
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+    next(error);
   }
 });
