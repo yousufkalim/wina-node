@@ -9,7 +9,7 @@ const {
   validateInterviewStaus,
   isValidated
 } = require('../middlewares/validators');
-const { isPremium } = require('../middlewares/packageCheck');
+
 const interview = require('../controllers/interviews');
 /**
  * ////////////////////////// Routes /////////////////////////
@@ -20,20 +20,8 @@ const interview = require('../controllers/interviews');
  * @method delete delete interview
  */
 
-router.post(
-  '/virtualInterview',
-  validateInterview,
-  isValidated,
-  isPremium,
-  interview.virtualInterview
-);
-router.post(
-  '/physicalInterview',
-  validateInterview,
-  isValidated,
-  isPremium,
-  interview.physicalInterview
-);
+router.post('/virtualInterview', validateInterview, isValidated, interview.virtualInterview);
+router.post('/physicalInterview', validateInterview, isValidated, interview.physicalInterview);
 router.get('/getInterviews/:companyId/:studentId', interview.getInterviews);
 router.get('/getByCompany/:companyId', interview.getByCompany);
 router.get('/getByStudent/:studentId', interview.getByStudent);

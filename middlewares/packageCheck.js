@@ -2,6 +2,7 @@ const Subscription = require('../models/Subscription');
 
 exports.isPremium = async (req, res, next) => {
   try {
+    console.log(req.user);
     const subscription = await Subscription.findOne({ user: req.user._id });
 
     if (!subscription) {
