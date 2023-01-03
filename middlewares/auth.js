@@ -1,35 +1,28 @@
-const jwt = require("jsonwebtoken");
-const ErrorResponse = require("../utils/errorResponse");
-const asyncHandler = require("../middlewares/async");
-const User = require("../models/User");
+const jwt = require('jsonwebtoken');
+const ErrorResponse = require('../utils/errorResponse');
+const asyncHandler = require('../middlewares/async');
+const User = require('../models/User');
 
 exports.protect = asyncHandler(async (req, res, next) => {
   let token;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
   } else if (req.cookies.token) {
     token = req.cookies.token;
   }
 
   //make sure token exists
   if (!token) {
-    return res
-      .status(401)
-      .send("Veuillez vous connecter pour voir cette ressource");
+    return res.status(401).send('Veuillez vous connecter pour voir cette ressource');
   }
   try {
     //verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id);
+    req.user = await User.findById(decoded.id).populate('company');
     next();
   } catch (err) {
-    return res
-      .status(401)
-      .send("Veuillez vous connecter pour voir cette ressource");
+    return res.status(401).send('Veuillez vous connecter pour voir cette ressource');
   }
 });
 
@@ -38,9 +31,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
 exports.authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return res
-        .status(401)
-        .send("Veuillez vous connecter pour voir cette ressource");
+      return res.status(401).send('Veuillez vous connecter pour voir cette ressource');
     }
     next();
   };
@@ -51,9 +42,7 @@ exports.authorize = (...roles) => {
 exports.validateType = (...types) => {
   return (req, res, next) => {
     if (!types.includes(req.user.type)) {
-      return res
-        .status(400)
-        .send("Vous n'avez pas accès pour voir cette ressource");
+      return res.status(400).send("Vous n'avez pas accès pour voir cette ressource");
     }
     next();
   };
@@ -64,35 +53,28 @@ exports.validateType = (...types) => {
 exports.dashboard = asyncHandler(async (req, res, next) => {
   let token;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
   } else if (req.cookies.token) {
     token = req.cookies.token;
   }
 
   //make sure token exists
   if (!token) {
-    return res
-      .status(400)
-      .send("Veuillez vous connecter pour voir cette ressource");
+    return res.status(400).send('Veuillez vous connecter pour voir cette ressource');
   }
   try {
     //verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = await User.findById(decoded.id);
     user_role = req.user.role;
-    if (user_role == "user") {
-      return res.status(200).send("User is here");
+    if (user_role == 'user') {
+      return res.status(200).send('User is here');
     } else {
-      return res.status(200).send("Admin is here");
+      return res.status(200).send('Admin is here');
     }
     next();
   } catch (err) {
-    return res
-      .status(400)
-      .send("Veuillez vous connecter pour voir cette ressource");
+    return res.status(400).send('Veuillez vous connecter pour voir cette ressource');
   }
 });
