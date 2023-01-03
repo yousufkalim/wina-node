@@ -9,6 +9,7 @@ const {
   validateInterviewStaus,
   isValidated
 } = require('../middlewares/validators');
+const { protect } = require('../middlewares/auth');
 
 const interview = require('../controllers/interviews');
 /**
@@ -30,6 +31,7 @@ router.get('/getOffersStudent/:studentId', interview.getOffersStudent);
 router.get('/getRejectedOffersStudent/:studentId', interview.getRejectedOffersStudent);
 
 router.get('/:interviewId', interview.getById);
+router.put('/requestToChangeTime/:id', protect, interview.requestToChangeTime);
 router.put('/:interviewId', validateupdateInterview, isValidated, interview.update);
 router.put(
   '/updateStudentInterview/:interviewId',
@@ -37,6 +39,7 @@ router.put(
   isValidated,
   interview.updateStudentInterview
 );
+router.delete('/:interviewId', protect, interview.deleteInterview);
 
 // Export
 module.exports = router;

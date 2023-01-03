@@ -10,7 +10,7 @@ const Company = require('../models/Company');
 const Student = require('../models/Student');
 const Job = require('../models/Job');
 const Appointment = require('../models/Appointment');
-const { interviewInvitation } = require('../utils/sendEmail');
+const { interviewInvitation, interviewRejection, changeTimeEmail } = require('../utils/sendEmail');
 const { Texts } = require('../utils/texts');
 const User = require('../models/User');
 const socket = require('../app');
@@ -34,6 +34,17 @@ exports.virtualInterview = async (req, res) => {
     const existingJob = await Job.findById(job).populate('job');
     if (!existingJob) {
       return res.status(404).json({ success: false, message: 'Job not found' });
+    }
+    const existingInterview = await Interviews.findOne({
+      student: student,
+      job: job,
+      type: 'virtual'
+    });
+    if (existingInterview) {
+      return res.status(400).json({
+        success: false,
+        message: 'You have already scheduled an interview for this student'
+      });
     }
 
     const payload = {
@@ -166,6 +177,17 @@ exports.physicalInterview = async (req, res) => {
     const existingJob = await Job.findById(job).populate('job');
     if (!existingJob) {
       return res.status(404).json({ success: false, message: 'Job not found' });
+    }
+    const existingInterview = await Interviews.findOne({
+      student: student,
+      job: job,
+      type: 'physical'
+    });
+    if (existingInterview) {
+      return res.status(400).json({
+        success: false,
+        message: 'You have already scheduled an interview for this student'
+      });
     }
 
     Interviews.create(req.body).then(interview => {
@@ -389,7 +411,7 @@ exports.update = async (req, res) => {
     }
     const { description, student, company, start_date } = req.body;
     const { interviewId } = req.params;
-    const interview = await Interviews.findById(interviewId);
+    const interview = await Interviews.findById(interviewId).populate('job');
     if (!interview) {
       return res.status(404).json({ success: false, message: 'Interview not found' });
     }
@@ -401,41 +423,7 @@ exports.update = async (req, res) => {
     if (!existingCompany) {
       return res.status(404).json({ success: false, message: 'company not found' });
     }
-    if (new Date(start_date) === new Date(interview.start_date)) {
-      await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
-        .populate({
-          path: 'student',
-          populate: {
-            path: 'user',
-            model: 'User'
-          }
-        })
-        .populate({
-          path: 'company',
-          populate: {
-            path: 'contactPerson.person',
-            model: 'User'
-          }
-        });
-      const interviews = await Interviews.find()
-        .populate({
-          path: 'student',
-          populate: {
-            path: 'user',
-            model: 'User'
-          }
-        })
-        .populate({
-          path: 'company',
-          populate: {
-            path: 'contactPerson.person',
-            model: 'User'
-          }
-        });
-      return res
-        .status(200)
-        .json({ success: true, message: "L'entretien a été mis à jour", interview: interviews });
-    }
+
     if (interview.type === 'virtual') {
       const payload = {
         iss: process.env.ZOOM_KEY, //your API KEY
@@ -472,10 +460,12 @@ exports.update = async (req, res) => {
           host: existingCompany.contactPerson.person.email,
           host_link: response.start_url,
           guest_link: response.join_url,
-          date: start_date
+          date: start_date,
+          companyName: existingCompany.name,
+          job_position: interview.job?.position
         };
         const { interviewId } = req.params;
-        const interview = await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
+        await Interviews.findByIdAndUpdate(interviewId, req.body, { new: true })
           .populate({
             path: 'student',
             populate: {
@@ -491,7 +481,7 @@ exports.update = async (req, res) => {
             }
           });
 
-        interviewInvitation(mail).then(async () => {
+        interviewInvitation(mail, 'Modification sur une interview via Winaa').then(async () => {
           if (socket?.socket) {
             socket.io.emit(`recieveNotification${existingStudent.user._id}`, {
               title: 'invitation à un entretien',
@@ -559,9 +549,11 @@ exports.update = async (req, res) => {
         description: description,
         guest: existingStudent.user.email,
         host: existingCompany.contactPerson.person.email,
-        date: start_date
+        date: start_date,
+        companyName: existingCompany.name,
+        job_position: interview.job?.position
       };
-      interviewInvitation(mail).then(async () => {
+      interviewInvitation(mail, 'Modification sur une interview via Winaa').then(async () => {
         if (socket?.socket) {
           socket.io.emit(`recieveNotification${existingStudent.user._id}`, {
             title: 'invitation à un entretien',
@@ -604,6 +596,124 @@ exports.update = async (req, res) => {
           .json({ success: true, message: "L'entretien a été mis à jour", interview: interviews });
       });
     }
+  } catch (err) {
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+exports.requestToChangeTime = async (req, res) => {
+  try {
+    const { id: interViewId } = req.params;
+
+    const interview = await Interviews.findOne({
+      _id: interViewId,
+      student: req.user.student
+    })
+      .populate({
+        path: 'student',
+        populate: {
+          path: 'user'
+        }
+      })
+      .populate({
+        path: 'company',
+        populate: {
+          path: 'contactPerson.person'
+        }
+      })
+      .populate('job');
+
+    if (!interview) {
+      return res.status(404).json({ success: false, message: 'Interview not found' });
+    }
+
+    const mail = {
+      guest: interview.company?.contactPerson?.person?.email,
+      content: req.body.content,
+      companyName: interview.company?.name
+    };
+
+    changeTimeEmail(mail).then(async () => {
+      if (socket?.socket) {
+        socket.io.emit(`recieveNotification${interview.company?.contactPerson?.person?._id}`, {
+          title: "Demande d'étudiant pour changer d'heure",
+          message: `Demande de l'étudiant de changer d'heure pour ${mail.companyName} le ${moment(
+            interview.start_date
+          ).format('DD/MM/YYYY hh:mm:ss a')}`
+        });
+      }
+      console.log(interview.company?.contactPerson?.person?._id);
+      await User.findByIdAndUpdate(interview.company?.contactPerson?.person?._id, {
+        $push: {
+          notifications: {
+            title: "Demande d'étudiant pour changer d'heure",
+            description: `Demande de l'étudiant de changer d'heure pour ${
+              mail.companyName
+            } le ${moment(interview.start_date).format('DD/MM/YYYY hh:mm:ss a')}`
+          }
+        }
+      });
+    });
+
+    res.status(200).json({ success: true, message: 'Request sent successfully' });
+  } catch (err) {
+    console.log('Error ----> ', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+exports.deleteInterview = async (req, res) => {
+  try {
+    const { interviewId } = req.params;
+    const interview = await Interviews.findByIdAndDelete(interviewId)
+      .populate({
+        path: 'student',
+        populate: {
+          path: 'user'
+        }
+      })
+      .populate({
+        path: 'company',
+        populate: {
+          path: 'contactPerson.person'
+        }
+      })
+      .populate('job');
+
+    const mail = {
+      reason: req.body.reason,
+      guest: interview.student?.user?.email,
+      host: interview.company.contactPerson?.person?.email,
+      date: interview.start_date,
+      companyName: interview.company.name,
+      job_position: interview.job?.position
+    };
+
+    interviewRejection(mail)
+      .then(async () => {
+        if (socket?.socket) {
+          socket.io.emit(`recieveNotification${interview.student?.user._id}`, {
+            title: 'invitation à un entretien',
+            message: `Vous avez été invité à un entretien sur site par ${
+              mail.companyName
+            } le ${moment(mail.date).format('DD/MM/YYYY hh:mm:ss a')}`
+          });
+        }
+        await User.findByIdAndUpdate(interview.student?.user?._id, {
+          $push: {
+            notifications: {
+              title: 'Interview has been rejected',
+              description: `Vous avez été invité à un entretien sur site par ${
+                mail.companyName
+              } le ${moment(mail.date).format('DD/MM/YYYY hh:mm:ss a')} `
+            }
+          }
+        });
+      })
+      .catch(err => console.log(err));
+
+    return res.status(200).json({ success: true, message: 'Interview has been rejected' });
   } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -812,14 +922,12 @@ exports.updateStudentInterview = async (req, res) => {
       })
       .populate('job');
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        requested: Reqinterviews,
-        rejected: Rejinterviews,
-        message: 'Entretien mis à jour avec succès'
-      });
+    res.status(200).json({
+      success: true,
+      requested: Reqinterviews,
+      rejected: Rejinterviews,
+      message: 'Entretien mis à jour avec succès'
+    });
   } catch (err) {
     // Error handling
     // eslint-disable-next-line no-console
