@@ -656,7 +656,7 @@ exports.requestToChangeTime = async (req, res) => {
       });
     });
 
-    res.status(200).json({ success: true, message: 'Request sent successfully' });
+    res.status(200).json({ success: true, message: 'Demande envoyée avec succès' });
   } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -713,7 +713,7 @@ exports.deleteInterview = async (req, res) => {
       })
       .catch(err => console.log(err));
 
-    return res.status(200).json({ success: true, message: 'Interview has been rejected' });
+    return res.status(200).json({ success: true, message: "L'entretien a été rejeté" });
   } catch (err) {
     console.log('Error ----> ', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
