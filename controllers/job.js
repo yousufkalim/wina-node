@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Company = require('../models/Company');
 const Job = require('../models/Job');
 const Student = require('../models/Student');
+const Interviews = require('../models/interview');
 const socket = require('../app');
 const { Texts } = require('../utils/texts');
 const Appointment = require('../models/Appointment');
@@ -1425,15 +1426,26 @@ exports.GetMatchedStudents = asyncHandler(async (req, res, next) => {
 
     // Get all jobs for the company
     let job = await Job.findOne({ _id: jobId, company: req.user?.company });
+    let interviews = await Interviews.find({ job: jobId });
     let students = await Student.find({ isDeleted: false }).select('-score').populate('user');
+    students = students.filter(
+      student =>
+        !interviews.some(interview => interview.student.toString() === student._id.toString())
+    );
     job = JSON.parse(JSON.stringify(job));
     students = JSON.parse(JSON.stringify(students));
 
     if (!job || !students.length) {
-      return res.status(404).send({ message: 'Non trouvé dans la base de données' });
+      return res.status(200).send({
+        matchedStudents: [],
+        requestedStudents: [],
+        acceptedStudents: [],
+        rejectedStudents: [],
+        message: 'Travail récupéré avec succès'
+      });
     }
 
-    const requestedStudents = [];
+    let requestedStudents = [];
     const acceptedStudents = [];
     const rejectedStudents = [];
     const studentsToBeMatched = [];
@@ -1469,11 +1481,13 @@ exports.GetMatchedStudents = asyncHandler(async (req, res, next) => {
 
     // Run matching algorithm for remaining students
     const matchedStudents = await matchStudents(job, studentsToBeMatched);
+    requestedStudents = await matchStudents(job, requestedStudents);
 
     res.status(200).send({
-      matchedStudents: [...matchedStudents, ...requestedStudents],
-      acceptedStudents: acceptedStudents,
-      rejectedStudents: rejectedStudents,
+      matchedStudents,
+      requestedStudents,
+      acceptedStudents,
+      rejectedStudents,
       message: 'Travail récupéré avec succès'
     });
   } catch (error) {
