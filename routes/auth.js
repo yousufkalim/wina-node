@@ -28,7 +28,8 @@ const {
   verifyUser,
   registerByGoogle,
   registerBylinkedIn,
-  appleLogin
+  appleLogin,
+  confirmAuth
 } = require('../controllers/auth');
 
 //middleware functions
@@ -37,6 +38,7 @@ const { protect, authorize, dashboard } = require('../middlewares/auth');
 
 //Register USER routes
 
+router.get('/', protect, confirmAuth);
 router.post('/register', registerUser);
 router.get('/verify-user', protect, verifyUser);
 

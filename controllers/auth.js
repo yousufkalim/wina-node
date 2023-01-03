@@ -563,3 +563,7 @@ exports.registerBylinkedIn = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.confirmAuth = async (req, res) => {
+  res.json({ success: true, message: 'User is authenticated', user: req.user });
+};
