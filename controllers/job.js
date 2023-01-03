@@ -129,7 +129,7 @@ exports.CreateJob = asyncHandler(async (req, res, next) => {
     ];
     const jobs = await Job.find({ company: companyID }).populate(populateQuery);
     return res.status(200).json({
-      message: Texts.success + Texts.jobCreated,
+      message: 'Offre créée avec succès',
       job: newJob,
       user: requestedUser,
       jobs: jobs
@@ -268,7 +268,7 @@ exports.EditJob = asyncHandler(async (req, res, next) => {
       }
       return res
         .status(200)
-        .send({ message: Texts.success + Texts.jobUpdated, Job: updatedJob, Jobs: jobs });
+        .send({ message: 'Offre mise à jour avec succès', Job: updatedJob, Jobs: jobs });
     } else {
       return res.status(204).send({ message: 'Non trouvé dans la base de données' });
     }

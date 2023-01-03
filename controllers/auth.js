@@ -293,7 +293,7 @@ exports.verifyEmailProcess = asyncHandler(async (req, res, next) => {
                     return res.status(400).json({ message: error.message });
                   }
                   return res.status(200).json({
-                    message: Texts.success + Texts.You_have_successfully_registered_on_WINA
+                    message: 'Compte vérifié avec succès'
                   });
                   done(error);
                 });
