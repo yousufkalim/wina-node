@@ -11,7 +11,7 @@ exports.searchJob = async (req, res, next) => {
       'requests.student': {
         $ne: req.user.student
       }
-    });
+    }).populate('company');
     const student = await Student.findById(req.user.student).populate('user');
     if (!jobs || !student) {
       return res.status(404).json({ message: 'student not found' });
