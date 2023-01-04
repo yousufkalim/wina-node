@@ -70,7 +70,7 @@ exports.interviewInvitation = (payload, subject = 'Invitation à un entretien vi
       {
         from: sendEmail,
         to: payload.guest,
-        subject: 'Invitation à un entretien via Winaa',
+        subject,
         text: payload?.guest_link
           ? 'Bonjour,' +
             '\n\n' +
@@ -135,7 +135,7 @@ exports.interviewRejection = payload => {
       {
         from: sendEmail,
         to: payload.guest,
-        subject: 'Invitation à un entretien via Winaa',
+        subject: "L'interview a été rejetée sur wina",
         text: payload.reason
       }
     ];
@@ -163,7 +163,7 @@ exports.changeTimeEmail = payload => {
     var mailOptions = {
       from: `${senderName} <${sendEmail}>`,
       to: payload.guest,
-      subject: "L'interview a été rejetée sur wina",
+      subject: 'Étudiant demandé à changer de plage horaire sur Winaa',
       text: payload.content
     };
 
