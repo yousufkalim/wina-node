@@ -418,8 +418,8 @@ exports.GetStudentAppliedJobs = asyncHandler(async (req, res, next) => {
         } else {
           let results = [];
           data.map(dt => {
-            if (dt.student_requests && dt.student_requests.length > 0) {
-              let check = dt.student_requests.some(
+            if (dt.requests && dt.requests.length > 0) {
+              let check = dt.requests.some(
                 ft => `${ft.student}` === `${requestedUser.student}` && ft.status !== 'rejected'
               );
               if (check) {
